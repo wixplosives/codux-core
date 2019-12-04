@@ -1,0 +1,24 @@
+{
+    "name": "@wcs/core",
+    "version": "1.0.0",
+    "main": "src/index",
+    "scripts": {
+        "clean": "rimraf npm",
+        "prebuild": "yarn clean",
+        "build": "tsc --outDir cjs",
+        "prepack": "yarn build"
+    },
+    "peerDependencies": {
+        "react": ">=16.8.0"
+    },
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public"
+    },
+    "devDependencies": {
+        "@types/react": "^16.9.14",
+        "react": "^16.12.0",
+        "rimraf": "^3.0.0",
+        "typescript": "^3.7.3"
+    }
+}
