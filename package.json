@@ -1,7 +1,7 @@
 {
     "name": "@wixc3/wcs-core",
     "version": "1.0.2",
-    "main": "src/index",
+    "main": "cjs/index",
     "scripts": {
         "clean": "rimraf cjs",
         "prebuild": "yarn clean",
@@ -25,5 +25,6 @@
         "react": "^16.12.0",
         "rimraf": "^3.0.0",
         "typescript": "^3.7.3"
-    }
+    },
+    "repository": "https://github.com/wixplosives/wcs-core"
 }
