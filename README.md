@@ -1,4 +1,4 @@
-# Simulation-core
+# Wcs-core
 
 This package exposes single simulation types
 

@@ -3,10 +3,10 @@
     "version": "1.0.0",
     "main": "src/index",
     "scripts": {
-        "clean": "rimraf npm",
+        "clean": "rimraf cjs",
         "prebuild": "yarn clean",
         "build": "tsc --outDir cjs",
-        "prepack": "yarn build"
+        "prepack": "yarn clean && yarn build"
     },
     "peerDependencies": {
         "react": ">=16.8.0"
