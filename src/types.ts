@@ -1,9 +1,5 @@
 import React from 'react';
 
-export interface ISimulationProps {
-    [propName: string]: any;
-}
-
 export type LayoutSize = number | null;
 
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
@@ -42,8 +38,7 @@ export interface ISimulation<P> {
     };
 
     /**
-     * Simulation's environment settings (e.g. the window size, the component alignment, etc.).
-     * The specific type definition is out of scope of this spec.
+     * Simulation's environment settings (e.g. the window size, the component alignment, etc.)
      */
     environmentProps?: Partial<IPreviewEnvironmentPropsBase>;
 }
