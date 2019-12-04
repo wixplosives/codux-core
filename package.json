@@ -1,6 +1,6 @@
 {
     "name": "@wcs/core",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "main": "src/index",
     "scripts": {
         "clean": "rimraf npm",
@@ -15,6 +15,11 @@
     "publishConfig": {
         "access": "public"
     },
+    "files": [
+        "cjs",
+        "src",
+        "!tsconfig.json"
+    ],
     "devDependencies": {
         "@types/react": "^16.9.14",
         "react": "^16.12.0",
