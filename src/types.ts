@@ -22,6 +22,14 @@ export interface IPreviewEnvironmentPropsBase {
     windowBackgroundColor: string;
 }
 
+export interface ISimulationWrapperProps<P> {
+    /**
+     * Call this function to render the simulated component with the simulated props.
+     * @param overrides Allows you to override some of the simulated props with custom values.
+     */
+    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
+}
+
 export interface ISimulation<P> {
     /** The simulated component type. */
     componentType: React.ComponentType<P>;
@@ -41,4 +49,11 @@ export interface ISimulation<P> {
      * Simulation's environment settings (e.g. the window size, the component alignment, etc.)
      */
     environmentProps?: Partial<IPreviewEnvironmentPropsBase>;
+
+    /**
+     * Allows to wrap the simulated component in another component. Useful for providing context,
+     * rendering controlled components, or rendering the simulated component multiple times - for
+     * example a radio button as a radio group.
+     */
+    wrapper?: React.FunctionComponent<ISimulationWrapperProps<P>>;
 }
