@@ -30,6 +30,13 @@ export interface ISimulationWrapperProps<P> {
     renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
 }
 
+export interface ISetupController {
+    addScript (scriptUrl: string) : Promise<void>;
+    addStylesheet (stylesheetUrl: string) : Promise<void>;
+}
+
+export type SimulationSetupFunction = (controller: ISetupController) => Promise<void>;
+
 export interface ISimulation<P> {
     /** The simulated component type. */
     componentType: React.ComponentType<P>;
@@ -54,4 +61,10 @@ export interface ISimulation<P> {
      * example a radio button as a radio group.
      */
     wrapper?: React.FunctionComponent<ISimulationWrapperProps<P>>;
+
+    /**
+     * Functions for setting up the page for the simulation: adding global styles,
+     * scripts, etc. These functions run only once before the simulation is mounted.
+     */
+    setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
