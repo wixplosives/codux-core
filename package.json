@@ -1,6 +1,6 @@
 {
     "name": "@wixc3/wcs-core",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "main": "cjs/index",
     "scripts": {
         "clean": "rimraf cjs",
