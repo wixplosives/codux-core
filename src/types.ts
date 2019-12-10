@@ -41,9 +41,7 @@ export interface ISimulation<P> {
      * A map between a component property name and its simulated value.
      */
     // TODO - change props to be optional field (props?: ...)
-    props: {
-        [propName in keyof P]?: P[propName];
-    };
+    props?: Partial<React.PropsWithChildren<P>>;
 
     /**
      * Simulation's environment settings (e.g. the window size, the component alignment, etc.)
