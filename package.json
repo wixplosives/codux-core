@@ -18,7 +18,8 @@
     "files": [
         "cjs",
         "src",
-        "!tsconfig.json"
+        "!tsconfig.json",
+        "!test"
     ],
     "devDependencies": {
         "@types/react": "^16.9.14",
