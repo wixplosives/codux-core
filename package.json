@@ -5,8 +5,9 @@
   "scripts": {
     "clean": "rimraf cjs",
     "prebuild": "yarn clean",
-    "build": "tsc --outDir cjs",
-    "prepack": "yarn clean && yarn build"
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "prepack": "yarn build"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
