@@ -31,8 +31,8 @@ export interface ISimulationWrapperProps<P> {
 }
 
 export interface ISetupController {
-    addScript (scriptUrl: string) : Promise<void>;
-    addStylesheet (stylesheetUrl: string) : Promise<void>;
+    addScript(scriptUrl: string): Promise<void>;
+    addStylesheet(stylesheetUrl: string): Promise<void>;
 }
 
 export type SimulationSetupFunction = (controller: ISetupController) => Promise<void>;

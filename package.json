@@ -5,12 +5,17 @@
   "module": "esm/index.js",
   "scripts": {
     "clean": "rimraf cjs esm",
+    "lint": "eslint . --ext .js,.ts,.tsx -f codeframe",
     "prebuild": "yarn clean",
     "build": "yarn build:cjs && yarn build:esm",
     "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir cjs",
     "build:esm": "tsc -p tsconfig.build.json --module esnext --outDir esm",
+    "pretest": "yarn typecheck && yarn lint",
+    "test": "yarn test:unit",
+    "test:unit": "mocha \"test/**/*.spec.ts?(x)\"",
     "typecheck": "tsc --noEmit",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "prettify": "npx prettier \"src/**/*.{js,ts,tsx}\" --write"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -25,8 +30,22 @@
     "src"
   ],
   "devDependencies": {
+    "@ts-tools/node": "^1.1.3",
+    "@types/chai": "^4.2.10",
+    "@types/mocha": "^7.0.2",
     "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-no-only-tests": "^2.4.0",
+    "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react-hooks": "^2.5.0",
+    "mocha": "^7.1.0",
     "react": "^16.13.0",
+    "react-dom": "^16.13.0",
     "rimraf": "^3.0.2",
     "typescript": "~3.8.3"
   },
