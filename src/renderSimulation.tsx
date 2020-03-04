@@ -1,10 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { IHelperMethods, ISimulation } from './types';
+import { IHelperMethods, ISimulation, IRenderOptions } from './types';
+
+const renderSimulation = (simulation: ISimulation<any>, options?: IRenderOptions): JSX.Element => {
+    const SimulationComponent = simulation.componentType;
+    const renderCompWithAdditionalProps = (overrides?: Partial<any>): React.ReactElement => (
+        <SimulationComponent {...simulation.props} {...overrides} />
+    );
+
+    if (options?.shouldWrapComponent && simulation.wrapper) {
+        return simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
+    }
+
+    return <SimulationComponent {...simulation.props} />;
+}
 
 export const helperMethods: IHelperMethods = {
-  renderSimulation: <P,>(simulation: ISimulation<P>) => {
-    const renderSimulation = (additionalProps: Partial<React.PropsWithChildren<P>>) => <simulation.componentType {...simulation.props} {...additionalProps} />;
-    return simulation.wrapper({renderSimulation});
-  }, 
-  renderIntoContainer: () => {}
-}
+    renderSimulation,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    renderIntoContainer: () => {}
+};

@@ -71,7 +71,12 @@ export interface ISimulation<P> {
 
 export interface IHelperMethods {
     renderSimulation<P>(simulation: ISimulation<P>, options?: IRenderOptions): JSX.Element;
-    renderIntoContainer<P>(simulation: ISimulation<P>, container: Element, options?: IRenderOptions, callback?: () => void): void
+    renderIntoContainer<P>(
+        simulation: ISimulation<P>,
+        container: Element,
+        options?: IRenderOptions,
+        callback?: () => void
+    ): void;
 }
 
 export interface IRenderOptions {
