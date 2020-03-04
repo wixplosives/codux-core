@@ -4,6 +4,41 @@ This package exposes single simulation types
 
 Currently Work in progress
 
+## Testing with simulations
+Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there anyway I can use these in tests?
+
+The answer is an emphatic yes. 
+
+First, let's go over to your test file, `myCompTest.ts`. First, we'll import one of your simulations, as well as importing a method that lets us render it. 
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderIntoContainer} from '@wixc3/wcs-core';
+```
+
+Let's say that your tests are running in the browser (we'll also do an example in Enzyme). This means that we have access to the DOM. If we didn't, we'd have to use a different method.
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderIntoContainer} from '@wixc3/wcs-core';
+import {expect} from 'made-up-assertion-library';
+
+let container: Element = null;
+
+before(() => {
+  container = document.getElementById('some-container-for-rendering-into');
+})
+
+it('should render', () => {
+  renderIntoContainer(basicCompSimulation, container, {}, () => {
+    // render has finished here
+    expect(document.getElementById('my-comp')).to.have.rendered();
+  })
+})
+```
+
 
 ## Rendering simulations
 
