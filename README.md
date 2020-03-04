@@ -9,11 +9,10 @@ Currently Work in progress
 
 We will expose two methods:
 
-* renderSimulation:
 ```ts
 renderSimulation(simulation: Simulation, options?: IRenderOptions) => JSX.Element
 ```
-* renderIntoContainer:
+
 ```ts
 renderIntoContainer(simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => void
 ```
@@ -40,7 +39,6 @@ renderSimulation must contend with the following simulation properties:
     /**
      * A map between a component property name and its simulated value.
      */
-    // TODO - change props to be optional field (props?: ...)
     props: Partial<React.PropsWithChildren<P>>;
 
     /**
