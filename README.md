@@ -27,6 +27,8 @@ interface IRenderOptions {
 }
 ```
 
+
+### renderSimulation
 renderSimulation must contend with the following simulation properties:
 
 ```ts
@@ -89,3 +91,16 @@ const runSimulationSetup = (simulation: ISimulation) => simulation.setup();
 
 Or just let the user call it themselves. (didn't put in the example but setup could also be an array of methods, also easy)
 
+
+### renderIntoContainer
+
+Pretty simple method. Will be something like:
+
+```ts
+const renderIntoContainer = (simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => {
+  const renderedSimulation = renderSimulation(simulation, options);
+  ReactDOM.render(renderedSimulation, container, callback);
+}
+```
+
+There was discussion about adding a third method which would let a user specify the render method, but I don't really see the point. The only reason I *could* see for this is if we decide to modify the container by adding the window environment props to it, but I think that sort of implicit behaviour is probably a no-no.
