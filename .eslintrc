@@ -1,0 +1,44 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true,
+        "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:react/recommended",
+        "prettier",
+        "prettier/@typescript-eslint",
+        "prettier/react"
+    ],
+    "plugins": ["react-hooks", "no-only-tests"],
+    "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "react/prop-types": "off",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "no-only-tests/no-only-tests": "error",
+        "no-console": "error",
+        "no-explicit-any": "off",
+        "quotes": [2, "single", { "avoidEscape": true }]
+    },
+    "overrides": [
+        {
+            "files": ["*.js"],
+            "rules": {
+                "@typescript-eslint/no-var-requires": "off"
+            }
+        }
+    ]
+}
