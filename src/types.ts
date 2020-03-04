@@ -68,3 +68,15 @@ export interface ISimulation<P> {
      */
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
+
+export interface IHelperMethods {
+    renderSimulation<P>(simulation: ISimulation<P>, options?: IRenderOptions): JSX.Element;
+    renderIntoContainer<P>(simulation: ISimulation<P>, container: Element, options?: IRenderOptions, callback?: () => void): void
+}
+
+export interface IRenderOptions {
+    shouldApplyEnvironmentProps?: boolean;
+    shouldWrapComponent?: boolean;
+    shouldRunSetup?: boolean;
+    // Needs more discussion
+}
