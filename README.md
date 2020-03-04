@@ -67,17 +67,25 @@ const renderSimulation = (simulation) => {
 }
 ```
 
-For the case of a wrapper:
+For the case of a wrapper, will need to do something like:
 ```ts
 const renderSimulation = (simulation) => {
-    const unwrappedComponent = (additionalProps) => <simulation.componentType {...simulation.props} {...additionalProps} />;
-    return simulation.wrapper(unwrappedComponent);
+    const renderCompWithAdditionalProps = (overrides): React.ReactElement => (
+        <simulation.componentType {...simulation.props} {...overrides} />
+    );
+
+    if (options?.shouldWrapComponent && simulation.wrapper) {
+        return simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
+    }
 }
 ```
 
-For the case of environment props, we'll need to map to inline styles around a wrapping canvas, and then save the window props for the actual container:
+For the case of environment props, we'll need to decide what exactly/how exactly we'll recreate these outside of the context of the preview environment.
+
+And for setup, we could expose a really simple method (if needed) that just does something like:
 ```ts
-const renderSimulation = (simulation) => {
-    return <simulation.componentType {...simulation.props} />
-}
+const runSimulationSetup = (simulation: ISimulation) => simulation.setup();
 ```
+
+Or just let the user call it themselves. (didn't put in the example but setup could also be an array of methods, also easy)
+
