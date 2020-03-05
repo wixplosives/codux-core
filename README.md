@@ -60,6 +60,31 @@ afterEach(() => {
 })
 
 it('should render', () => {
+  renderIntoContainer(basicCompSimulation, container, undefined, () => {})
+})
+```
+
+The first paramter to `renderIntoContainer` is your simulation. The next, the container to render into. Then, there's an optional `options` object you can pass, if you'd like to configure how we render your simulation. And last, there's the option to pass a callback, which will be called once your simulation has been rendered.
+
+In this case, we'll assert on the rendered component in the callback.
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderIntoContainer, cleanupContainer} from '@wixc3/wcs-core';
+import {expect} from 'made-up-assertion-library';
+
+let container: Element = null;
+
+before(() => {
+  container = document.getElementById('some-container-for-rendering-into');
+})
+
+afterEach(() => {
+  cleanupContainer(container);
+})
+
+it('should render', () => {
   renderIntoContainer(basicCompSimulation, container, undefined, () => {
     // render has finished here
     expect(document.getElementById('my-comp')).to.have.rendered();
@@ -67,11 +92,7 @@ it('should render', () => {
 })
 ```
 
-The first paramter to `renderIntoContainer` is your simulation, the next, a container. Then there's an optional `options` object you can pass, if you'd like to configure how we render your simulation. And last, there's the option to pass a callback, which will be called once your simulation has been rendered.
-
-In this case, that's when we're able to assert on the rendered component.
-
-Now let's look at an **Enzyme** test. First, the imports. We'll grab `renderSimulation` from `'@wixc3/wcs-core'`, and Enzyme's shallow render method.
+Now let's look at an **Enzyme** test. First, the imports. We'll grab `renderSimulation` from `'@wixc3/wcs-core'` and also Enzyme's shallow render method.
 
 ```ts
 /// myCompTest.ts
