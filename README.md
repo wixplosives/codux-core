@@ -7,18 +7,39 @@ Currently Work in progress
 ## Testing with simulations
 Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there any way I can use these in tests? The answer is yes. Let's take a look at the how.
 
-Before we begin we're going to assume that you've configured some way to run tests in your project. If you haven't, you should set that up first.
+Before we begin, we're going to assume that you've configured your project to run tests. If you haven't, you should set that up first.
 
-To get started, take a gander at your imaginary test file, `myCompTest.ts`. We'll import one of your simulations, as well as importing a method that lets us render it. 
+To get started, take a look at your imaginary test file, `myCompTest.ts`. We'll import one of your simulations, as well as importing a method that lets us render it, and a method that lets us clean up afterwards. 
 
 ```ts
 /// myCompTest.ts
 import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
-import {renderIntoContainer} from '@wixc3/wcs-core';
+import {renderIntoContainer, cleanupContainer} from '@wixc3/wcs-core';
 
 ```
 
-Let's say that your tests are running in the browser (we'll also do an example in Enzyme, with JSDOM). This means that we have access to the real DOM. If we didn't, we'd have to use a different method.
+Let's say that your tests are running in the browser so that we have access to the DOM. If we didn't, we'd have to use a different method. Later we'll do an example using Enzyme (JSDOM).
+
+After importing our methods, we'll add a simple `before` and `afterEach` hook, to setup and tear down everything needed for our test. Another assumption we make here is that you're loading the tests in a page where you've created some scaffolding for things to render into (like, in this case, a `div` with the id `'some-container-for-rendering-into'`).
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderIntoContainer, cleanupContainer} from '@wixc3/wcs-core';
+import {expect} from 'made-up-assertion-library';
+
+let container: Element = null;
+
+before(() => {
+  container = document.getElementById('some-container-for-rendering-into');
+})
+
+afterEach(() => {
+  cleanupContainer(container);
+})
+```
+
+Now let's add our test:
 
 ```ts
 /// myCompTest.ts
