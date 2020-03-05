@@ -8,7 +8,8 @@ const renderSimulation = (simulation: ISimulation<any>, options?: IRenderOptions
     );
 
     if (options?.shouldWrapComponent && simulation.wrapper) {
-        return simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
+        const WrappedComponent = simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
+        return <WrappedComponent />;
     }
 
     return <SimulationComponent {...simulation.props} />;
