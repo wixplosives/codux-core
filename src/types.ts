@@ -76,7 +76,7 @@ export interface IHelperMethods {
         container: Element,
         options?: IRenderOptions,
         callback?: () => void
-    ): void;
+    ): () => boolean;
 }
 
 export interface IRenderOptions {
