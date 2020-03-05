@@ -5,24 +5,25 @@ This package exposes single simulation types
 Currently Work in progress
 
 ## Testing with simulations
-Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there anyway I can use these in tests?
+Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there any way I can use these in tests? The answer is yes. Let's take a look at the how.
 
-The answer is an emphatic yes. 
+Before we begin we're going to assume that you've configured some way to run tests in your project. If you haven't, you should set that up first.
 
-First, let's go over to your test file, `myCompTest.ts`. First, we'll import one of your simulations, as well as importing a method that lets us render it. 
+To get started, take a gander at your imaginary test file, `myCompTest.ts`. We'll import one of your simulations, as well as importing a method that lets us render it. 
 
 ```ts
 /// myCompTest.ts
 import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
 import {renderIntoContainer} from '@wixc3/wcs-core';
+
 ```
 
-Let's say that your tests are running in the browser (we'll also do an example in Enzyme). This means that we have access to the DOM. If we didn't, we'd have to use a different method.
+Let's say that your tests are running in the browser (we'll also do an example in Enzyme, with JSDOM). This means that we have access to the real DOM. If we didn't, we'd have to use a different method.
 
 ```ts
 /// myCompTest.ts
 import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
-import {renderIntoContainer} from '@wixc3/wcs-core';
+import {renderIntoContainer, cleanupContainer} from '@wixc3/wcs-core';
 import {expect} from 'made-up-assertion-library';
 
 let container: Element = null;
@@ -31,25 +32,96 @@ before(() => {
   container = document.getElementById('some-container-for-rendering-into');
 })
 
+afterEach(() => {
+  cleanupContainer(container);
+})
+
 it('should render', () => {
-  renderIntoContainer(basicCompSimulation, container, {}, () => {
+  renderIntoContainer(basicCompSimulation, container, undefined, () => {
     // render has finished here
     expect(document.getElementById('my-comp')).to.have.rendered();
   })
 })
 ```
 
+The first paramter to `renderIntoContainer` is your simulation, the next, a container. Then there's an optional `options` object you can pass, if you'd like to configure how we render your simulation. And last, there's the option to pass a callback, which will be called once your simulation has been rendered.
+
+In this case, that's when we're able to assert on the rendered component.
+
+Now let's look at an **Enzyme** test. First, the imports. We'll grab `renderSimulation` from `'@wixc3/wcs-core'`, and Enzyme's shallow render method.
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderSimulation} from '@wixc3/wcs-core';
+import {shallow} from 'enzyme';
+import {expect} from 'made-up-assertion-library';
+```
+
+And then, even simpler than before, we'll render the simulation and assert on it. 
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderSimulation} from '@wixc3/wcs-core';
+import {shallow} from 'enzyme';
+
+it('should render', () => {
+  const shallowComponent = shallow(renderSimulation(BasicCompSimulation));
+  expect(shallowComponent).to.be.cool();
+})
+```
+
+Using this method with Enzyme's `mount` looks similar.
+
+```ts
+/// myCompTest.ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderSimulation} from '@wixc3/wcs-core';
+import {mount} from 'enzyme';
+
+it('should render', () => {
+  const component = mount(renderSimulation(BasicCompSimulation));
+  expect(component).to.not.be.shallow();
+  component.unmount();
+})
+```
+
+At the end of the day, `renderSimulation` is simply returning a JSX Element, so you can use the result of calling it as a parameter to any method that expects to render a JSX Element. For example, we can render a component to string:
+
+```ts
+import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
+import {renderSimulation} from '@wixc3/wcs-core';
+import ReactDOMServer from 'react-dom/server';
+
+const componentString = ReactDOMServer.renderToString(renderSimulation(BasicCompSimulation));
+```
+
+
+
 
 ## Rendering simulations
 
-We will expose two methods:
+We will expose a few methods:
 
 ```ts
-renderSimulation(simulation: Simulation, options?: IRenderOptions) => JSX.Element
+renderSimulation(simulation: Simulation, options?: IRenderOptions) => JSX.Element;
 ```
 
 ```ts
-renderIntoContainer(simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => void
+renderIntoContainer(simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => () => void;
+```
+
+-- or, without returning a cleanup method --
+
+```ts
+renderIntoContainer(simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => void;
+```
+
+and then just wrap React's cleanup method:
+
+```ts
+cleanupContainer(container: Element) => boolean;
 ```
 
 Where `IRenderOptions` is:
@@ -135,6 +207,9 @@ Pretty simple method. Will be something like:
 const renderIntoContainer = (simulation: Simulation, container: Element, options?: IRenderOptions, callback?: () => void) => {
   const renderedSimulation = renderSimulation(simulation, options);
   ReactDOM.render(renderedSimulation, container, callback);
+
+  // Needs discussion. Should we return a cleanup method like this? 
+  return () => ReactDOM.unmountComponentAtNode(container);
 }
 ```
 

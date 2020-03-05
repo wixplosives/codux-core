@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { IHelperMethods, ISimulation, IRenderOptions } from './types';
+import {renderToString} from 'react-dom/server';
+
+const thing = <div>hello</div>
+const blah = renderToString(thing);
 
 const renderSimulation = (simulation: ISimulation<any>, options?: IRenderOptions): JSX.Element => {
     const SimulationComponent = simulation.componentType;
@@ -9,7 +13,7 @@ const renderSimulation = (simulation: ISimulation<any>, options?: IRenderOptions
     );
 
     if (options?.shouldWrapComponent && simulation.wrapper) {
-        return simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
+        // return simulation.wrapper({ renderSimulation: renderCompWithAdditionalProps });
     }
 
     return <SimulationComponent {...simulation.props} />;
