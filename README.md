@@ -9,18 +9,19 @@ Somewhere along the line, while you were creating all those awesome simulations 
 
 Before we begin, we're going to assume that you've configured your project to run tests. If you haven't, you should set that up first.
 
-To get started, take a look at your imaginary test file, `myCompTest.ts`. We'll import one of your simulations, as well as importing a method that lets us render it, and a method that lets us clean up afterwards. 
+To get started, take a look at your imaginary test file, `myCompTest.ts`. We'll import one of your simulations, as well as importing a method that lets us render it, and a method that lets us clean up afterwards. We've also imported a method that lets us assert.
 
 ```ts
 /// myCompTest.ts
 import BasicCompSimulation from '../wcs/simulations/my-comp/basic-comp-simulation';
 import {renderIntoContainer, cleanupContainer} from '@wixc3/wcs-core';
+import {expect} from 'made-up-assertion-library';
 
 ```
 
-Let's say that your tests are running in the browser so that we have access to the DOM. If we didn't, we'd have to use a different method. Later we'll do an example using Enzyme (JSDOM).
+Let's say that your tests are running in the browser so that we have access to the DOM. If we didn't, we'd have to use a different method. Later, we'll do an example using Enzyme (JSDOM).
 
-After importing our methods, we'll add a simple `before` and `afterEach` hook, to setup and tear down everything needed for our test. Another assumption we make here is that you're loading the tests in a page where you've created some scaffolding for things to render into (like, in this case, a `div` with the id `'some-container-for-rendering-into'`).
+After our imports we'll add a simple `before` and `afterEach` hook to setup and tear down everything needed for our test. Another assumption we make here is that you're loading the tests in a page where you've created some scaffolding for things to render into (like, in this case, a `div` with the id `'some-container-for-rendering-into'`).
 
 ```ts
 /// myCompTest.ts
@@ -35,6 +36,7 @@ before(() => {
 })
 
 afterEach(() => {
+  // Doesn't remove the container, just unmounts the components rendered within
   cleanupContainer(container);
 })
 ```
