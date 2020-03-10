@@ -7,7 +7,7 @@ Currently Work in progress
 ## Testing with simulations
 Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there any way I can use these in tests? The answer is yes.
 
-`wcs-core` exports two methods for testing: `renderSimulation`, and `renderIntoContainer`. 
+`wcs-core` exports two methods for testing: `simulationToJsx`, and `setupSimulationStage`. 
 
 `simulationToJsx` takes a simulation and returns a JSX Element representing the component with the simulation props and wrapped in a wrapper (if relevant). 
 ```ts
