@@ -73,7 +73,7 @@ describe('Dropdown', () => {
         const {canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
         const dropdownDriver = new TestFixtureDriver(page);
         const Dropdown = renderToJsx(DropdownSimWithTwoItems);
-        document.appendChild(canvas);
+        document.body.appendChild(canvas);
         
         act(() =>  render(Dropdown, canvas));
        
