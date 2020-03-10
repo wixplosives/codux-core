@@ -70,11 +70,12 @@ describe('Dropdown', () => {
     });
 
     it('should display the correct items', () => {
-        const {canvas: Canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
+        const {canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
         const dropdownDriver = new TestFixtureDriver(page);
         const Dropdown = renderToJsx(DropdownSimWithTwoItems);
+        document.appendChild(canvas);
         
-        act(() =>  render(<Canvas><Dropdown /></Canvas>, dropdownDriver.container));
+        act(() =>  render(Dropdown, canvas));
        
         const items = await dropdownDriver.getDropdownItems();
         expect(items).to.eql(['item1', 'item2']);
