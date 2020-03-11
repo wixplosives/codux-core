@@ -48,37 +48,24 @@ export default createSimulation({
 Now our test file:
 
 ```ts
-import DropdownSimWithTwoItems from '../wcs/simulations/dropdown/two-items-sim';
-import { renderToJsx, setupSimulationStage } from '@wixc3/wcs-core';
 import { expect } from 'chai';
 import { TestFixtureDriver } from './test-fixture.driver';
-import { browser, port } from './bootstrap';
-import { Page } from 'puppeteer';
+import DropdownSimWithTwoItems from '../wcs/simulations/dropdown/two-items-sim';
+import { renderToJsx, setupSimulationStage } from '@wixc3/wcs-core';
 import { render } from 'react-dom';
 import { act } from 'react-test-utils';
 
 describe('Dropdown', () => {
-    let page: Page;
-
-    beforeEach(async function() {
-        page = await browser.newPage();
-        await page.goto(`http://localhost:${port}`);
-    });
-
-    afterEach(async function() {
-        await page.close();
-    });
-
     it('should display the correct items', () => {
         const {canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
         const dropdownDriver = new TestFixtureDriver(page);
         const Dropdown = renderToJsx(DropdownSimWithTwoItems);
-        document.body.appendChild(canvas);
         
         act(() =>  render(Dropdown, canvas));
        
         const items = await dropdownDriver.getDropdownItems();
         expect(items).to.eql(['item1', 'item2']);
+
         cleanup();
     });
 });
