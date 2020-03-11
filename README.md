@@ -24,16 +24,19 @@ Let's take a look at an example of a test running in [MochaPup](https://github.c
 First, our simulation file:
 
 ```ts
-import React from 'react';
+import React, { useState } from 'react';
 import { createSimulation } from '@wixc3/wcs-core';
-import Dropdown from '../../src/dropdown';
+import Checkbox from '../../src/Checkbox';
 
 export default createSimulation({
-    name: 'Dropdown with two items',
-    componentType: Dropdown,
+    name: 'Checkbox with wrapper',
+    componentType: Checkbox,
     props: {
-        shouldRenderOpen: true,
-        items: ['item 1', 'item 2']
+        checked: false
+    },
+    wrapper: ({ renderSimulation }) => {
+        const [checked, setChecked] = useState(false);
+        return renderSimulation({ checked, onChange: e => setChecked(e.target.checked) });
     },
     environmentProps: {
         canvasWidth: 500,
@@ -49,21 +52,22 @@ Now our test file:
 
 ```ts
 import { expect } from 'chai';
-import { TestFixtureDriver } from './test-fixture.driver';
-import DropdownSimWithTwoItems from '../_wcs/simulations/dropdown/two-items-sim';
+import { CheckboxDriver } from './checkbox.driver';
+import CheckboxWithWrapper from '../_wcs/simulations/checkbox/checkbox-with-wrapper-sim';
 import { simulationToJsx, setupSimulationStage } from '@wixc3/wcs-core';
 import { render } from 'react-dom';
 
-describe('Dropdown', () => {
-    it('should display the correct items', () => {
-        const {canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
-        const dropdownDriver = new TestFixtureDriver();
-        const Dropdown = simulationToJsx(DropdownSimWithTwoItems);
-        
-        render(Dropdown, canvas);
-       
-        const items = await dropdownDriver.getDropdownItems();
-        expect(items).to.eql(['item1', 'item2']);
+describe(`Checkbox`, () => {
+    it(`can be toggled`, () => {
+        const { canvas, cleanup } = setupSimulationStage(CheckboxWithWrapper);
+        const Checkbox = simulationToJsx(CheckboxWithWrapper);
+        render(Checkbox, canvas);
+
+        const checkbox = new CheckboxDriver(canvas.children[0]);
+
+        expect(checkbox.isChecked()).equal(false);
+        checkbox.toggle();
+        expect(checkbox.isChecked()).equal(true);
 
         cleanup();
     });
