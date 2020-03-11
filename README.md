@@ -16,7 +16,7 @@ simulationToJsx(simulation: Simulation) => JSX.Element;
 
 `setupSimulationStage` takes a simulation and optionally, a window to apply styles to. If no window is provided this method will default to applying styles to the global window. Returns a canvas for rendering into, along with a cleanup method which unmounts all components in the canvas, removes the canvas from the DOM, and resets any styling applied to the window.
 ```ts
-setupSimulationStage(simulation: Simulation, window?: HTMLElement) => { canvas: HTMLElement, cleanup: () => boolean };
+setupSimulationStage(simulation: Simulation, window?: HTMLElement) => { canvas: HTMLElement, cleanup: () => void };
 ```
 
 Let's take a look at an example of a test running in [MochaPup](https://github.com/wixplosives/mocha-pup) (however, this example should apply to any test that has access to the window during execution). 
