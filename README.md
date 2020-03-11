@@ -51,7 +51,7 @@ Now our test file:
 import { expect } from 'chai';
 import { TestFixtureDriver } from './test-fixture.driver';
 import DropdownSimWithTwoItems from '../_wcs/simulations/dropdown/two-items-sim';
-import { renderToJsx, setupSimulationStage } from '@wixc3/wcs-core';
+import { simulationToJsx, setupSimulationStage } from '@wixc3/wcs-core';
 import { render } from 'react-dom';
 import { act } from 'react-test-utils';
 
@@ -59,7 +59,7 @@ describe('Dropdown', () => {
     it('should display the correct items', () => {
         const {canvas, cleanup} = setupSimulationStage(DropdownSimWithTwoItems);
         const dropdownDriver = new TestFixtureDriver();
-        const Dropdown = renderToJsx(DropdownSimWithTwoItems);
+        const Dropdown = simulationToJsx(DropdownSimWithTwoItems);
         
         act(() =>  render(Dropdown, canvas));
        
