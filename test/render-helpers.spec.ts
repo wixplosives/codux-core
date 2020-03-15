@@ -30,7 +30,7 @@ describe('Rendering Simulations', () => {
         it('returns a canvas with the correct environment properties, and then unmounts it', () => {
             const { canvas, cleanup } = setupSimulationStage(simulationWithEnvironmentProps);
 
-            expect(document.getElementById('simulation-canvas')).to.not.equal(null);
+            expect(document.querySelector('[data-id="simulation-canvas"]')).to.not.equal(null);
 
             expect(canvas.style.height).to.equal(`${simulationWithEnvironmentProps.environmentProps?.canvasHeight}px`);
             expect(canvas.style.width).to.equal(`${simulationWithEnvironmentProps.environmentProps?.canvasWidth}px`);

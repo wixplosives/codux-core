@@ -85,7 +85,8 @@ export const setupSimulationStage = (
     simulation: ISimulation<Record<string, any>>
 ): { canvas: HTMLElement; cleanup: () => void } => {
     const canvas = document.createElement('div');
-    canvas.id = 'simulation-canvas';
+    canvas.setAttribute('data-id', 'simulation-canvas');
+
     const resetWindow = applyStylesToWindow(simulation.environmentProps);
     const styledCanvas = applyStylesToCanvas(canvas, simulation.environmentProps);
 
