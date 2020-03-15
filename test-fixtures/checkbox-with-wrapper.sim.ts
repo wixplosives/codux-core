@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Checkbox, CheckboxProps } from './Checkbox';
+import { Checkbox, CheckboxProps } from './checkbox';
 import { createSimulation, ISimulationWrapperProps } from '../src';
 
 const Wrapper = ({ renderSimulation }: ISimulationWrapperProps<CheckboxProps>) => {
