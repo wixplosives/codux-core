@@ -1,6 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ISimulation, IPreviewEnvironmentPropsBase } from './types';
+import {
+    ISimulation,
+    IPreviewEnvironmentPropsBase,
+    SetupSimulationStage,
+    RenderSimulation,
+    SimulationToJsx
+} from './types';
 import { entries } from './typed-entries';
 
 type canvasStyles = Pick<
@@ -73,7 +79,7 @@ const applyStylesToCanvas = (
     return canvas;
 };
 
-export const simulationToJSX = (simulation: ISimulation<Record<string, any>>): JSX.Element => {
+export const simulationToJSX: SimulationToJsx = simulation => {
     const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
 
     const renderWithPropOverrides = (overrides?: Record<string, any>) => <Comp {...props} {...overrides} />;
@@ -81,9 +87,7 @@ export const simulationToJSX = (simulation: ISimulation<Record<string, any>>): J
     return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
 };
 
-export const setupSimulationStage = (
-    simulation: ISimulation<Record<string, any>>
-): { canvas: HTMLElement; cleanup: () => void } => {
+export const setupSimulationStage: SetupSimulationStage = simulation => {
     const canvas = document.createElement('div');
     canvas.setAttribute('data-id', 'simulation-canvas');
 
@@ -100,9 +104,7 @@ export const setupSimulationStage = (
     return { canvas: styledCanvas, cleanup };
 };
 
-export const renderSimulation = (
-    simulation: ISimulation<Record<string, any>>
-): { canvas: HTMLElement; cleanup: () => void } => {
+export const renderSimulation: RenderSimulation = simulation => {
     const { canvas, cleanup: stageCleanup } = setupSimulationStage(simulation);
     const Comp = simulationToJSX(simulation);
 

@@ -68,3 +68,13 @@ export interface ISimulation<P> {
      */
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
+
+export type SetupSimulationStage = (
+    simulation: ISimulation<Record<string, any>>
+) => { canvas: Element; cleanup: () => void };
+
+export type RenderSimulation = (
+    simulation: ISimulation<Record<string, any>>
+) => { canvas: Element; cleanup: () => void };
+
+export type SimulationToJsx = (simulation: ISimulation<Record<string, any>>) => JSX.Element;
