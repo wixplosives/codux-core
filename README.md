@@ -65,9 +65,7 @@ Now our test file:
 import { expect } from 'chai';
 import { CheckboxDriver } from './checkbox.driver';
 import CheckboxWithWrapper from '../_wcs/simulations/checkbox/checkbox-with-wrapper-sim';
-// All we need is renderSimulation, since we have access to the DOM
 import { renderSimulation } from '@wixc3/wcs-core';
-import { render } from 'react-dom';
 
 describe(`Checkbox`, () => {
     it(`can be toggled`, () => {
