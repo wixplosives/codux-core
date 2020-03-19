@@ -4,11 +4,25 @@ import {
     SetupSimulationStage,
     RenderSimulation,
     SimulationToJsx,
-    CanvasStyles,
     IWindowEnvironmentProps,
     ICanvasEnvironmentProps
 } from './types';
 import { entries } from './typed-entries';
+
+type CanvasStyles = Pick<
+    CSSStyleDeclaration,
+    | 'backgroundColor'
+    | 'height'
+    | 'width'
+    | 'paddingLeft'
+    | 'paddingRight'
+    | 'paddingBottom'
+    | 'paddingTop'
+    | 'marginLeft'
+    | 'marginRight'
+    | 'marginBottom'
+    | 'marginTop'
+>;
 
 const defaultCanvasStyles: CanvasStyles = {
     width: 'fit-content',

@@ -10,7 +10,7 @@ import {
 } from '../test-fixtures/simulation-fixtures';
 
 describe('Rendering Simulations', () => {
-    describe('simulationToJSX', () => {
+    describe('simulationToJsx', () => {
         it('returns correct JSX for a props-only simulation', () => {
             const renderedComponent = simulationToJsx(propsOnlySimulation);
 

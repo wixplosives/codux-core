@@ -74,21 +74,6 @@ export interface ISimulation<P> {
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
 
-export type CanvasStyles = Pick<
-    CSSStyleDeclaration,
-    | 'backgroundColor'
-    | 'height'
-    | 'width'
-    | 'paddingLeft'
-    | 'paddingRight'
-    | 'paddingBottom'
-    | 'paddingTop'
-    | 'marginLeft'
-    | 'marginRight'
-    | 'marginBottom'
-    | 'marginTop'
->;
-
 export type SetupSimulationStage = (
     simulation: ISimulation<Record<string, any>>
 ) => { canvas: HTMLElement; cleanup: () => void };
