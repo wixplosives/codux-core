@@ -7,17 +7,19 @@ import React from 'react';
 
 createSimulation({
     name: 'Test1',
-    props: {name: ''},
-    componentType: (_: {name: string})=>null
-})
+    props: { name: '' },
+    componentType: (_: { name: string }) => null
+});
 
-
-
-
-const x: React.FC<{name: string}> = ({name, children})=><>{name}{children}</>
+const x: React.FC<{ name: string }> = ({ name, children }) => (
+    <>
+        {name}
+        {children}
+    </>
+);
 
 createSimulation({
     name: 'Test1',
     props: { name: 'string', children: [] },
     componentType: x
-})
+});

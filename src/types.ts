@@ -11,15 +11,20 @@ export interface LayoutSpacing {
     bottom: LayoutSize;
 }
 
-export interface IPreviewEnvironmentPropsBase {
+export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
+
+export interface IWindowEnvironmentProps {
+    windowWidth: number;
+    windowHeight: number;
+    windowBackgroundColor: string;
+}
+
+export interface ICanvasEnvironmentProps {
     canvasWidth: LayoutSizeWithAuto;
     canvasHeight: LayoutSizeWithAuto;
     canvasBackgroundColor: string;
     canvasMargin: LayoutSpacing;
     canvasPadding: LayoutSpacing;
-    windowWidth: number;
-    windowHeight: number;
-    windowBackgroundColor: string;
 }
 
 export interface ISimulationWrapperProps<P> {
@@ -68,3 +73,13 @@ export interface ISimulation<P> {
      */
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
+
+export type SetupSimulationStage = (
+    simulation: ISimulation<Record<string, any>>
+) => { canvas: HTMLElement; cleanup: () => void };
+
+export type RenderSimulation = (
+    simulation: ISimulation<Record<string, any>>
+) => { canvas: HTMLElement; cleanup: () => void };
+
+export type SimulationToJsx = (simulation: ISimulation<Record<string, any>>) => JSX.Element;

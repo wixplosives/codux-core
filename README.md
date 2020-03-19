@@ -1,5 +1,3 @@
 # Wcs-core
 
-This package exposes single simulation types
-
-Currently Work in progress
+This package exposes single simulation types, and some [methods for testing simulations](./TEST_HELPERS.md).
