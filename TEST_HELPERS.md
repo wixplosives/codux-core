@@ -2,7 +2,7 @@
 
 Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have wondered to yourself: is there any way I can use these in tests? The answer is yes.
 
-`wcs-core` exports three methods to help test components with simulations: `simulationToJsx`, `setupSimulationStage`, and `renderSimulation.
+`wcs-core` exports three methods to help test components with simulations: `simulationToJsx`, `setupSimulationStage`, and `renderSimulation`.
 
 `simulationToJsx` takes a simulation and returns a JSX Element representing the component with the simulation props and wrapped in a wrapper (if relevant).
 
@@ -23,6 +23,20 @@ renderSimulation(simulation: ISimulation) => { canvas: HTMLElement, cleanup: () 
 ```
 
 Where ISimulation is defined [here](https://github.com/wixplosives/wcs-core/blob/d91a792a52b916fb6dc55b7a4f7c49715a010168/src/types.ts#L40).
+
+Additionally, for cases in which it is necessary or desired to provide a specific version of React (rather than using the version imported by `wcs-core`), both the `simulationToJsx` and `renderSimulation` methods have another version, `simulationToJsxWithExplicitReact` and `renderSimulationWithExplicitReact`, which expect versions of React and ReactDOM to be provided.
+
+```ts
+simulationToJsxWithExplicitReact(React: typeof import('react'), simulation: ISimulation) => JSX.Element;
+```
+
+```ts
+renderSimulationWithExplicitReact(React: typeof import('react'), ReactDOM: typeof import('react-dom'), simulation: ISimulation) => { canvas: HTMLElement, cleanup: () => void };
+```
+
+**Do not mix usage of these "explicitReact" methods and the basic "implicit React" methods in the same project. This could result in multiple versions of React and ReactDOM being loaded at the same time.**
+
+### An Example Test
 
 Let's take a look at an example of a test running in [MochaPup](https://github.com/wixplosives/mocha-pup) (however, this example should apply to any test that has access to the window during execution).
 
