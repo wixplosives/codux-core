@@ -8,6 +8,10 @@ import {
     ICanvasEnvironmentProps
 } from './types';
 import { entries } from './typed-entries';
+import {
+    renderSimulationWithExplicitReact,
+    simulationToJsxWithExplicitReact
+} from './test-helpers-with-explicit-react';
 
 type CanvasStyles = Pick<
     CSSStyleDeclaration,
@@ -91,11 +95,7 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Par
 };
 
 export const simulationToJsx: SimulationToJsx = simulation => {
-    const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
-
-    const renderWithPropOverrides = (overrides?: Record<string, any>) => <Comp {...props} {...overrides} />;
-
-    return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
+    return simulationToJsxWithExplicitReact(React, simulation);
 };
 
 export const setupSimulationStage: SetupSimulationStage = simulation => {
@@ -116,16 +116,5 @@ export const setupSimulationStage: SetupSimulationStage = simulation => {
 };
 
 export const renderSimulation: RenderSimulation = simulation => {
-    const { canvas, cleanup: stageCleanup } = setupSimulationStage(simulation);
-    const Comp = simulationToJsx(simulation);
-
-    ReactDOM.render(Comp, canvas);
-
-    return {
-        canvas,
-        cleanup: () => {
-            ReactDOM.unmountComponentAtNode(canvas);
-            stageCleanup();
-        }
-    };
+    return renderSimulationWithExplicitReact(React, ReactDOM, simulation);
 };

@@ -82,4 +82,14 @@ export type RenderSimulation = (
     simulation: ISimulation<Record<string, any>>
 ) => { canvas: HTMLElement; cleanup: () => void };
 
+export type RenderSimulationWithExplicitReact = (
+    React: typeof import('react'),
+    ReactDOM: typeof import('react-dom'),
+    simulation: ISimulation<Record<string, any>>
+) => { canvas: HTMLElement; cleanup: () => void };
+
 export type SimulationToJsx = (simulation: ISimulation<Record<string, any>>) => JSX.Element;
+export type SimulationToJsxWithExplicitReact = (
+    React: typeof import('react'),
+    simulation: ISimulation<Record<string, any>>
+) => JSX.Element;
