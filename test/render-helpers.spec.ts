@@ -1,13 +1,13 @@
 import ReactTestUtils from 'react-dom/test-utils';
 import { expect } from 'chai';
 import { simulationToJsx, renderSimulation, setupSimulationStage } from '../src';
-import CheckboxWithWrapper from '../test-fixtures/checkbox-with-wrapper.sim';
-import { CheckboxDriver } from '../test-fixtures/checkbox.driver';
+import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
+import { CheckboxDriver } from './fixtures/checkbox.driver';
 import {
     propsOnlySimulation,
     simulationWithWrapper,
     simulationWithEnvironmentProps
-} from '../test-fixtures/simulation-fixtures';
+} from './fixtures/simulation-fixtures';
 
 describe('Rendering Simulations', () => {
     describe('simulationToJsx', () => {

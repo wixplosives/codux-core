@@ -1,5 +1,5 @@
 import React from 'react';
-import { createSimulation } from '../src';
+import { createSimulation } from '../../src';
 
 export const mockComponent: React.FC<any> = (props: { text: string }) => <div>{props.text}</div>;
 
