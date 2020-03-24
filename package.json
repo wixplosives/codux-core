@@ -1,6 +1,6 @@
 {
     "name": "@wixc3/wcs-core",
-    "version": "1.4.4",
+    "version": "1.5.0",
     "main": "cjs/index.js",
     "module": "esm/index.js",
     "scripts": {
