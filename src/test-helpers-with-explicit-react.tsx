@@ -1,5 +1,5 @@
 import { SimulationToJsxWithExplicitReact, RenderSimulationWithExplicitReact } from './types';
-import { setupSimulationStage } from '.';
+import { setupSimulationStage } from './setup-simulation-stage';
 
 /*
  * Do not mix usage of `simulationToJsxWithExplicitReact` and the basic `simulationToJsx` in
