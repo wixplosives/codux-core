@@ -1,6 +1,6 @@
 name: tests
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   tests:
@@ -16,6 +16,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i -g yarn@1
+    - name: Install chromium prerequisites
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install libgbm-dev
     - run: yarn
     - run: yarn test
