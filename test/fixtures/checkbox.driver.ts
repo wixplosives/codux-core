@@ -1,11 +1,11 @@
 export class CheckboxDriver {
     constructor(public root: HTMLInputElement) {}
 
-    isChecked() {
+    isChecked(): boolean {
         return this.root.checked;
     }
 
-    toggle() {
+    toggle(): void {
         this.root.click();
     }
 }

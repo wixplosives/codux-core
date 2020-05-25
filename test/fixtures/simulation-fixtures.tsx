@@ -1,36 +1,36 @@
 import React from 'react';
 import { createSimulation } from '../../src';
 
-export const mockComponent: React.FC<any> = (props: { text: string }) => <div>{props.text}</div>;
+export const mockComponent: React.FC<{ text: string }> = (props) => <div>{props.text}</div>;
 
 export const propsOnlySimulation = createSimulation({
     componentType: mockComponent,
     name: 'mock simulation',
     props: {
-        text: 'this is a test'
-    }
+        text: 'this is a test',
+    },
 });
 
 export const overrideProps = {
-    text: 'override text'
+    text: 'override text',
 };
 
 export const simulationWithWrapper = createSimulation({
     componentType: mockComponent,
     name: 'mock simulation',
     props: {
-        text: 'this is a test'
+        text: 'this is a test',
     },
     wrapper: ({ renderSimulation }) => {
         return renderSimulation(overrideProps);
-    }
+    },
 });
 
 export const simulationWithEnvironmentProps = createSimulation({
     componentType: mockComponent,
     name: 'mock simulation',
     props: {
-        text: 'this is a test'
+        text: 'this is a test',
     },
     environmentProps: {
         canvasWidth: 50,
@@ -40,6 +40,6 @@ export const simulationWithEnvironmentProps = createSimulation({
         canvasBackgroundColor: 'red',
         windowWidth: 500,
         windowHeight: 600,
-        windowBackgroundColor: 'blue'
-    }
+        windowBackgroundColor: 'blue',
+    },
 });

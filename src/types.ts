@@ -42,7 +42,8 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => Promise<void>;
 
-export interface ISimulation<P> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface ISimulation<P = any> {
     /** The simulated component type. */
     componentType: React.ComponentType<P>;
 
@@ -74,12 +75,6 @@ export interface ISimulation<P> {
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
 
-export type SetupSimulationStage = (
-    simulation: ISimulation<Record<string, any>>
-) => { canvas: HTMLElement; cleanup: () => void };
-
-export type RenderSimulation = (
-    simulation: ISimulation<Record<string, any>>
-) => { canvas: HTMLElement; cleanup: () => void };
-
-export type SimulationToJsx = (simulation: ISimulation<Record<string, any>>) => JSX.Element;
+export type SetupSimulationStage = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
+export type RenderSimulation = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
+export type SimulationToJsx = (simulation: ISimulation) => JSX.Element;

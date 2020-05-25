@@ -5,7 +5,7 @@ import {
     RenderSimulation,
     SimulationToJsx,
     IWindowEnvironmentProps,
-    ICanvasEnvironmentProps
+    ICanvasEnvironmentProps,
 } from './types';
 import { entries } from './typed-entries';
 
@@ -35,7 +35,7 @@ const defaultCanvasStyles: CanvasStyles = {
     paddingRight: '0px',
     paddingBottom: '0px',
     paddingTop: '0px',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
 };
 
 const applyStylesToWindow = (windowStyles: Partial<IWindowEnvironmentProps> = {}) => {
@@ -79,7 +79,7 @@ const mapEnvironmentPropsToStyles = (environmentProps: Partial<ICanvasEnvironmen
     paddingTop: environmentProps.canvasPadding?.top
         ? `${environmentProps.canvasPadding?.top}px`
         : defaultCanvasStyles.paddingTop,
-    backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor
+    backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
 });
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Partial<ICanvasEnvironmentProps> = {}) => {
@@ -90,15 +90,15 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Par
     }
 };
 
-export const simulationToJsx: SimulationToJsx = simulation => {
+export const simulationToJsx: SimulationToJsx = (simulation) => {
     const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
 
-    const renderWithPropOverrides = (overrides?: Record<string, any>) => <Comp {...props} {...overrides} />;
+    const renderWithPropOverrides = (overrides?: Record<string, unknown>) => <Comp {...props} {...overrides} />;
 
     return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
 };
 
-export const setupSimulationStage: SetupSimulationStage = simulation => {
+export const setupSimulationStage: SetupSimulationStage = (simulation) => {
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'simulation-canvas');
 
@@ -115,7 +115,7 @@ export const setupSimulationStage: SetupSimulationStage = simulation => {
     return { canvas: canvas, cleanup };
 };
 
-export const renderSimulation: RenderSimulation = simulation => {
+export const renderSimulation: RenderSimulation = (simulation) => {
     const { canvas, cleanup: stageCleanup } = setupSimulationStage(simulation);
     const Comp = simulationToJsx(simulation);
 
@@ -123,9 +123,9 @@ export const renderSimulation: RenderSimulation = simulation => {
 
     return {
         canvas,
-        cleanup: () => {
+        cleanup: (): void => {
             ReactDOM.unmountComponentAtNode(canvas);
             stageCleanup();
-        }
+        },
     };
 };
