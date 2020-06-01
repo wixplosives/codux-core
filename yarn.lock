@@ -2879,10 +2879,10 @@ mkdirp@0.5.5, mkdirp@^0.5.1, mkdirp@^0.5.3:
   dependencies:
     minimist "^1.2.5"
 
-mocha-pup@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/mocha-pup/-/mocha-pup-3.0.1.tgz#4dc4f9b1b3f3b4060553838ef735c8997cad9eba"
-  integrity sha512-B5FNt4eau2WwVivG7GjgcTvjfrD4RNReRtV9SepP4KGycshzoQmdWnW6QVngcUp4pAyNXlxu+mEGMAwwp3XNSA==
+mocha-pup@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/mocha-pup/-/mocha-pup-3.0.2.tgz#86ec6a39cd974420d7e3a42380713335c4e59b79"
+  integrity sha512-cxI53LYli0kFWZcw4nmElpjmroUG1OjVxNRARETxuxN4HqsCOYYIfJstJEKxsi4ux3curpQT6GO/+WmBWhCMNg==
   dependencies:
     chalk "^4.0.0"
     commander "^5.1.0"
