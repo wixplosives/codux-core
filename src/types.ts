@@ -40,7 +40,7 @@ export interface ISetupController {
     addStylesheet(stylesheetUrl: string): Promise<void>;
 }
 
-export type SimulationSetupFunction = (controller: ISetupController) => Promise<void>;
+export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ISimulation<P = any> {
