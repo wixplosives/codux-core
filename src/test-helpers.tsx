@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
+import type {
     SetupSimulationStage,
     RenderSimulation,
     SimulationToJsx,
