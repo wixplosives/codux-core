@@ -47,7 +47,7 @@
     "eslint-plugin-react-hooks": "^4.0.5",
     "mocha": "^8.0.1",
     "mocha-pup": "^3.0.2",
-    "puppeteer": "^4.0.1",
+    "puppeteer": "^5.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "rimraf": "^3.0.2",
