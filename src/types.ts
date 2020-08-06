@@ -57,7 +57,7 @@ export interface ISimulation<P = any> {
     props: Partial<React.PropsWithChildren<P>>;
 
     /**
-     * Simulation's environment settings (e.g. the window size, the component alignment, etc.)
+     * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
      */
     environmentProps?: Partial<IPreviewEnvironmentPropsBase>;
 
