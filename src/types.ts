@@ -2,8 +2,6 @@ import React from 'react';
 
 export type LayoutSize = number | null;
 
-export type LayoutSizeWithAuto = LayoutSize | 'auto';
-
 export interface LayoutSpacing {
     left: LayoutSize;
     right: LayoutSize;
@@ -20,8 +18,8 @@ export interface IWindowEnvironmentProps {
 }
 
 export interface ICanvasEnvironmentProps {
-    canvasWidth: LayoutSizeWithAuto;
-    canvasHeight: LayoutSizeWithAuto;
+    canvasWidth: LayoutSize;
+    canvasHeight: LayoutSize;
     canvasBackgroundColor: string;
     canvasMargin: LayoutSpacing;
     canvasPadding: LayoutSpacing;
