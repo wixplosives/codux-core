@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type LayoutSize = number | null;
+export type LayoutSize = number | undefined;
 
 export interface LayoutSpacing {
     left: LayoutSize;
