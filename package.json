@@ -31,8 +31,8 @@
     "src"
   ],
   "devDependencies": {
-    "@ts-tools/node": "^2.0.0",
-    "@ts-tools/webpack-loader": "^2.0.0",
+    "@ts-tools/node": "^2.1.0",
+    "@ts-tools/webpack-loader": "^2.1.0",
     "@types/chai": "^4.2.12",
     "@types/mocha": "^8.0.2",
     "@types/react": "^16.9.46",
@@ -46,7 +46,7 @@
     "eslint-plugin-react": "^7.20.5",
     "eslint-plugin-react-hooks": "^4.0.8",
     "mocha": "^8.1.1",
-    "mocha-pup": "^4.0.1",
+    "mocha-pup": "^4.0.2",
     "puppeteer": "^5.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
