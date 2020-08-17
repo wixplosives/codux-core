@@ -3,10 +3,10 @@ import React from 'react';
 export type LayoutSize = number;
 
 export interface LayoutSpacing {
-    left: LayoutSize;
-    right: LayoutSize;
-    top: LayoutSize;
-    bottom: LayoutSize;
+    left?: LayoutSize;
+    right?: LayoutSize;
+    top?: LayoutSize;
+    bottom?: LayoutSize;
 }
 
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
