@@ -1,14 +1,12 @@
 import React from 'react';
 
-export type LayoutSize = number | null;
-
-export type LayoutSizeWithAuto = LayoutSize | 'auto';
+export type LayoutSize = number;
 
 export interface LayoutSpacing {
-    left: LayoutSize;
-    right: LayoutSize;
-    top: LayoutSize;
-    bottom: LayoutSize;
+    left?: LayoutSize;
+    right?: LayoutSize;
+    top?: LayoutSize;
+    bottom?: LayoutSize;
 }
 
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
@@ -20,8 +18,8 @@ export interface IWindowEnvironmentProps {
 }
 
 export interface ICanvasEnvironmentProps {
-    canvasWidth: LayoutSizeWithAuto;
-    canvasHeight: LayoutSizeWithAuto;
+    canvasWidth: LayoutSize;
+    canvasHeight: LayoutSize;
     canvasBackgroundColor: string;
     canvasMargin: LayoutSpacing;
     canvasPadding: LayoutSpacing;
