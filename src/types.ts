@@ -5,26 +5,26 @@ export type LayoutSize = number | null;
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
 
 export interface LayoutSpacing {
-    left: LayoutSize;
-    right: LayoutSize;
-    top: LayoutSize;
-    bottom: LayoutSize;
+    left?: LayoutSize;
+    right?: LayoutSize;
+    top?: LayoutSize;
+    bottom?: LayoutSize;
 }
 
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
 
 export interface IWindowEnvironmentProps {
-    windowWidth: number;
-    windowHeight: number;
-    windowBackgroundColor: string;
+    windowWidth?: number;
+    windowHeight?: number;
+    windowBackgroundColor?: string;
 }
 
 export interface ICanvasEnvironmentProps {
-    canvasWidth: LayoutSizeWithAuto;
-    canvasHeight: LayoutSizeWithAuto;
-    canvasBackgroundColor: string;
-    canvasMargin: Partial<LayoutSpacing>;
-    canvasPadding: Partial<LayoutSpacing>;
+    canvasWidth?: LayoutSizeWithAuto;
+    canvasHeight?: LayoutSizeWithAuto;
+    canvasBackgroundColor?: string;
+    canvasMargin?: LayoutSpacing;
+    canvasPadding?: LayoutSpacing;
 }
 
 export interface ISimulationWrapperProps<P> {
@@ -59,7 +59,7 @@ export interface ISimulation<P = any> {
     /**
      * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
      */
-    environmentProps?: Partial<IPreviewEnvironmentPropsBase>;
+    environmentProps?: IPreviewEnvironmentPropsBase;
 
     /**
      * Allows to wrap the simulated component in another component. Useful for providing context,
