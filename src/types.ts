@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type LayoutSize = number | null;
+export type LayoutSize = number | undefined | null;
 
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
 
