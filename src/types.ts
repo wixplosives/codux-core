@@ -23,8 +23,8 @@ export interface ICanvasEnvironmentProps {
     canvasWidth: LayoutSizeWithAuto;
     canvasHeight: LayoutSizeWithAuto;
     canvasBackgroundColor: string;
-    canvasMargin: LayoutSpacing;
-    canvasPadding: LayoutSpacing;
+    canvasMargin: Partial<LayoutSpacing>;
+    canvasPadding: Partial<LayoutSpacing>;
 }
 
 export interface ISimulationWrapperProps<P> {
