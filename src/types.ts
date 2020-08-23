@@ -14,9 +14,9 @@ export interface LayoutSpacing {
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
 
 export interface IWindowEnvironmentProps {
-    windowWidth?: number;
-    windowHeight?: number;
-    windowBackgroundColor?: string;
+    windowWidth?: number | undefined;
+    windowHeight?: number | undefined;
+    windowBackgroundColor?: string | undefined;
 }
 
 export interface ICanvasEnvironmentProps {
