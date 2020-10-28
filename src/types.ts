@@ -5,25 +5,37 @@ export type LayoutSize = number | undefined | null;
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
 
 export interface LayoutSpacing {
-    left?: LayoutSize;
-    right?: LayoutSize;
+    /** @visualizer spacing */
     top?: LayoutSize;
+    /** @visualizer spacing */
+    right?: LayoutSize;
+    /** @visualizer spacing */
     bottom?: LayoutSize;
+    /** @visualizer spacing */
+    left?: LayoutSize;
 }
 
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
 
 export interface IWindowEnvironmentProps {
+    /** @visualizer spacing */
     windowWidth?: number | undefined;
+    /** @visualizer spacing */
     windowHeight?: number | undefined;
+    /** @visualizer color */
     windowBackgroundColor?: string | undefined;
 }
 
 export interface ICanvasEnvironmentProps {
+    /** @visualizer spacing */
     canvasWidth?: LayoutSizeWithAuto;
+    /** @visualizer spacing */
     canvasHeight?: LayoutSizeWithAuto;
+    /** @visualizer color */
     canvasBackgroundColor?: string;
+    /** @visualizer canvasMargin */
     canvasMargin?: LayoutSpacing;
+    /** @visualizer canvasPadding */
     canvasPadding?: LayoutSpacing;
 }
 
