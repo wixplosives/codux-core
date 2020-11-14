@@ -1,5 +1,5 @@
-import { createSimulation } from '../src';
 import React from 'react';
+import { createSimulation } from '../src';
 
 /**
  * Type tests
