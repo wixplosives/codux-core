@@ -4,7 +4,7 @@ import { createSimulation, ISimulationWrapperProps } from '../../src';
 
 const Wrapper = ({ renderSimulation }: ISimulationWrapperProps<CheckboxProps>) => {
     const [checked, setChecked] = useState(false);
-    return renderSimulation({ checked, onChange: e => setChecked(e.target.checked) });
+    return renderSimulation({ checked, onChange: (e) => setChecked(e.target.checked) });
 };
 
 export default createSimulation({
@@ -12,7 +12,7 @@ export default createSimulation({
     componentType: Checkbox,
     props: {
         checked: false,
-        id: 'test-checkbox'
+        id: 'test-checkbox',
     },
     wrapper: Wrapper,
     environmentProps: {
@@ -20,6 +20,6 @@ export default createSimulation({
         canvasHeight: 600,
         canvasBackgroundColor: '#0f4972',
         windowWidth: 1000,
-        windowHeight: 1200
-    }
+        windowHeight: 1200,
+    },
 });

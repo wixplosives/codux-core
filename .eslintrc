@@ -1,35 +1,29 @@
 {
-    "env": {
-        "browser": true,
-        "es2020": true,
-        "node": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended",
-        "prettier",
-        "prettier/react"
-    ],
-    "plugins": ["react-hooks", "no-only-tests"],
-    "rules": {
-        "no-only-tests/no-only-tests": "error",
-        "no-console": "error",
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "error",
-        "react/prop-types": "off"
-    },
-    "overrides": [
-        {
-            "files": ["*.ts", "*.tsx"],
-            "parserOptions": {
-                "project": "./tsconfig.json",
-                "warnOnUnsupportedTypeScriptVersion": false
-            },
-            "extends": [
-                "plugin:@typescript-eslint/recommended",
-                "plugin:@typescript-eslint/recommended-requiring-type-checking",
-                "prettier/@typescript-eslint"
-            ]
-        }
-    ]
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier", "prettier/react"],
+  "plugins": ["react-hooks", "no-only-tests"],
+  "rules": {
+    "no-only-tests/no-only-tests": "error",
+    "no-console": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    "react/prop-types": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      },
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "prettier/@typescript-eslint"
+      ]
+    }
+  ]
 }

@@ -8,7 +8,7 @@ module.exports = {
     devtool: 'source-map',
 
     resolve: {
-        extensions: ['.ts', '.tsx', '.mjs', '.js', '.json']
+        extensions: ['.ts', '.tsx', '.mjs', '.js', '.json'],
     },
 
     module: {
@@ -18,10 +18,9 @@ module.exports = {
                 exclude: /\.d\.ts$/,
                 loader: '@ts-tools/webpack-loader',
                 options: {
-                    configFilePath: require.resolve('./tsconfig.json')
-                }
-            }
+                    configFilePath: require.resolve('./tsconfig.json'),
+                },
+            },
         ],
-        noParse: [require.resolve('typescript/lib/typescript.js')]
-    }
+    },
 };

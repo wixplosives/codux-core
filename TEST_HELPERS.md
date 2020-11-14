@@ -34,22 +34,22 @@ import { createSimulation } from '@wixc3/wcs-core';
 import Checkbox from '../../src/Checkbox';
 
 export default createSimulation({
-    name: 'Checkbox with wrapper',
-    componentType: Checkbox,
-    props: {
-        checked: false
-    },
-    wrapper: ({ renderSimulation }) => {
-        const [checked, setChecked] = useState(false);
-        return renderSimulation({ checked, onChange: e => setChecked(e.target.checked) });
-    },
-    environmentProps: {
-        canvasWidth: 500,
-        canvasHeight: 600,
-        canvasBackgroundColor: '#0f4972',
-        windowWidth: 1000,
-        windowHeight: 1200
-    }
+  name: 'Checkbox with wrapper',
+  componentType: Checkbox,
+  props: {
+    checked: false,
+  },
+  wrapper: ({ renderSimulation }) => {
+    const [checked, setChecked] = useState(false);
+    return renderSimulation({ checked, onChange: (e) => setChecked(e.target.checked) });
+  },
+  environmentProps: {
+    canvasWidth: 500,
+    canvasHeight: 600,
+    canvasBackgroundColor: '#0f4972',
+    windowWidth: 1000,
+    windowHeight: 1200,
+  },
 });
 ```
 
@@ -62,16 +62,16 @@ import CheckboxWithWrapper from '../_wcs/simulations/checkbox/checkbox-with-wrap
 import { renderSimulation } from '@wixc3/wcs-core';
 
 describe(`Checkbox`, () => {
-    it(`can be toggled`, () => {
-        const { canvas, cleanup } = renderSimulation(CheckboxWithWrapper);
+  it(`can be toggled`, () => {
+    const { canvas, cleanup } = renderSimulation(CheckboxWithWrapper);
 
-        const checkbox = new CheckboxDriver(canvas.children[0]);
+    const checkbox = new CheckboxDriver(canvas.children[0]);
 
-        expect(checkbox.isChecked()).equal(false);
-        checkbox.toggle();
-        expect(checkbox.isChecked()).equal(true);
+    expect(checkbox.isChecked()).equal(false);
+    checkbox.toggle();
+    expect(checkbox.isChecked()).equal(true);
 
-        cleanup();
-    });
+    cleanup();
+  });
 });
 ```
