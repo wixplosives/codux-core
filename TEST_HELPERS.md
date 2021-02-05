@@ -24,7 +24,7 @@ renderSimulation(simulation: ISimulation) => { canvas: HTMLElement, cleanup: () 
 
 Where ISimulation is defined [here](https://github.com/wixplosives/wcs-core/blob/d91a792a52b916fb6dc55b7a4f7c49715a010168/src/types.ts#L40).
 
-Let's take a look at an example of a test running in [MochaPup](https://github.com/wixplosives/mocha-pup) (however, this example should apply to any test that has access to the window during execution).
+Let's take a look at an example of a test running in [mocha-play](https://github.com/wixplosives/mocha-play) (however, this example should apply to any test that has access to the window during execution).
 
 First, our simulation file:
 
