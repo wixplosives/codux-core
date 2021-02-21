@@ -4,7 +4,7 @@
     "es2020": true,
     "node": true
   },
-  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier", "prettier/react"],
+  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier"],
   "plugins": ["react-hooks", "no-only-tests"],
   "rules": {
     "no-only-tests/no-only-tests": "error",
@@ -21,8 +21,7 @@
       },
       "extends": [
         "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "prettier/@typescript-eslint"
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ]
     }
   ]
