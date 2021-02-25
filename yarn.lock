@@ -1061,6 +1061,11 @@ escape-string-regexp@^1.0.5:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
+escape-string-regexp@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
+  integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+
 eslint-config-prettier@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.1.0.tgz#4ef1eaf97afe5176e6a75ddfb57c335121abc5a6"
@@ -2231,10 +2236,10 @@ picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.2.tgz#21f333e9b6b8eaff02468f5146ea406d345f4dad"
   integrity sha512-q0M/9eZHzmr0AulXyPwNfZjtwZ/RBZlbN3K3CErVrk50T2ASYI7Bye0EvekFY3IP1Nt2DHu0re+V2ZHIpMkuWg==
 
-playwright-chromium@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.8.1.tgz#f6cb3f4bdea5aaaa078a1c80b68be210cc65190b"
-  integrity sha512-IR+gMC7DIPSSnYEmpqAD+Y09w2ptYIGOx4EIRIneTdfGUxRNNPFv8m8MU7wlM6XBl2aMhWCGqg4NFzJh5A+zzQ==
+playwright-chromium@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.9.0.tgz#1f808e3186a4481b9e03942d76a6535ed38e3217"
+  integrity sha512-zsk5Oc1C+iZ9FMBdwuUq1Umr0hIwjyoeTLhumqdD7cv6Or+mFAB08jQDIV1Www69lHdtRI5V7a/BHWoTFUBsSA==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -2247,6 +2252,7 @@ playwright-chromium@^1.8.1:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
 playwright-core@^1.8.0:
@@ -2679,6 +2685,13 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
+
+stack-utils@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-2.0.3.tgz#cd5f030126ff116b78ccb3c027fe302713b61277"
+  integrity sha512-gL//fkxfWUsIlFL2Tl42Cl6+HFALEaB1FU76I/Fy+oZjRreP7OPMXFlGbxM7NQsI0ZpUfw76sHnv0WNYuTb7Iw==
+  dependencies:
+    escape-string-regexp "^2.0.0"
 
 "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"
