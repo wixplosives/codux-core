@@ -35,7 +35,7 @@
     "@ts-tools/webpack-loader": "^2.1.1",
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.1",
-    "@types/react": "^17.0.2",
+    "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.1",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
