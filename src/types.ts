@@ -37,6 +37,11 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
+export type HOOK<PLUGINPARAMS, HOOKPARAMS extends any[], RES> = (params: PLUGINPARAMS, ...hookParams: HOOKPARAMS) => RES
+export interface HookMap {
+    [hookName: string]: HOOK<unknown, unknown[], unknown>
+}
+
 
 
 export interface ISetupController {
@@ -75,18 +80,20 @@ export const createPlugin = <TARGET extends IGeneralMetaData<any, any> = IGenera
 
 
 
-export interface IGeneralMetaData<TARGET, hooks extends {} = {}> {
+export interface IGeneralMetaData<TARGET, HOOKS extends HookMap = {}> {
     target: TARGET,
     plugins?: PluginInfo<Plugin<any, this>>[],
-    __hooks?: hooks
+    __hooks?: HOOKS
 }
 
 
 export interface IRenderableHooks {
-    beforeAppendCanvas?(canvas: HTMLElement): void;
-    beforeStageCleanUp?(canvas: HTMLElement): void;
+    beforeAppendCanvas?(canvas: HTMLElement, props: any): void;
+    beforeStageCleanUp?(canvas: HTMLElement, props: any): void;
+    beforeRender?(PluginProps: any, canvas: HTMLElement): void;
+    afterRender?(canvas: HTMLElement, props: any): void;
 }
-export interface IRenderableMetaDataBase<HOOKS extends {} = {}> extends IGeneralMetaData<any, HOOKS & IRenderableHooks> {
+export interface IRenderableMetaDataBase<HOOKS extends HookMap = {}> extends IGeneralMetaData<any, HOOKS & IRenderableHooks> {
     /**
      * renders the Renderable into an html element
      */
@@ -118,7 +125,7 @@ export interface IRenderableMetaDataBase<HOOKS extends {} = {}> extends IGeneral
 
 }
 
-export interface Simulation<ComponentType, PROPS, HOOKS> extends IRenderableMetaDataBase<HOOKS> {
+export interface Simulation<ComponentType, PROPS, HOOKS extends {} = {}> extends IRenderableMetaDataBase<HOOKS> {
     /** The simulated component type. */
     componentType: ComponentType;
 

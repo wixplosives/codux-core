@@ -1,11 +1,12 @@
-import React from "react";
-import type { IReactSimulation } from "../react/create-simulation";
-import { createPlugin } from "../types";
+import { createPlugin, IRenderableMetaDataBase } from "../types";
 
-export const cssVarsPlugin = createPlugin<IReactSimulation>()<Record<string, string>>('CSS Vars', {
+export const cssVarsPlugin = createPlugin<IRenderableMetaDataBase>()<{ [varName: string]: string }>('CSS Vars', {
 }, {
-    wrapRender(_renderable, props, renderableElement) {
-        return <div style={props}>{renderableElement}</div>
+    beforeRender(props, canvas) {
+        for (const [varName, varValue] of props) {
+            canvas.style.setProperty(varName, varValue)
+        }
     },
+
 
 })

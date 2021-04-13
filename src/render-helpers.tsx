@@ -99,12 +99,12 @@ export function getPluginsWithHooks<DATA extends IGeneralMetaData<any, Record<st
 }
 
 
-export type HookParams<DATA extends IGeneralMetaData<any, Record<string, any>>, HOOK extends HookNames<DATA>> = NonNullable<NonNullable<DATA['__hooks']>[HOOK]> extends (...args: infer U) => any ? U : never
+export type HookParams<DATA extends IGeneralMetaData<any, Record<string, any>>, HOOK extends HookNames<DATA>> = NonNullable<NonNullable<DATA['__hooks']>[HOOK]> extends (pluginParams: any, ...args: infer U) => any ? U : never
 
 export function callHooks<DATA extends IGeneralMetaData<any, Record<string, any>>, HOOK extends HookNames<DATA>>(data: DATA, hookName: HOOK, ...props: HookParams<DATA, HOOK>) {
     const plugins = getPluginsWithHooks(data, hookName);
     for (const pluginInfo of plugins) {
-        (pluginInfo.key.plugin as any)[hookName](props)
+        (pluginInfo.key.plugin as any)[hookName](pluginInfo.props, ...props)
     }
 }
 
