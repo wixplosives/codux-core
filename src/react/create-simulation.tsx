@@ -1,23 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { getPluginsWithHooks } from '../render-helpers';
+import { createSimulationBase, OmitSimulation } from '../create-simulation-base';
 import type { IRenderableHooks, IRenderableMetaDataBase, Simulation } from '../types';
 
+export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>
 
-
-export function createSimulation<COMP extends React.ComponentType<any>>(input: { componentType: COMP } & Omit<IReactSimulation<COMP>, 'renderer' | 'renderingFrameworkName' | 'cleanup' | 'componentType' | 'target' | '__hooks'>): IReactSimulation<COMP> {
-    const res: IReactSimulation<COMP> = {
+export function createSimulation<COMP extends React.ComponentType<any>>(input: OmitReactSimulation<IReactSimulation<COMP>>): IReactSimulation<COMP> {
+    const res: IReactSimulation<COMP> = createSimulationBase({
         ...input,
-        target: input.componentType,
-        renderingFrameworkName: 'react',
         async renderer(target) {
             let element = this.wrapper ? <this.wrapper renderSimulation={(props) => {
-                return <this.target {...(this.props as any)} {...props} />
-            }} /> : <this.target {...(this.props as any)} />;
+                return <res.target {...(this.props as any)} {...props} />
+            }} /> : <res.target {...(this.props as any)} />;
             const beforeRenderPlugins = getPluginsWithHooks(res, 'beforeRender')
             for (const plugin of beforeRenderPlugins) {
-                const res = await plugin.key.plugin?.beforeRender!(this, plugin.props, element, target);
-                element = res || element;
+                const el = await plugin.key.plugin?.beforeRender!(res, plugin.props, element, target);
+                element = el || element;
             }
             ReactDOM.render(element, target)
         },
@@ -25,7 +24,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(input: {
             ReactDOM.unmountComponentAtNode(target);
         }
 
-    }
+    })
     return res
 }
 

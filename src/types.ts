@@ -77,7 +77,7 @@ export const createPlugin = <TARGET extends IGeneralMetaData<any, any> = IGenera
 
 export interface IGeneralMetaData<TARGET, hooks extends {} = {}> {
     target: TARGET,
-    pluginInfo?: PluginInfo<Plugin<any, this>>[],
+    plugins?: PluginInfo<Plugin<any, this>>[],
     __hooks?: hooks
 }
 
@@ -86,10 +86,26 @@ export interface IRenderableHooks {
     beforeAppendCanvas?(canvas: HTMLElement): void;
     beforeStageCleanUp?(canvas: HTMLElement): void;
 }
-export interface IRenderableMetaDataBase<HOOKS extends IRenderableHooks = IRenderableHooks> extends IGeneralMetaData<any, HOOKS> {
-    renderingFrameworkName: string;
+export interface IRenderableMetaDataBase<HOOKS extends {} = {}> extends IGeneralMetaData<any, HOOKS & IRenderableHooks> {
+    /**
+     * renders the Renderable into an html element
+     */
     renderer: (targetElement: HTMLElement) => void;
+    /**
+     * cleans everything the renderer does
+     */
     cleanup: (targetElement: HTMLElement) => void;
+    /**
+     * sets the stage for the renderer.
+     * this function has many side effects ( such as effecting window styles and sizes )
+     * 
+     * @returns canvas an html element for rendering into, cleanup a method for cleaing up the sideeffects
+     *
+     */
+    setupStage: () => { canvas: HTMLElement, cleanup: () => void };
+
+
+
     /**
      * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
      */

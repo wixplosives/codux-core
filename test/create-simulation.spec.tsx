@@ -35,7 +35,7 @@ createSimulation({
     name: 'Test2',
     props: { name: 'string', children: [] },
     componentType: x,
-    pluginInfo: [
+    plugins: [
         tagPlugin.use({
             tags: ['a', 'b']
         }),
@@ -47,7 +47,7 @@ createSimulation({
 
 export const a= createMetaData({
     target: x,
-    pluginInfo:[
+    plugins:[
         tagPlugin.use({
             tags: ['a', 'b']
         })
