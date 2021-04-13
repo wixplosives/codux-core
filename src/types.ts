@@ -1,5 +1,3 @@
-import type React from 'react';
-
 export type LayoutSize = number | undefined | null;
 
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
@@ -39,13 +37,7 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
-export interface ISimulationWrapperProps<P> {
-    /**
-     * Call this function to render the simulated component with the simulated props.
-     * @param overrides Allows you to override some of the simulated props with custom values.
-     */
-    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
-}
+
 
 export interface ISetupController {
     addScript(scriptUrl: string): Promise<void>;
@@ -54,10 +46,65 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ISimulation<P = any> {
+export interface Plugin<PluginProps, TARGET extends IGeneralMetaData<any, any>> {
+    pluginName: string;
+    defaultProps: Partial<PluginProps>;
+    plugin: TARGET['__hooks'];
+    use: (props: Partial<PluginProps>) => PluginInfo<this>
+}
+export interface PluginInfo<SYMB extends Plugin<any, any>> {
+    key: SYMB,
+    props: Partial<SYMB['defaultProps']>
+}
+
+export const createPlugin = <TARGET extends IGeneralMetaData<any, any> = IGeneralMetaData<any, any>>() =>
+    <PluginProps>(pluginName: string, defaultProps: Partial<PluginProps>, plugin: TARGET['__hooks']) => {
+        const res: Plugin<PluginProps, TARGET> = {
+            pluginName,
+            defaultProps,
+            plugin,
+            use: (props) => {
+                return {
+                    key: res,
+                    props: { ...defaultProps, ...props }
+                }
+            }
+        };
+        return res
+    }
+
+
+
+export interface IGeneralMetaData<TARGET, hooks extends {} = {}> {
+    target: TARGET,
+    pluginInfo?: PluginInfo<Plugin<any, this>>[],
+    __hooks?: hooks
+}
+
+
+export interface IRenderableHooks {
+    beforeAppendCanvas?(canvas: HTMLElement): void;
+    beforeStageCleanUp?(canvas: HTMLElement): void;
+}
+export interface IRenderableMetaDataBase<HOOKS extends IRenderableHooks = IRenderableHooks> extends IGeneralMetaData<any, HOOKS> {
+    renderingFrameworkName: string;
+    renderer: (targetElement: HTMLElement) => void;
+    cleanup: (targetElement: HTMLElement) => void;
+    /**
+     * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
+     */
+    environmentProps?: IPreviewEnvironmentPropsBase;
+    /**
+    * Functions for setting up the page for the simulation: adding global styles,
+    * scripts, etc. These functions run only once before the simulation is mounted.
+    */
+    setup?: SimulationSetupFunction | SimulationSetupFunction[];
+
+}
+
+export interface Simulation<ComponentType, PROPS, HOOKS> extends IRenderableMetaDataBase<HOOKS> {
     /** The simulated component type. */
-    componentType: React.ComponentType<P>;
+    componentType: ComponentType;
 
     /** The name of the simulation. */
     name: string;
@@ -66,27 +113,10 @@ export interface ISimulation<P = any> {
      * A map between a component property name and its simulated value.
      */
     // TODO - change props to be optional field (props?: ...)
-    props: Partial<React.PropsWithChildren<P>>;
+    props: PROPS;
 
-    /**
-     * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
-     */
-    environmentProps?: IPreviewEnvironmentPropsBase;
-
-    /**
-     * Allows to wrap the simulated component in another component. Useful for providing context,
-     * rendering controlled components, or rendering the simulated component multiple times - for
-     * example a radio button as a radio group.
-     */
-    wrapper?: React.FunctionComponent<ISimulationWrapperProps<P>>;
-
-    /**
-     * Functions for setting up the page for the simulation: adding global styles,
-     * scripts, etc. These functions run only once before the simulation is mounted.
-     */
-    setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
 
-export type SetupSimulationStage = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
-export type RenderSimulation = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
-export type SimulationToJsx = (simulation: ISimulation) => JSX.Element;
+
+export type SetupSimulationStage = (simulation: IRenderableMetaDataBase) => { canvas: HTMLElement; cleanup: () => void };
+export type RenderSimulation = (simulation: IRenderableMetaDataBase) => { canvas: HTMLElement; cleanup: () => void };

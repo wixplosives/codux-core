@@ -1,5 +1,8 @@
 import React from 'react';
 import { createSimulation } from '../src';
+import { createMetaData } from '../src/create-meta-data';
+import { cssVarsPlugin } from '../src/plugins/css-vars-plugin';
+import { tagPlugin } from '../src/plugins/tags-plugin';
 
 /**
  * Type tests
@@ -7,7 +10,7 @@ import { createSimulation } from '../src';
 
 createSimulation({
     name: 'Test1',
-    props: { name: '' },
+    props: { },
     componentType: () => null,
 });
 
@@ -23,3 +26,30 @@ createSimulation({
     props: { name: 'string', children: [] },
     componentType: x,
 });
+
+
+
+
+
+createSimulation({
+    name: 'Test2',
+    props: { name: 'string', children: [] },
+    componentType: x,
+    pluginInfo: [
+        tagPlugin.use({
+            tags: ['a', 'b']
+        }),
+        cssVarsPlugin.use({
+            '--color': 'red'
+        })
+    ]
+});
+
+export const a= createMetaData({
+    target: x,
+    pluginInfo:[
+        tagPlugin.use({
+            tags: ['a', 'b']
+        })
+    ]
+})

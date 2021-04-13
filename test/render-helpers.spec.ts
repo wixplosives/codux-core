@@ -1,11 +1,8 @@
-import ReactTestUtils from 'react-dom/test-utils';
 import { expect } from 'chai';
-import { simulationToJsx, renderSimulation, setupSimulationStage } from '../src';
+import { renderSimulation, setupSimulationStage } from '../src';
 import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
 import { CheckboxDriver } from './fixtures/checkbox.driver';
 import {
-    propsOnlySimulation,
-    simulationWithWrapper,
     simulationWithEnvironmentProps,
 } from './fixtures/simulation-fixtures';
 
@@ -18,21 +15,7 @@ describe('Rendering Simulations', () => {
         cleanupAfterTest.clear();
     });
 
-    describe('simulationToJsx', () => {
-        it('returns correct JSX for a props-only simulation', () => {
-            const renderedComponent = simulationToJsx(propsOnlySimulation);
 
-            expect(ReactTestUtils.isElement(renderedComponent)).to.equal(true);
-            expect(renderedComponent.props).to.eql(propsOnlySimulation.props);
-        });
-
-        it('returns correct JSX for a simulation with a wrapper', () => {
-            const renderedComponent = simulationToJsx(simulationWithWrapper);
-
-            expect(ReactTestUtils.isElement(renderedComponent)).to.equal(true);
-            expect(renderedComponent.type).to.eql(simulationWithWrapper.wrapper);
-        });
-    });
 
     describe('setupSimulationStage', () => {
         it('returns a canvas with the correct environment properties, and then unmounts it', () => {
@@ -48,13 +31,11 @@ describe('Rendering Simulations', () => {
             expect(canvas.style.width).to.equal(`${canvasWidth as number}px`);
             expect(canvas.style.backgroundColor).to.equal(canvasBackgroundColor);
             expect(canvas.style.margin).to.equal(
-                `${canvasMargin?.top as number}px ${canvasMargin?.right as number}px ${
-                    canvasMargin?.bottom as number
+                `${canvasMargin?.top as number}px ${canvasMargin?.right as number}px ${canvasMargin?.bottom as number
                 }px ${canvasMargin?.left as number}px`
             );
             expect(canvas.style.padding).to.equal(
-                `${canvasPadding?.top as number}px ${canvasPadding?.right as number}px ${
-                    canvasPadding?.bottom as number
+                `${canvasPadding?.top as number}px ${canvasPadding?.right as number}px ${canvasPadding?.bottom as number
                 }px ${canvasPadding?.left as number}px`
             );
 
