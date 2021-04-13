@@ -6,7 +6,6 @@ import type {
     IGeneralMetaData,
     PluginInfo,
     Plugin,
-    IRenderableMetaDataBase
 } from './types';
 import { entries } from './typed-entries';
 
