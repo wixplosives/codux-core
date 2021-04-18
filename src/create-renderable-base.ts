@@ -3,7 +3,7 @@ import { callHooks, setupSimulationStage } from "./render-helpers";
 import type { IRenderableMetaDataBase } from "./types";
 
 export type OmitIRenderableMetaDataBase<DATA extends IRenderableMetaDataBase> = Omit<OmitGeneralMetaData<DATA>, 'setupStage' | 'cleanupStage'>
-export function baseRender<DATA extends IRenderableMetaDataBase>(data: DATA, render: (target: HTMLElement) => void, canvas: HTMLElement) {
+export function baseRender<DATA extends IRenderableMetaDataBase>(data: DATA, render: (target: HTMLElement) => void, canvas: HTMLElement): void {
     callHooks<IRenderableMetaDataBase, 'beforeRender'>(data, 'beforeRender', canvas)
     render(canvas);
     callHooks<IRenderableMetaDataBase, 'afterRender'>(data, 'afterRender', canvas)
