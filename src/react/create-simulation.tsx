@@ -1,37 +1,53 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { getPluginsWithHooks } from '../render-helpers';
 import { createSimulationBase, OmitSimulation } from '../create-simulation-base';
-import type { IRenderableHooks, IRenderableMetaDataBase, Simulation } from '../types';
+import type { IPROPS, IRenderableHooks, IRenderableMetaDataBase, Simulation } from '../types';
 import { baseRender } from '../create-renderable-base';
 
-export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>
+export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
 
-export function createSimulation<COMP extends React.ComponentType<any>>(input: OmitReactSimulation<IReactSimulation<COMP>>): IReactSimulation<COMP> {
-    const res: IReactSimulation<COMP> = createSimulationBase<IReactSimulation<COMP>>({
+export type UnknownProps = Record<string, unknown>;
+export type CompProps<COMP extends React.ComponentType<any>> = React.ComponentProps<COMP>;
+
+export function createSimulation<COMP extends React.ComponentType<any>>(
+    input: OmitReactSimulation<IReactSimulation<CompProps<COMP>, COMP>>
+): IReactSimulation<CompProps<COMP>, COMP> {
+    const res = createSimulationBase<IReactSimulation<CompProps<COMP>, COMP>>({
         ...input,
         renderer(target) {
-            baseRender(res, () => {
-                let element = this.wrapper ? <this.wrapper renderSimulation={(props) => {
-                    return <res.target {...(this.props as any)} {...props} />
-                }} /> : <res.target {...(this.props as any)} />;
-                const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender')
-                for (const plugin of wrapRenderPlugins) {
-                    const el = plugin.key.plugin?.wrapRender!(plugin.props, res, element, target);
-                    element = el || element;
-                }
-                ReactDOM.render(element, target)
-            }, target)
-
+            baseRender(
+                res,
+                () => {
+                    let element = this.wrapper ? (
+                        <this.wrapper
+                            renderSimulation={(props) => {
+                                const mergedProps: CompProps<COMP> = { ...this.props, ...props };
+                                return <res.componentType {...mergedProps} />;
+                            }}
+                        />
+                    ) : (
+                        <res.componentType {...this.props} />
+                    );
+                    const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
+                    for (const plugin of wrapRenderPlugins) {
+                        if (plugin.key.plugin?.wrapRender) {
+                            const el = plugin.key.plugin?.wrapRender(plugin.props as never, res, element, target);
+                            element = el || element;
+                        }
+                    }
+                    ReactDOM.render(element, target);
+                },
+                target
+            );
         },
         cleanup(target) {
             ReactDOM.unmountComponentAtNode(target);
-        }
-
-    })
-    return res
+        },
+    });
+    return res;
 }
-
 
 export interface ISimulationWrapperProps<P> {
     /**
@@ -41,10 +57,18 @@ export interface ISimulationWrapperProps<P> {
     renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
 }
 
-export interface IReactSimulationHooks extends IRenderableHooks {
-    wrapRender?: (props: any, renderable: IRenderableMetaDataBase, renderableElement: JSX.Element, canvas: HTMLElement) => null | JSX.Element,
+export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRenderableHooks<PLUGINPROPS> {
+    wrapRender?: (
+        props: PLUGINPROPS,
+        renderable: IRenderableMetaDataBase,
+        renderableElement: JSX.Element,
+        canvas: HTMLElement
+    ) => null | JSX.Element;
 }
-export interface IReactSimulation<ComponentType extends React.ComponentType = React.ComponentType<any>> extends Simulation<ComponentType, Partial<React.PropsWithChildren<ComponentType extends React.ComponentType<infer P> ? P : {}>>, IReactSimulationHooks> {
+export interface IReactSimulation<
+    PROPS extends UnknownProps = any,
+    ComponentType extends React.ComponentType<PROPS> = React.ComponentType<any>
+> extends Simulation<ComponentType, PROPS, IReactSimulationHooks<never>> {
     /** The simulated component type. */
     componentType: ComponentType;
 
@@ -56,29 +80,21 @@ export interface IReactSimulation<ComponentType extends React.ComponentType = Re
      */
     // TODO - change props to be optional field (props?: ...)
 
-
     /**
      * Allows to wrap the simulated component in another component. Useful for providing context,
      * rendering controlled components, or rendering the simulated component multiple times - for
      * example a radio button as a radio group.
      */
-    wrapper?: React.FunctionComponent<ISimulationWrapperProps<ComponentType extends React.ComponentType<infer P> ? P : {}>>;
+    wrapper?: React.ComponentType<ISimulationWrapperProps<PROPS>>;
 }
-
-/**
- * @deprecated
- * use IReactSimulation type instead
- */
-export type ISimulation<ComponentType extends React.ComponentType = React.ComponentType<any>> = IReactSimulation<ComponentType>
 
 /**
  * @deprecated
  * use simulation.render instead
  */
-export const simulationToJsx = (simulation: IReactSimulation) => {
-    const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
-
+export const simulationToJsx = (simulation: IReactSimulation): JSX.Element => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { componentType: Comp, props, wrapper: Wrapper } = simulation;
     const renderWithPropOverrides = (overrides?: Record<string, unknown>) => <Comp {...props} {...overrides} />;
-
     return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
 };

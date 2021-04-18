@@ -23,8 +23,8 @@ const x: React.FC<{ name: string }> = ({ name, children }) => (
 
 createSimulation({
     name: 'Test1',
-    props: { name: 'string', children: [] },
     componentType: x,
+    props: { name: 'string', children: [] },
 });
 
 
