@@ -23,7 +23,7 @@ describe('Rendering Simulations', () => {
             cleanupAfterTest.add(cleanup);
             const { environmentProps } = simulationWithEnvironmentProps;
             const { canvasMargin, canvasPadding, canvasBackgroundColor, canvasHeight, canvasWidth } =
-                environmentProps ?? {};
+                environmentProps || {};
 
             expect(document.getElementById('simulation-canvas')?.parentElement).to.equal(document.body);
 
