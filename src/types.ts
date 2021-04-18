@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export type LayoutSize = number | undefined | null;
 
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
@@ -38,13 +37,9 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
-export interface IPROPS {
-    [propName: string]: unknown
-}
-
-export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES> = (params: PLUGINPARAMS, ...hookParams: HOOKPARAMS) => RES
-export interface HookMap<PLUGINPARAMS extends IPROPS = never> {
-    [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined
+export type HOOK<PLUGINPARAMS, HOOKPARAMS extends any[], RES> = (params: PLUGINPARAMS, ...hookParams: HOOKPARAMS) => RES
+export interface HookMap {
+    [hookName: string]: HOOK<unknown, unknown[], unknown>
 }
 
 
@@ -56,52 +51,49 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetaData<unknown, HookMap>> {
+export interface Plugin<PluginProps, TARGET extends IGeneralMetaData<any, any>> {
     pluginName: string;
-    defaultProps: Partial<PLUGINPARAMS>;
+    defaultProps: Partial<PluginProps>;
     plugin: TARGET['__hooks'];
-    use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>
+    use: (props: Partial<PluginProps>) => PluginInfo<this>
 }
-export interface PluginInfo<PLUGINPARAMS, TARGET extends IGeneralMetaData<unknown, HookMap>, SYMB extends Plugin<PLUGINPARAMS, TARGET>> {
+export interface PluginInfo<SYMB extends Plugin<any, any>> {
     key: SYMB,
-    props: PLUGINPARAMS
+    props: Partial<SYMB['defaultProps']>
 }
 
-export type ReplaceParams<MAP extends HookMap, PARAMS extends IPROPS> = {
-    [hookname in keyof MAP]: NonNullable<MAP[hookname]> extends (pProps: never, ...params: infer HOOKPARAMS) => infer RES ? HOOK<PARAMS, HOOKPARAMS, RES> : never
-}
-
-
-export const createPlugin = <TARGET extends IGeneralMetaData<unknown, HookMap> = IGeneralMetaData<unknown, HookMap>>() =>
-    <PluginProps extends IPROPS>(pluginName: string, defaultProps: Partial<PluginProps>, plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>): Plugin<PluginProps, TARGET> => {
+export const createPlugin = <TARGET extends IGeneralMetaData<any, any> = IGeneralMetaData<any, any>>() =>
+    <PluginProps>(pluginName: string, defaultProps: Partial<PluginProps>, plugin: TARGET['__hooks']) => {
         const res: Plugin<PluginProps, TARGET> = {
             pluginName,
             defaultProps,
             plugin,
             use: (props) => {
                 return {
-                    key: res as unknown as Plugin<PluginProps, TARGET>,
-                    props: { ...defaultProps, ...props } as PluginProps
+                    key: res,
+                    props: { ...defaultProps, ...props }
                 }
             }
         };
         return res
     }
 
-export interface IGeneralMetaData<TARGET, HOOKS extends HookMap = HookMap> {
+
+
+export interface IGeneralMetaData<TARGET, HOOKS extends HookMap = {}> {
     target: TARGET,
-    plugins?: PluginInfo<IPROPS, this, Plugin<any, this>>[],
+    plugins?: PluginInfo<Plugin<any, this>>[],
     __hooks?: HOOKS
 }
 
 
-export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends HookMap<PLUGINPARAMS> {
-    beforeAppendCanvas?(props: PLUGINPARAMS, canvas: HTMLElement): void;
-    beforeStageCleanUp?(props: PLUGINPARAMS, canvas: HTMLElement): void;
-    beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
-    afterRender?(props: PLUGINPARAMS, canvas: HTMLElement): void;
+export interface IRenderableHooks {
+    beforeAppendCanvas?(canvas: HTMLElement, props: any): void;
+    beforeStageCleanUp?(canvas: HTMLElement, props: any): void;
+    beforeRender?(PluginProps: any, canvas: HTMLElement): void;
+    afterRender?(canvas: HTMLElement, props: any): void;
 }
-export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap> extends IGeneralMetaData<unknown, HOOKS & IRenderableHooks> {
+export interface IRenderableMetaDataBase<HOOKS extends HookMap = {}> extends IGeneralMetaData<any, HOOKS & IRenderableHooks> {
     /**
      * renders the Renderable into an html element
      */
@@ -133,7 +125,7 @@ export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap> extend
 
 }
 
-export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap> extends IRenderableMetaDataBase<HOOKS> {
+export interface Simulation<ComponentType, PROPS, HOOKS extends {} = {}> extends IRenderableMetaDataBase<HOOKS> {
     /** The simulated component type. */
     componentType: ComponentType;
 

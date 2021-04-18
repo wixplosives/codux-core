@@ -6,9 +6,6 @@ import type {
     IGeneralMetaData,
     PluginInfo,
     Plugin,
-    HookMap,
-    IPROPS,
-    HOOK,
 } from './types';
 import { entries } from './typed-entries';
 
@@ -92,27 +89,22 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Par
         canvas.style[styleProperty] = stylePropertyValue;
     }
 };
-export type HookNames<DATA extends IGeneralMetaData<unknown, HookMap>> = keyof NonNullable<DATA['__hooks']> & string
+export type HookNames<DATA extends IGeneralMetaData<any, Record<string, any>>> = keyof NonNullable<DATA['__hooks']> & string
 
-export function getPluginsWithHooks<DATA extends IGeneralMetaData<unknown, HookMap>>(data: DATA, hookName: HookNames<DATA>): PluginInfo<IPROPS, DATA, Plugin<IPROPS, DATA>>[] {
+export function getPluginsWithHooks<DATA extends IGeneralMetaData<any, Record<string, any>>>(data: DATA, hookName: HookNames<DATA>): PluginInfo<Plugin<any, DATA>>[] {
     if (!data.plugins) {
         return []
     }
-    return data.plugins.filter(item => !!(item.key.plugin as HookMap)[hookName])
+    return data.plugins.filter(item => !!(item.key.plugin as any)[hookName])
 }
 
 
-export type HookParams<DATA extends IGeneralMetaData<unknown, HookMap>, HOOK extends HookNames<DATA>> = NonNullable<NonNullable<DATA['__hooks']>[HOOK]> extends (pluginParams: never, ...args: infer U) => void | unknown ? U : never
+export type HookParams<DATA extends IGeneralMetaData<any, Record<string, any>>, HOOK extends HookNames<DATA>> = NonNullable<NonNullable<DATA['__hooks']>[HOOK]> extends (pluginParams: any, ...args: infer U) => any ? U : never
 
-
-export function callHooks<DATA extends IGeneralMetaData<unknown, HookMap>, HOOKNAME extends HookNames<DATA>>(data: DATA, hookName: HOOKNAME, ...props: HookParams<DATA, HOOKNAME>): void {
+export function callHooks<DATA extends IGeneralMetaData<any, Record<string, any>>, HOOK extends HookNames<DATA>>(data: DATA, hookName: HOOK, ...props: HookParams<DATA, HOOK>) {
     const plugins = getPluginsWithHooks(data, hookName);
     for (const pluginInfo of plugins) {
-
-        if ((pluginInfo.key.plugin as HookMap)[hookName]) {
-
-            ((pluginInfo.key.plugin as HookMap)[hookName] as unknown as HOOK<IPROPS, HookParams<DATA, HOOKNAME>, void>)(pluginInfo.props as never, ...props)
-        }
+        (pluginInfo.key.plugin as any)[hookName](pluginInfo.props, ...props)
     }
 }
 
