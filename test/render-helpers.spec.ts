@@ -2,9 +2,7 @@ import { expect } from 'chai';
 import { renderSimulation, setupSimulationStage } from '../src';
 import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
 import { CheckboxDriver } from './fixtures/checkbox.driver';
-import {
-    simulationWithEnvironmentProps,
-} from './fixtures/simulation-fixtures';
+import { simulationWithEnvironmentProps } from './fixtures/simulation-fixtures';
 
 describe('Rendering Simulations', () => {
     const cleanupAfterTest = new Set<() => unknown>();
@@ -14,8 +12,6 @@ describe('Rendering Simulations', () => {
         }
         cleanupAfterTest.clear();
     });
-
-
 
     describe('setupSimulationStage', () => {
         it('returns a canvas with the correct environment properties, and then unmounts it', () => {
@@ -31,11 +27,13 @@ describe('Rendering Simulations', () => {
             expect(canvas.style.width).to.equal(`${canvasWidth as number}px`);
             expect(canvas.style.backgroundColor).to.equal(canvasBackgroundColor);
             expect(canvas.style.margin).to.equal(
-                `${canvasMargin?.top as number}px ${canvasMargin?.right as number}px ${canvasMargin?.bottom as number
+                `${canvasMargin?.top as number}px ${canvasMargin?.right as number}px ${
+                    canvasMargin?.bottom as number
                 }px ${canvasMargin?.left as number}px`
             );
             expect(canvas.style.padding).to.equal(
-                `${canvasPadding?.top as number}px ${canvasPadding?.right as number}px ${canvasPadding?.bottom as number
+                `${canvasPadding?.top as number}px ${canvasPadding?.right as number}px ${
+                    canvasPadding?.bottom as number
                 }px ${canvasPadding?.left as number}px`
             );
 

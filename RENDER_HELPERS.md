@@ -3,9 +3,10 @@
 Somewhere along the line, while you were creating all those awesome simulations in Wix Component Studio, you may have asked yourself - is there a way to use these simulations in tests? The answer to this question is yes!
 
 `wcs-core` exports three methods to help test components with simulations:
-* `simulationToJsx`
-* `setupSimulationStage`
-* `renderSimulation`
+
+- `simulationToJsx`
+- `setupSimulationStage`
+- `renderSimulation`
 
 `simulationToJsx` takes a simulation and returns a JSX Element representing the component and its simulation props. It will be wrapped in a wrapper if relevant.
 
@@ -29,7 +30,8 @@ renderSimulation(simulation: ISimulation) => { canvas: HTMLElement, cleanup: () 
 
 Refer to [ISimulation](https://github.com/wixplosives/wcs-core/blob/d91a792a52b916fb6dc55b7a4f7c49715a010168/src/types.ts#L40) for details on this interface.
 
-# Mocha-Play Example
+# mocha-play Example
+
 Let's take a look at an example of a test running in [mocha-play](https://github.com/wixplosives/mocha-play). Note that this example is applicable to any test that has access to the browser window during execution.
 
 In this example, there are two files - a simulation file and a test file.
@@ -60,8 +62,6 @@ export default createSimulation({
   },
 });
 ```
-
-
 
 ```ts
 // test file
