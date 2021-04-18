@@ -5,7 +5,7 @@
 
 
 
-This package exposes types (and helper functions for their creation) that can be used to add metadata to your project.
+This package types (and helper functions for their creation) that can be used to add metadata to your project.
 
 # Data types
 
