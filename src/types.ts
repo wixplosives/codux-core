@@ -133,7 +133,7 @@ export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap> extend
 
 }
 
-export interface Simulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap> extends IRenderableMetaDataBase<HOOKS> {
+export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap> extends IRenderableMetaDataBase<HOOKS> {
     /** The simulated component type. */
     componentType: ComponentType;
 

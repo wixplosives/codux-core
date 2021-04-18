@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { getPluginsWithHooks } from '../render-helpers';
 import { createSimulationBase, OmitSimulation } from '../create-simulation-base';
-import type { IPROPS, IRenderableHooks, IRenderableMetaDataBase, Simulation } from '../types';
+import type { IPROPS, IRenderableHooks, IRenderableMetaDataBase, ISimulation } from '../types';
 import { baseRender } from '../create-renderable-base';
 
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
@@ -23,7 +23,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                     let element = this.wrapper ? (
                         <this.wrapper
                             renderSimulation={(props) => {
-                                const mergedProps: CompProps<COMP> = { ...this.props, ...props };
+                                const mergedProps: React.ComponentProps<COMP> = { ...this.props, ...props };
                                 return <res.componentType {...mergedProps} />;
                             }}
                         />
@@ -68,7 +68,7 @@ export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRend
 export interface IReactSimulation<
     PROPS extends UnknownProps = any,
     ComponentType extends React.ComponentType<PROPS> = React.ComponentType<any>
-> extends Simulation<ComponentType, PROPS, IReactSimulationHooks<never>> {
+> extends ISimulation<ComponentType, PROPS, IReactSimulationHooks<never>> {
     /** The simulated component type. */
     componentType: ComponentType;
 
