@@ -56,13 +56,13 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetaData<unknown, HookMap>> {
+export interface Plugin<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMetaData<unknown, HookMap>> {
     pluginName: string;
     defaultProps: Partial<PLUGINPARAMS>;
     plugin: TARGET['__hooks'];
     use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>
 }
-export interface PluginInfo<PLUGINPARAMS, TARGET extends IGeneralMetaData<unknown, HookMap>, SYMB extends Plugin<PLUGINPARAMS, TARGET>> {
+export interface PluginInfo<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMetaData<unknown, HookMap>, SYMB extends Plugin<PLUGINPARAMS, TARGET>> {
     key: SYMB,
     props: PLUGINPARAMS
 }
