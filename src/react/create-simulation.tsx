@@ -9,7 +9,7 @@ import { baseRender } from '../create-renderable-base';
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
 
 export type UnknownProps = Record<string, unknown>;
-export type CompProps<COMP extends React.ComponentType<any>> = React.ComponentProps<COMP>;
+export type CompProps<COMP extends React.ComponentType<any>> = Partial<React.ComponentProps<COMP>>;
 
 export function createSimulation<COMP extends React.ComponentType<any>>(
     input: OmitReactSimulation<IReactSimulation<CompProps<COMP>, COMP>>
@@ -23,7 +23,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                     let element = this.wrapper ? (
                         <this.wrapper
                             renderSimulation={(props) => {
-                                const mergedProps: React.ComponentProps<COMP> = { ...this.props, ...props };
+                                const mergedProps: Partial<React.ComponentProps<COMP>> = { ...this.props, ...props };
                                 return <res.componentType {...mergedProps} />;
                             }}
                         />
