@@ -9,13 +9,13 @@ import { baseRender } from '../create-renderable-base';
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
 
 export type UnknownProps = Record<string, unknown>;
-export type CompProps<COMP extends React.ComponentType<any>> = Partial<React.ComponentProps<COMP>>;
+export type CompProps<COMP extends React.ComponentType<any>> = React.ComponentProps<COMP>;
 
 export function createSimulation<COMP extends React.ComponentType<any>>(
-    input: OmitReactSimulation<IReactSimulation<CompProps<COMP>, COMP>>
+    input: OmitReactSimulation<IReactSimulation<Partial<CompProps<COMP>>, COMP>>
 ): IReactSimulation<CompProps<COMP>, COMP> {
     const res = createSimulationBase<IReactSimulation<CompProps<COMP>, COMP>>({
-        ...input,
+        ...(input as OmitReactSimulation<IReactSimulation<CompProps<COMP>, COMP>>),
         renderer(target) {
             baseRender(
                 res,
@@ -24,7 +24,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                         <this.wrapper
                             renderSimulation={(props) => {
                                 const mergedProps: Partial<React.ComponentProps<COMP>> = { ...this.props, ...props };
-                                return <res.componentType {...mergedProps} />;
+                                return <res.componentType {...(mergedProps as CompProps<COMP>)} />;
                             }}
                         />
                     ) : (
@@ -54,7 +54,7 @@ export interface ISimulationWrapperProps<P> {
      * Call this function to render the simulated component with the simulated props.
      * @param overrides Allows you to override some of the simulated props with custom values.
      */
-    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
+    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<Partial<P>>;
 }
 
 export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRenderableHooks<PLUGINPROPS> {
