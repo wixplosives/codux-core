@@ -10,7 +10,7 @@ import { tagPlugin } from '../src/plugins/tags-plugin';
 
 createSimulation({
     name: 'Test1',
-    props: { },
+    props: {},
     componentType: () => null,
 });
 
@@ -27,29 +27,25 @@ createSimulation({
     componentType: x,
 });
 
-
-
-
-
 createSimulation({
     name: 'Test2',
     props: { name: 'string', children: [] },
     componentType: x,
     plugins: [
         tagPlugin.use({
-            tags: ['a', 'b']
+            tags: ['a', 'b'],
         }),
         cssVarsPlugin.use({
-            '--color': 'red'
-        })
-    ]
+            '--color': 'red',
+        }),
+    ],
 });
 
-export const a= createMetaData({
+export const a = createMetaData({
     target: x,
-    plugins:[
+    plugins: [
         tagPlugin.use({
-            tags: ['a', 'b']
-        })
-    ]
-})
+            tags: ['a', 'b'],
+        }),
+    ],
+});

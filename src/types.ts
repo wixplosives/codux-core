@@ -39,15 +39,16 @@ export interface ICanvasEnvironmentProps {
 }
 
 export interface IPROPS {
-    [propName: string]: unknown
+    [propName: string]: unknown;
 }
 
-export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES> = (params: PLUGINPARAMS, ...hookParams: HOOKPARAMS) => RES
+export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES> = (
+    params: PLUGINPARAMS,
+    ...hookParams: HOOKPARAMS
+) => RES;
 export interface HookMap<PLUGINPARAMS extends IPROPS = never> {
-    [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined
+    [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined;
 }
-
-
 
 export interface ISetupController {
     addScript(scriptUrl: string): Promise<void>;
@@ -60,40 +61,52 @@ export interface Plugin<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMeta
     pluginName: string;
     defaultProps: Partial<PLUGINPARAMS>;
     plugin: TARGET['__hooks'];
-    use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>
+    use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
 }
-export interface PluginInfo<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMetaData<unknown, HookMap>, SYMB extends Plugin<PLUGINPARAMS, TARGET>> {
-    key: SYMB,
-    props: PLUGINPARAMS
+export interface PluginInfo<
+    PLUGINPARAMS extends IPROPS,
+    TARGET extends IGeneralMetaData<unknown, HookMap>,
+    SYMB extends Plugin<PLUGINPARAMS, TARGET>
+> {
+    key: SYMB;
+    props: PLUGINPARAMS;
 }
 
 export type ReplaceParams<MAP extends HookMap, PARAMS extends IPROPS> = {
-    [hookname in keyof MAP]: NonNullable<MAP[hookname]> extends (pProps: never, ...params: infer HOOKPARAMS) => infer RES ? HOOK<PARAMS, HOOKPARAMS, RES> : never
-}
+    [hookname in keyof MAP]: NonNullable<MAP[hookname]> extends (
+        pProps: never,
+        ...params: infer HOOKPARAMS
+    ) => infer RES
+        ? HOOK<PARAMS, HOOKPARAMS, RES>
+        : never;
+};
 
-
-export const createPlugin = <TARGET extends IGeneralMetaData<unknown, HookMap> = IGeneralMetaData<unknown, HookMap>>() =>
-    <PluginProps extends IPROPS>(pluginName: string, defaultProps: Partial<PluginProps>, plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>): Plugin<PluginProps, TARGET> => {
-        const res: Plugin<PluginProps, TARGET> = {
-            pluginName,
-            defaultProps,
-            plugin,
-            use: (props) => {
-                return {
-                    key: res as unknown as Plugin<PluginProps, TARGET>,
-                    props: { ...defaultProps, ...props } as PluginProps
-                }
-            }
-        };
-        return res
-    }
+export const createPlugin = <
+    TARGET extends IGeneralMetaData<unknown, HookMap> = IGeneralMetaData<unknown, HookMap>
+>() => <PluginProps extends IPROPS>(
+    pluginName: string,
+    defaultProps: Partial<PluginProps>,
+    plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>
+): Plugin<PluginProps, TARGET> => {
+    const res: Plugin<PluginProps, TARGET> = {
+        pluginName,
+        defaultProps,
+        plugin,
+        use: (props) => {
+            return {
+                key: (res as unknown) as Plugin<PluginProps, TARGET>,
+                props: { ...defaultProps, ...props } as PluginProps,
+            };
+        },
+    };
+    return res;
+};
 
 export interface IGeneralMetaData<TARGET, HOOKS extends HookMap = HookMap> {
-    target: TARGET,
-    plugins?: PluginInfo<IPROPS, this, Plugin<any, this>>[],
-    __hooks?: HOOKS
+    target: TARGET;
+    plugins?: PluginInfo<IPROPS, this, Plugin<any, this>>[];
+    __hooks?: HOOKS;
 }
-
 
 export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends HookMap<PLUGINPARAMS> {
     beforeAppendCanvas?(props: PLUGINPARAMS, canvas: HTMLElement): void;
@@ -101,7 +114,8 @@ export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends H
     beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
     afterRender?(props: PLUGINPARAMS, canvas: HTMLElement): void;
 }
-export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap> extends IGeneralMetaData<unknown, HOOKS & IRenderableHooks> {
+export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap>
+    extends IGeneralMetaData<unknown, HOOKS & IRenderableHooks> {
     /**
      * renders the Renderable into an html element
      */
@@ -113,27 +127,25 @@ export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap> extend
     /**
      * sets the stage for the renderer.
      * this function has many side effects ( such as effecting window styles and sizes )
-     * 
+     *
      * @returns canvas an html element for rendering into, cleanup a method for cleaing up the sideeffects
      *
      */
-    setupStage: () => { canvas: HTMLElement, cleanup: () => void };
-
-
+    setupStage: () => { canvas: HTMLElement; cleanup: () => void };
 
     /**
      * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
      */
     environmentProps?: IPreviewEnvironmentPropsBase;
     /**
-    * Functions for setting up the page for the simulation: adding global styles,
-    * scripts, etc. These functions run only once before the simulation is mounted.
-    */
+     * Functions for setting up the page for the simulation: adding global styles,
+     * scripts, etc. These functions run only once before the simulation is mounted.
+     */
     setup?: SimulationSetupFunction | SimulationSetupFunction[];
-
 }
 
-export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap> extends IRenderableMetaDataBase<HOOKS> {
+export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap>
+    extends IRenderableMetaDataBase<HOOKS> {
     /** The simulated component type. */
     componentType: ComponentType;
 
@@ -145,9 +157,9 @@ export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookM
      */
     // TODO - change props to be optional field (props?: ...)
     props: PROPS;
-
 }
 
-
-export type SetupSimulationStage = (simulation: IRenderableMetaDataBase) => { canvas: HTMLElement; cleanup: () => void };
+export type SetupSimulationStage = (
+    simulation: IRenderableMetaDataBase
+) => { canvas: HTMLElement; cleanup: () => void };
 export type RenderSimulation = (simulation: IRenderableMetaDataBase) => { canvas: HTMLElement; cleanup: () => void };
