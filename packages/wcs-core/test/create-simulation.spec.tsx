@@ -1,8 +1,5 @@
 import React from 'react';
-import { createSimulation } from '../src';
-import { createMetaData } from '../src/create-metadata';
-import { cssVarsPlugin } from '../src/plugins/css-vars-plugin';
-import { tagPlugin } from '../src/plugins/tags-plugin';
+import { createSimulation, createMetaData, cssVarsPlugin, tagPlugin } from '@wixc3/wcs-core';
 
 /**
  * Type tests

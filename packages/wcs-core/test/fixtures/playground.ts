@@ -1,4 +1,4 @@
-import type { IRenderableMetaDataBase } from '../../src';
+import type { IRenderableMetaDataBase } from '@wixc3/wcs-core';
 import CheckBoxSim from './checkbox-with-wrapper.sim';
 
 const examples = [CheckBoxSim];

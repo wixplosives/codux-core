@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { renderSimulation, setupSimulationStage } from '../src';
+import { renderSimulation, setupSimulationStage } from '@wixc3/wcs-core';
 import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
 import { CheckboxDriver } from './fixtures/checkbox.driver';
 import { simulationWithEnvironmentProps } from './fixtures/simulation-fixtures';
