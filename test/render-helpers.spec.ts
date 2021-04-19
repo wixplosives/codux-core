@@ -1,13 +1,8 @@
-import ReactTestUtils from 'react-dom/test-utils';
 import { expect } from 'chai';
-import { simulationToJsx, renderSimulation, setupSimulationStage } from '../src';
+import { renderSimulation, setupSimulationStage } from '../src';
 import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
 import { CheckboxDriver } from './fixtures/checkbox.driver';
-import {
-    propsOnlySimulation,
-    simulationWithWrapper,
-    simulationWithEnvironmentProps,
-} from './fixtures/simulation-fixtures';
+import { simulationWithEnvironmentProps } from './fixtures/simulation-fixtures';
 
 describe('Rendering Simulations', () => {
     const cleanupAfterTest = new Set<() => unknown>();
@@ -18,29 +13,13 @@ describe('Rendering Simulations', () => {
         cleanupAfterTest.clear();
     });
 
-    describe('simulationToJsx', () => {
-        it('returns correct JSX for a props-only simulation', () => {
-            const renderedComponent = simulationToJsx(propsOnlySimulation);
-
-            expect(ReactTestUtils.isElement(renderedComponent)).to.equal(true);
-            expect(renderedComponent.props).to.eql(propsOnlySimulation.props);
-        });
-
-        it('returns correct JSX for a simulation with a wrapper', () => {
-            const renderedComponent = simulationToJsx(simulationWithWrapper);
-
-            expect(ReactTestUtils.isElement(renderedComponent)).to.equal(true);
-            expect(renderedComponent.type).to.eql(simulationWithWrapper.wrapper);
-        });
-    });
-
     describe('setupSimulationStage', () => {
         it('returns a canvas with the correct environment properties, and then unmounts it', () => {
             const { canvas, cleanup } = setupSimulationStage(simulationWithEnvironmentProps);
             cleanupAfterTest.add(cleanup);
             const { environmentProps } = simulationWithEnvironmentProps;
             const { canvasMargin, canvasPadding, canvasBackgroundColor, canvasHeight, canvasWidth } =
-                environmentProps ?? {};
+                environmentProps || {};
 
             expect(document.getElementById('simulation-canvas')?.parentElement).to.equal(document.body);
 
