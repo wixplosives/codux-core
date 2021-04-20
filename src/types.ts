@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type React from 'react';
+
 export type LayoutSize = number | undefined | null;
 
 export type LayoutSizeWithAuto = LayoutSize | 'auto';
@@ -38,16 +39,12 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
-export interface IPROPS {
-    [propName: string]: unknown;
-}
-
-export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES> = (
-    params: PLUGINPARAMS,
-    ...hookParams: HOOKPARAMS
-) => RES;
-export interface HookMap<PLUGINPARAMS extends IPROPS = never> {
-    [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined;
+export interface ISimulationWrapperProps<P> {
+    /**
+     * Call this function to render the simulated component with the simulated props.
+     * @param overrides Allows you to override some of the simulated props with custom values.
+     */
+    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
 }
 
 export interface ISetupController {
@@ -57,97 +54,10 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-export interface Plugin<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMetaData<unknown, HookMap>> {
-    pluginName: string;
-    defaultProps: Partial<PLUGINPARAMS>;
-    plugin: TARGET['__hooks'];
-    use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
-}
-export interface PluginInfo<
-    PLUGINPARAMS extends IPROPS,
-    TARGET extends IGeneralMetaData<unknown, HookMap>,
-    SYMB extends Plugin<PLUGINPARAMS, TARGET>
-> {
-    key: SYMB;
-    props: PLUGINPARAMS;
-}
-
-export type ReplaceParams<MAP extends HookMap, PARAMS extends IPROPS> = {
-    [hookname in keyof MAP]: NonNullable<MAP[hookname]> extends (
-        pProps: never,
-        ...params: infer HOOKPARAMS
-    ) => infer RES
-        ? HOOK<PARAMS, HOOKPARAMS, RES>
-        : never;
-};
-
-export const createPlugin = <
-    TARGET extends IGeneralMetaData<unknown, HookMap> = IGeneralMetaData<unknown, HookMap>
->() => <PluginProps extends IPROPS>(
-    pluginName: string,
-    defaultProps: Partial<PluginProps>,
-    plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>
-): Plugin<PluginProps, TARGET> => {
-    const res: Plugin<PluginProps, TARGET> = {
-        pluginName,
-        defaultProps,
-        plugin,
-        use: (props) => {
-            return {
-                key: (res as unknown) as Plugin<PluginProps, TARGET>,
-                props: { ...defaultProps, ...props } as PluginProps,
-            };
-        },
-    };
-    return res;
-};
-
-export interface IGeneralMetaData<TARGET, HOOKS extends HookMap = HookMap> {
-    target: TARGET;
-    plugins?: PluginInfo<IPROPS, this, Plugin<any, this>>[];
-    __hooks?: HOOKS;
-}
-
-export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends HookMap<PLUGINPARAMS> {
-    beforeAppendCanvas?(props: PLUGINPARAMS, canvas: HTMLElement): void;
-    beforeStageCleanUp?(props: PLUGINPARAMS, canvas: HTMLElement): void;
-    beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
-    afterRender?(props: PLUGINPARAMS, canvas: HTMLElement): void;
-}
-export interface IRenderableMetaDataBase<HOOKS extends HookMap = HookMap>
-    extends IGeneralMetaData<unknown, HOOKS & IRenderableHooks> {
-    /**
-     * renders the Renderable into an html element
-     */
-    renderer: (targetElement: HTMLElement) => void;
-    /**
-     * cleans everything the renderer does
-     */
-    cleanup: (targetElement: HTMLElement) => void;
-    /**
-     * sets the stage for the renderer.
-     * this function has many side effects ( such as effecting window styles and sizes )
-     *
-     * @returns canvas an html element for rendering into, cleanup a method for cleaing up the sideeffects
-     *
-     */
-    setupStage: () => { canvas: HTMLElement; cleanup: () => void };
-
-    /**
-     * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
-     */
-    environmentProps?: IPreviewEnvironmentPropsBase;
-    /**
-     * Functions for setting up the page for the simulation: adding global styles,
-     * scripts, etc. These functions run only once before the simulation is mounted.
-     */
-    setup?: SimulationSetupFunction | SimulationSetupFunction[];
-}
-
-export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap>
-    extends IRenderableMetaDataBase<HOOKS> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface ISimulation<P = any> {
     /** The simulated component type. */
-    componentType: ComponentType;
+    componentType: React.ComponentType<P>;
 
     /** The name of the simulation. */
     name: string;
@@ -156,10 +66,27 @@ export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookM
      * A map between a component property name and its simulated value.
      */
     // TODO - change props to be optional field (props?: ...)
-    props: PROPS;
+    props: Partial<React.PropsWithChildren<P>>;
+
+    /**
+     * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
+     */
+    environmentProps?: IPreviewEnvironmentPropsBase;
+
+    /**
+     * Allows to wrap the simulated component in another component. Useful for providing context,
+     * rendering controlled components, or rendering the simulated component multiple times - for
+     * example a radio button as a radio group.
+     */
+    wrapper?: React.FunctionComponent<ISimulationWrapperProps<P>>;
+
+    /**
+     * Functions for setting up the page for the simulation: adding global styles,
+     * scripts, etc. These functions run only once before the simulation is mounted.
+     */
+    setup?: SimulationSetupFunction | SimulationSetupFunction[];
 }
 
-export type SetupSimulationStage = (
-    simulation: IRenderableMetaDataBase
-) => { canvas: HTMLElement; cleanup: () => void };
-export type RenderSimulation = (simulation: IRenderableMetaDataBase) => { canvas: HTMLElement; cleanup: () => void };
+export type SetupSimulationStage = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
+export type RenderSimulation = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
+export type SimulationToJsx = (simulation: ISimulation) => JSX.Element;
