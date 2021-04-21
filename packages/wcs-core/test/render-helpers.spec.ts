@@ -1,6 +1,6 @@
 import ReactTestUtils from 'react-dom/test-utils';
 import { expect } from 'chai';
-import { simulationToJsx, renderSimulation, setupSimulationStage } from '../src';
+import { simulationToJsx, renderSimulation, setupSimulationStage } from '@wixc3/wcs-core';
 import CheckboxWithWrapper from './fixtures/checkbox-with-wrapper.sim';
 import { CheckboxDriver } from './fixtures/checkbox.driver';
 import {

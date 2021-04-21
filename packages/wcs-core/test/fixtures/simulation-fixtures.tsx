@@ -1,5 +1,5 @@
 import React from 'react';
-import { createSimulation } from '../../src';
+import { createSimulation } from '@wixc3/wcs-core';
 
 export const mockComponent: React.FC<{ text: string }> = (props) => <div>{props.text}</div>;
 
