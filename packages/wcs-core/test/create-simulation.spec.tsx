@@ -1,5 +1,5 @@
 import React from 'react';
-import { createSimulation } from '../src';
+import { createSimulation } from '@wixc3/wcs-core';
 
 /**
  * Type tests

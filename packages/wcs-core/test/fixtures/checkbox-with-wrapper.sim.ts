@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Checkbox, CheckboxProps } from './checkbox';
-import { createSimulation, ISimulationWrapperProps } from '../../src';
+import { createSimulation, ISimulationWrapperProps } from '@wixc3/wcs-core';
 
 const Wrapper = ({ renderSimulation }: ISimulationWrapperProps<CheckboxProps>) => {
     const [checked, setChecked] = useState(false);

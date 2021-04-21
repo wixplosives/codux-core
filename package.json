@@ -1,38 +1,18 @@
 {
-  "name": "@wixc3/wcs-core",
-  "version": "2.3.0",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
-  "scripts": {
-    "clean": "rimraf cjs esm",
-    "lint": "eslint . -f codeframe",
-    "prebuild": "yarn clean",
-    "build": "yarn build:cjs && yarn build:esm",
-    "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir cjs",
-    "build:esm": "tsc -p tsconfig.build.json --module esnext --outDir esm",
-    "pretest": "yarn typecheck && yarn lint",
-    "test": "yarn test:unit",
-    "test:unit": "mocha-play \"test/**/*.spec.ts?(x)\"",
-    "typecheck": "tsc --noEmit",
-    "prepack": "yarn build",
-    "prettify": "npx prettier \"src/**/*.{js,ts,tsx}\" --write"
-  },
-  "peerDependencies": {
-    "react": ">=16.0.0",
-    "react-dom": ">=16.0.0"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
-  "files": [
-    "cjs",
-    "esm",
-    "src"
+  "name": "wcs-core-monorepo",
+  "workspaces": [
+    "packages/*"
   ],
+  "scripts": {
+    "clean": "rimraf ./packages/*/dist",
+    "build": "tsc --build",
+    "lint": "eslint . -f codeframe",
+    "pretest": "yarn build && yarn lint",
+    "test": "yarn test:browser",
+    "test:browser": "mocha-play \"packages/*/dist/test/**/*.spec.js\"",
+    "prettify": "npx prettier . --write"
+  },
   "devDependencies": {
-    "@ts-tools/node": "^2.1.1",
-    "@ts-tools/webpack-loader": "^2.1.1",
     "@types/chai": "^4.2.16",
     "@types/mocha": "^8.2.2",
     "@types/react": "^17.0.3",
@@ -46,14 +26,19 @@
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
     "html-webpack-plugin": "^5.3.1",
+    "lerna": "^4.0.0",
     "mocha": "^8.3.2",
     "mocha-play": "^1.0.1",
     "playwright-chromium": "^1.10.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
+    "source-map-loader": "^2.0.1",
     "typescript": "~4.2.4",
-    "webpack": "^5.35.0"
+    "webpack": "^5.35.0",
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^4.0.0-beta.2"
   },
-  "repository": "https://github.com/wixplosives/wcs-core"
+  "license": "MIT",
+  "private": true
 }
