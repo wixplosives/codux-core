@@ -1,10 +1,9 @@
 import React from 'react';
 import { createSimulation } from '@wixc3/react-simulation';
-import { tagPlugin, cssVarsPlugin, createMetadata } from '@wixc3/simulation-core';
+import { createMetadata } from '@wixc3/simulation-core';
+import { tagsPlugin, cssVarsPlugin } from '@wixc3/simulation-plugins';
 
-/**
- * Type tests
- */
+// Type tests
 
 createSimulation({
     name: 'Test1',
@@ -30,7 +29,7 @@ createSimulation({
     props: { name: 'string', children: [] },
     componentType: x,
     plugins: [
-        tagPlugin.use({
+        tagsPlugin.use({
             tags: ['a', 'b'],
         }),
         cssVarsPlugin.use({
@@ -42,7 +41,7 @@ createSimulation({
 export const a = createMetadata({
     target: x,
     plugins: [
-        tagPlugin.use({
+        tagsPlugin.use({
             tags: ['a', 'b'],
         }),
     ],

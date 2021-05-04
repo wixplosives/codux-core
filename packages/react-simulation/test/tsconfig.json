@@ -4,5 +4,9 @@
     "outDir": "../dist/test",
     "types": ["mocha"]
   },
-  "references": [{ "path": "../src" }, { "path": "../../simulation-core/src" }]
+  "references": [
+    { "path": "../src" },
+    { "path": "../../simulation-core/src" },
+    { "path": "../../simulation-plugins/src" }
+  ]
 }
