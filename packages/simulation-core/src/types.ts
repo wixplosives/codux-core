@@ -148,8 +148,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
 /**
  * A single appearance of a component.
  */
-export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookMap>
-    extends IRenderableMetadataBase<HOOKS> {
+export interface ISimulation<ComponentType, P, HOOKS extends HookMap = HookMap> extends IRenderableMetadataBase<HOOKS> {
     /** The simulated component type. */
     componentType: ComponentType;
 
@@ -159,7 +158,7 @@ export interface ISimulation<ComponentType, PROPS, HOOKS extends HookMap = HookM
     /**
      * A map between a component property name and its simulated value.
      */
-    props: PROPS;
+    props: P;
 }
 
 export type SetupSimulationStage = (

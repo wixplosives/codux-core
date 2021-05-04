@@ -29,12 +29,12 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                     let element = this.wrapper ? (
                         <this.wrapper
                             renderSimulation={(props) => {
-                                const mergedProps: Partial<React.ComponentProps<COMP>> = { ...this.props, ...props };
-                                return <res.componentType {...(mergedProps as ComponentProps<COMP>)} />;
+                                const mergedProps = { ...this.props, ...props } as React.ComponentProps<COMP>;
+                                return <res.componentType {...mergedProps} />;
                             }}
                         />
                     ) : (
-                        <res.componentType {...this.props} />
+                        <res.componentType {...(this.props as React.ComponentProps<COMP>)} />
                     );
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
@@ -73,7 +73,7 @@ export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRend
 }
 
 export interface IReactSimulation<P = any, ComponentType extends React.ComponentType<P> = React.ComponentType<any>>
-    extends ISimulation<ComponentType, P, IReactSimulationHooks<never>> {
+    extends ISimulation<ComponentType, React.PropsWithChildren<Partial<P>>, IReactSimulationHooks<never>> {
     /** The simulated component type. */
     componentType: ComponentType;
 
