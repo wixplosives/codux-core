@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import ReactDOM from 'react-dom';
 import {
     getPluginsWithHooks,
@@ -14,16 +14,14 @@ import {
 
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
 
-export type CompProps<COMP extends React.ComponentType<any>> = React.ComponentProps<COMP>;
-
 /**
  * Create simulation of a React component.
  */
 export function createSimulation<COMP extends React.ComponentType<any>>(
-    input: OmitReactSimulation<IReactSimulation<Partial<CompProps<COMP>>, COMP>>
-): IReactSimulation<CompProps<COMP>, COMP> {
-    const res = createSimulationBase<IReactSimulation<CompProps<COMP>, COMP>>({
-        ...(input as OmitReactSimulation<IReactSimulation<CompProps<COMP>, COMP>>),
+    input: OmitReactSimulation<IReactSimulation<Partial<ComponentProps<COMP>>, COMP>>
+): IReactSimulation<ComponentProps<COMP>, COMP> {
+    const res = createSimulationBase<IReactSimulation<ComponentProps<COMP>, COMP>>({
+        ...(input as OmitReactSimulation<IReactSimulation<ComponentProps<COMP>, COMP>>),
         renderer(target) {
             baseRender(
                 res,
@@ -32,7 +30,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                         <this.wrapper
                             renderSimulation={(props) => {
                                 const mergedProps: Partial<React.ComponentProps<COMP>> = { ...this.props, ...props };
-                                return <res.componentType {...(mergedProps as CompProps<COMP>)} />;
+                                return <res.componentType {...(mergedProps as ComponentProps<COMP>)} />;
                             }}
                         />
                     ) : (
