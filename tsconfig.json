@@ -1,4 +1,12 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/wcs-core/src" }, { "path": "./packages/wcs-core/test" }]
+  "references": [
+    { "path": "./packages/wcs-core/src" },
+    { "path": "./packages/wcs-core/test" },
+
+    { "path": "./packages/simulation-core/src" },
+
+    { "path": "./packages/react-simulation/src" },
+    { "path": "./packages/react-simulation/test" }
+  ]
 }
