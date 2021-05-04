@@ -87,14 +87,3 @@ export interface IReactSimulation<P = any, ComponentType extends React.Component
      */
     wrapper?: React.ComponentType<ISimulationWrapperProps<P>>;
 }
-
-/**
- * @deprecated
- * use simulation.render instead
- */
-export const simulationToJsx = (simulation: IReactSimulation): JSX.Element => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { componentType: Comp, props, wrapper: Wrapper } = simulation;
-    const renderWithPropOverrides = (overrides?: Record<string, unknown>) => <Comp {...props} {...overrides} />;
-    return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
-};
