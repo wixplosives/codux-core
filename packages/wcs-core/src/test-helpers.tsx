@@ -7,7 +7,6 @@ import type {
     IWindowEnvironmentProps,
     ICanvasEnvironmentProps,
 } from './types';
-import { entries } from './typed-entries';
 
 type CanvasStyles = Pick<
     CSSStyleDeclaration,
@@ -38,7 +37,7 @@ const defaultCanvasStyles: CanvasStyles = {
     backgroundColor: '#fff',
 };
 
-const applyStylesToWindow = (windowStyles: Partial<IWindowEnvironmentProps> = {}) => {
+const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}) => {
     const oldWindowHeight = window.outerHeight;
     const oldWindowWidth = window.outerWidth;
     const oldBackgroundColor = document.body.style.backgroundColor;
@@ -52,7 +51,7 @@ const applyStylesToWindow = (windowStyles: Partial<IWindowEnvironmentProps> = {}
     };
 };
 
-const mapEnvironmentPropsToStyles = (environmentProps: Partial<ICanvasEnvironmentProps>): CanvasStyles => ({
+const calculateCanvasStyle = (environmentProps: ICanvasEnvironmentProps = {}): CanvasStyles => ({
     width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
     height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
     marginLeft: environmentProps.canvasMargin?.left
@@ -82,14 +81,6 @@ const mapEnvironmentPropsToStyles = (environmentProps: Partial<ICanvasEnvironmen
     backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
 });
 
-const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Partial<ICanvasEnvironmentProps> = {}) => {
-    const styles = mapEnvironmentPropsToStyles(canvasEnvironmentProps);
-
-    for (const [styleProperty, stylePropertyValue] of entries(styles)) {
-        canvas.style[styleProperty] = stylePropertyValue;
-    }
-};
-
 export const simulationToJsx: SimulationToJsx = (simulation) => {
     const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
 
@@ -103,7 +94,7 @@ export const setupSimulationStage: SetupSimulationStage = (simulation) => {
     canvas.setAttribute('id', 'simulation-canvas');
 
     const resetWindow = applyStylesToWindow(simulation.environmentProps);
-    applyStylesToCanvas(canvas, simulation.environmentProps);
+    Object.assign(canvas.style, calculateCanvasStyle(simulation.environmentProps));
 
     document.body.appendChild(canvas);
 

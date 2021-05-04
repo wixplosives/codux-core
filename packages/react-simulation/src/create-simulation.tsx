@@ -73,7 +73,7 @@ export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRend
 }
 
 export interface IReactSimulation<P = any, ComponentType extends React.ComponentType<P> = React.ComponentType<any>>
-    extends ISimulation<ComponentType, React.PropsWithChildren<Partial<P>>, IReactSimulationHooks<never>> {
+    extends ISimulation<ComponentType, Partial<React.PropsWithChildren<P>>, IReactSimulationHooks<never>> {
     /** The simulated component type. */
     componentType: ComponentType;
 

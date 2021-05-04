@@ -40,7 +40,7 @@ const defaultCanvasStyles: CanvasStyles = {
     backgroundColor: '#fff',
 };
 
-const applyStylesToWindow = (windowStyles: Partial<IWindowEnvironmentProps> = {}) => {
+const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}) => {
     const oldWindowHeight = window.outerHeight;
     const oldWindowWidth = window.outerWidth;
     const oldBackgroundColor = document.body.style.backgroundColor;
@@ -54,7 +54,7 @@ const applyStylesToWindow = (windowStyles: Partial<IWindowEnvironmentProps> = {}
     };
 };
 
-const mapEnvironmentPropsToStyles = (environmentProps: Partial<ICanvasEnvironmentProps>): CanvasStyles => ({
+const calculateCanvasStyle = (environmentProps: ICanvasEnvironmentProps = {}): CanvasStyles => ({
     width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
     height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
     marginLeft: environmentProps.canvasMargin?.left
@@ -84,9 +84,6 @@ const mapEnvironmentPropsToStyles = (environmentProps: Partial<ICanvasEnvironmen
     backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
 });
 
-const applyStylesToCanvas = (canvas: HTMLDivElement, canvasEnvironmentProps: Partial<ICanvasEnvironmentProps> = {}) => {
-    Object.assign(canvas.style, mapEnvironmentPropsToStyles(canvasEnvironmentProps));
-};
 export type HookNames<DATA extends IGeneralMetadata<unknown, HookMap>> = keyof NonNullable<DATA['__hooks']> & string;
 
 export function getPluginsWithHooks<DATA extends IGeneralMetadata<unknown, HookMap>>(
@@ -130,8 +127,10 @@ export const setupSimulationStage: SetupSimulationStage = (simulation) => {
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'simulation-canvas');
 
-    const resetWindow = applyStylesToWindow(simulation.environmentProps);
-    applyStylesToCanvas(canvas, simulation.environmentProps);
+    const { environmentProps } = simulation;
+    const resetWindow = applyStylesToWindow(environmentProps);
+    Object.assign(canvas.style, calculateCanvasStyle(environmentProps));
+
     callHooks(simulation, 'beforeAppendCanvas', canvas);
 
     document.body.appendChild(canvas);
