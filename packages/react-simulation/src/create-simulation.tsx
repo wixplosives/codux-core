@@ -18,10 +18,10 @@ export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimula
  * Create simulation of a React component.
  */
 export function createSimulation<COMP extends React.ComponentType<any>>(
-    input: OmitReactSimulation<IReactSimulation<Partial<ComponentProps<COMP>>, COMP>>
+    input: OmitReactSimulation<IReactSimulation<ComponentProps<COMP>, COMP>>
 ): IReactSimulation<ComponentProps<COMP>, COMP> {
     const res = createSimulationBase<IReactSimulation<ComponentProps<COMP>, COMP>>({
-        ...(input as OmitReactSimulation<IReactSimulation<ComponentProps<COMP>, COMP>>),
+        ...input,
         renderer(target) {
             baseRender(
                 res,
@@ -60,7 +60,7 @@ export interface ISimulationWrapperProps<P> {
      * Call this function to render the simulated component with the simulated props.
      * @param overrides Allows you to override some of the simulated props with custom values.
      */
-    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<Partial<P>>;
+    renderSimulation(overrides?: Partial<P>): React.ReactElement<P>;
 }
 
 export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRenderableHooks<PLUGINPROPS> {
@@ -71,10 +71,9 @@ export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRend
         canvas: HTMLElement
     ) => null | JSX.Element;
 }
-export interface IReactSimulation<
-    PROPS = any,
-    ComponentType extends React.ComponentType<PROPS> = React.ComponentType<any>
-> extends ISimulation<ComponentType, PROPS, IReactSimulationHooks<never>> {
+
+export interface IReactSimulation<P = any, ComponentType extends React.ComponentType<P> = React.ComponentType<any>>
+    extends ISimulation<ComponentType, P, IReactSimulationHooks<never>> {
     /** The simulated component type. */
     componentType: ComponentType;
 
@@ -82,16 +81,11 @@ export interface IReactSimulation<
     name: string;
 
     /**
-     * A map between a component property name and its simulated value.
-     */
-    // TODO - change props to be optional field (props?: ...)
-
-    /**
      * Allows to wrap the simulated component in another component. Useful for providing context,
      * rendering controlled components, or rendering the simulated component multiple times - for
      * example a radio button as a radio group.
      */
-    wrapper?: React.ComponentType<ISimulationWrapperProps<PROPS>>;
+    wrapper?: React.ComponentType<ISimulationWrapperProps<P>>;
 }
 
 /**

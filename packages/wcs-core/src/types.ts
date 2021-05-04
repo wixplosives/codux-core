@@ -44,7 +44,7 @@ export interface ISimulationWrapperProps<P> {
      * Call this function to render the simulated component with the simulated props.
      * @param overrides Allows you to override some of the simulated props with custom values.
      */
-    renderSimulation: (overrides?: Partial<P>) => React.ReactElement<P>;
+    renderSimulation(overrides?: Partial<P>): React.ReactElement<P>;
 }
 
 export interface ISetupController {
@@ -78,7 +78,7 @@ export interface ISimulation<P = any> {
      * rendering controlled components, or rendering the simulated component multiple times - for
      * example a radio button as a radio group.
      */
-    wrapper?: React.FunctionComponent<ISimulationWrapperProps<P>>;
+    wrapper?: React.ComponentType<ISimulationWrapperProps<P>>;
 
     /**
      * Functions for setting up the page for the simulation: adding global styles,
