@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/simulation-plugins",
   "description": "Plugins for simulations",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "files": [
     "dist",

@@ -1,15 +1,15 @@
 {
   "name": "@wixc3/wcs-core",
   "description": "Types and helpers for component simulations",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": "^16.0.0 || ^17.0.0",
     "react-dom": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
-    "@wixc3/simulation-core": "^1.0.0",
-    "@wixc3/react-simulation": "^1.0.0"
+    "@wixc3/react-simulation": "^1.1.0",
+    "@wixc3/simulation-core": "^1.1.0"
   },
   "files": [
     "dist",
