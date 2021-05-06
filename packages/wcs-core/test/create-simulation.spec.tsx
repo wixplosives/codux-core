@@ -7,7 +7,7 @@ import { createSimulation } from '@wixc3/wcs-core';
 
 createSimulation({
     name: 'Test1',
-    props: { name: '' },
+    props: {},
     componentType: () => null,
 });
 

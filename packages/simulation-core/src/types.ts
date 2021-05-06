@@ -45,6 +45,7 @@ export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES>
     params: PLUGINPARAMS,
     ...hookParams: HOOKPARAMS
 ) => RES;
+
 export interface HookMap<PLUGINPARAMS extends IPROPS = never> {
     [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined;
 }
@@ -62,6 +63,7 @@ export interface Plugin<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMeta
     plugin: TARGET['__hooks'];
     use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
 }
+
 export interface PluginInfo<
     PLUGINPARAMS extends IPROPS,
     TARGET extends IGeneralMetadata<unknown, HookMap>,
@@ -115,6 +117,7 @@ export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends H
     beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
     afterRender?(props: PLUGINPARAMS, canvas: HTMLElement): void;
 }
+
 export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
     extends IGeneralMetadata<unknown, HOOKS & IRenderableHooks> {
     /**
@@ -164,5 +167,3 @@ export interface ISimulation<ComponentType, P, HOOKS extends HookMap = HookMap> 
 export type SetupSimulationStage = (
     simulation: IRenderableMetadataBase
 ) => { canvas: HTMLElement; cleanup: () => void };
-
-export type RenderSimulation = (simulation: IRenderableMetadataBase) => { canvas: HTMLElement; cleanup: () => void };
