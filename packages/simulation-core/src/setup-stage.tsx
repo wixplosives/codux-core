@@ -1,12 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import type {
-    SetupSimulationStage,
-    RenderSimulation,
-    SimulationToJsx,
-    IWindowEnvironmentProps,
-    ICanvasEnvironmentProps,
-} from './types';
+import { callHooks } from './hooks';
+import type { SetupSimulationStage, IWindowEnvironmentProps, ICanvasEnvironmentProps } from './types';
 
 type CanvasStyles = Pick<
     CSSStyleDeclaration,
@@ -81,42 +74,24 @@ const calculateCanvasStyle = (environmentProps: ICanvasEnvironmentProps = {}): C
     backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
 });
 
-export const simulationToJsx: SimulationToJsx = (simulation) => {
-    const { componentType: Comp, props = {}, wrapper: Wrapper } = simulation;
-
-    const renderWithPropOverrides = (overrides?: Record<string, unknown>) => <Comp {...props} {...overrides} />;
-
-    return Wrapper ? <Wrapper renderSimulation={renderWithPropOverrides} /> : <Comp {...props} />;
-};
-
 export const setupSimulationStage: SetupSimulationStage = (simulation) => {
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'simulation-canvas');
 
-    const resetWindow = applyStylesToWindow(simulation.environmentProps);
-    Object.assign(canvas.style, calculateCanvasStyle(simulation.environmentProps));
+    const { environmentProps } = simulation;
+    const resetWindow = applyStylesToWindow(environmentProps);
+    Object.assign(canvas.style, calculateCanvasStyle(environmentProps));
+
+    callHooks(simulation, 'beforeAppendCanvas', canvas);
 
     document.body.appendChild(canvas);
 
     const cleanup = () => {
+        callHooks(simulation, 'beforeStageCleanUp', canvas);
+
         canvas.remove();
         resetWindow();
     };
 
-    return { canvas: canvas, cleanup };
-};
-
-export const renderSimulation: RenderSimulation = (simulation) => {
-    const { canvas, cleanup: stageCleanup } = setupSimulationStage(simulation);
-    const Comp = simulationToJsx(simulation);
-
-    ReactDOM.render(Comp, canvas);
-
-    return {
-        canvas,
-        cleanup: (): void => {
-            ReactDOM.unmountComponentAtNode(canvas);
-            stageCleanup();
-        },
-    };
+    return { canvas, cleanup };
 };

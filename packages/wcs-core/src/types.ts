@@ -1,58 +1,6 @@
 import type React from 'react';
-
-export type LayoutSize = number | undefined | null;
-
-export type LayoutSizeWithAuto = LayoutSize | 'auto';
-
-export interface LayoutSpacing {
-    /** @visualizer spacing */
-    top?: LayoutSize;
-    /** @visualizer spacing */
-    right?: LayoutSize;
-    /** @visualizer spacing */
-    bottom?: LayoutSize;
-    /** @visualizer spacing */
-    left?: LayoutSize;
-}
-
-export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
-
-export interface IWindowEnvironmentProps {
-    /** @visualizer spacing */
-    windowWidth?: number | undefined;
-    /** @visualizer spacing */
-    windowHeight?: number | undefined;
-    /** @visualizer color */
-    windowBackgroundColor?: string | undefined;
-}
-
-export interface ICanvasEnvironmentProps {
-    /** @visualizer spacing */
-    canvasWidth?: LayoutSizeWithAuto;
-    /** @visualizer spacing */
-    canvasHeight?: LayoutSizeWithAuto;
-    /** @visualizer color */
-    canvasBackgroundColor?: string;
-    /** @visualizer canvasMargin */
-    canvasMargin?: LayoutSpacing;
-    /** @visualizer canvasPadding */
-    canvasPadding?: LayoutSpacing;
-}
-
-export interface ISimulationWrapperProps<P> {
-    /**
-     * Call this function to render the simulated component with the simulated props.
-     * @param overrides Allows you to override some of the simulated props with custom values.
-     */
-    renderSimulation(overrides?: Partial<P>): React.ReactElement<P>;
-}
-
-export interface ISetupController {
-    addScript(scriptUrl: string): Promise<void>;
-    addStylesheet(stylesheetUrl: string): Promise<void>;
-}
-
-export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
+import type { IPreviewEnvironmentPropsBase, SimulationSetupFunction } from '@wixc3/simulation-core';
+import type { ISimulationWrapperProps } from '@wixc3/react-simulation';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ISimulation<P = any> {
@@ -65,7 +13,6 @@ export interface ISimulation<P = any> {
     /**
      * A map between a component property name and its simulated value.
      */
-    // TODO - change props to be optional field (props?: ...)
     props: Partial<React.PropsWithChildren<P>>;
 
     /**

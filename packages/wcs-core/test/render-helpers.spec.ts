@@ -9,7 +9,7 @@ import {
     simulationWithEnvironmentProps,
 } from './fixtures/simulation-fixtures';
 
-describe('Rendering Simulations', () => {
+describe('render helpers', () => {
     const cleanupAfterTest = new Set<() => unknown>();
     afterEach(() => {
         for (const cleanup of cleanupAfterTest) {
