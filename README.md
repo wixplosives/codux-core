@@ -10,6 +10,8 @@
 
 - **[@wixc3/react-simulation](https://github.com/wixplosives/wcs-core/tree/master/packages/react-simulation)** - Creation of React component simulations.
 
+- **[@wixc3/simulation-plugins](https://github.com/wixplosives/wcs-core/tree/master/packages/simulation-plugins)** - Plugins for simulations.
+
 ### License
 
 MIT
