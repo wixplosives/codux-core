@@ -16,7 +16,7 @@
     "@types/chai": "^4.2.20",
     "@types/mocha": "^8.2.3",
     "@types/react": "^17.0.13",
-    "@types/react-dom": "^17.0.8",
+    "@types/react-dom": "^17.0.9",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "chai": "^4.3.4",
