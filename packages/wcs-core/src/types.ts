@@ -37,3 +37,23 @@ export interface ISimulation<P = any> {
 export type SetupSimulationStage = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
 export type RenderSimulation = (simulation: ISimulation) => { canvas: HTMLElement; cleanup: () => void };
 export type SimulationToJsx = (simulation: ISimulation) => JSX.Element;
+
+
+/**
+ *  Augmentation of react types and html attributes to store meta-information like visualizers
+ *
+ *  This is a toy example, it has to be changed before merging!
+ *
+ *  Actually we want to have 'image visualizer' for the image.src attribute but the image visualizer
+ *  does not exist yet. For demonstration purpose we put 'boolean visualizer' to the image.alt attribute.
+ */
+declare module 'react' {
+    interface ImgHTMLAttributes<T> {
+
+        /** @visualizer boolean */
+        alt?: string | undefined;
+
+        /** @visualizer image */
+        src?: string | undefined;
+    }
+}
