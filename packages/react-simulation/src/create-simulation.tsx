@@ -6,7 +6,6 @@ import {
     createSimulationBase,
     OmitSimulation,
     baseRender,
-    IPROPS,
     IRenderableHooks,
     IRenderableMetadataBase,
     ISimulation,
@@ -63,7 +62,7 @@ export interface ISimulationWrapperProps<P> {
     renderSimulation(overrides?: Partial<P>): React.ReactElement<P>;
 }
 
-export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRenderableHooks<PLUGINPROPS> {
+export interface IReactSimulationHooks<PLUGINPROPS> extends IRenderableHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,

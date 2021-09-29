@@ -37,16 +37,13 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
-export interface IPROPS {
-    [propName: string]: unknown;
-}
 
-export type HOOK<PLUGINPARAMS extends IPROPS, HOOKPARAMS extends unknown[], RES> = (
+export type HOOK<PLUGINPARAMS, HOOKPARAMS extends unknown[], RES> = (
     params: PLUGINPARAMS,
     ...hookParams: HOOKPARAMS
 ) => RES;
 
-export interface HookMap<PLUGINPARAMS extends IPROPS = never> {
+export interface HookMap<PLUGINPARAMS = never> {
     [hookName: string]: HOOK<PLUGINPARAMS, never[], unknown> | undefined;
 }
 
@@ -57,15 +54,17 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-export interface Plugin<PLUGINPARAMS extends IPROPS, TARGET extends IGeneralMetadata<unknown, HookMap>> {
+export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetadata<unknown, HookMap>> {
     pluginName: string;
     defaultProps: Partial<PLUGINPARAMS>;
     plugin: TARGET['__hooks'];
     use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
+    /** for  use in WCS */
+    merge: (pluginProps: PLUGINPARAMS[]) => PLUGINPARAMS[];
 }
 
 export interface PluginInfo<
-    PLUGINPARAMS extends IPROPS,
+    PLUGINPARAMS,
     TARGET extends IGeneralMetadata<unknown, HookMap>,
     SYMB extends Plugin<PLUGINPARAMS, TARGET>
 > {
@@ -73,7 +72,7 @@ export interface PluginInfo<
     props: PLUGINPARAMS;
 }
 
-export type ReplaceParams<MAP extends HookMap, PARAMS extends IPROPS> = {
+export type ReplaceParams<MAP extends HookMap, PARAMS> = {
     [hookname in keyof MAP]: NonNullable<MAP[hookname]> extends (
         pProps: never,
         ...params: infer HOOKPARAMS
@@ -81,37 +80,43 @@ export type ReplaceParams<MAP extends HookMap, PARAMS extends IPROPS> = {
         ? HOOK<PARAMS, HOOKPARAMS, RES>
         : never;
 };
-
-export const createPlugin = <
-    TARGET extends IGeneralMetadata<unknown, HookMap> = IGeneralMetadata<unknown, HookMap>
->() => <PluginProps extends IPROPS>(
-    pluginName: string,
-    defaultProps: Partial<PluginProps>,
-    plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>
-): Plugin<PluginProps, TARGET> => {
-    const res: Plugin<PluginProps, TARGET> = {
-        pluginName,
-        defaultProps,
-        plugin,
-        use: (props) => {
-            return {
-                key: (res as unknown) as Plugin<PluginProps, TARGET>,
-                props: { ...defaultProps, ...props } as PluginProps,
-            };
-        },
+export const defaultMerge = <T>(props: T[]): T[] => [
+    props.reduceRight((acc, curr) => {
+        return { ...acc, ...curr };
+    }),
+];
+export const createPlugin =
+    <TARGET extends IGeneralMetadata<unknown, HookMap> = IGeneralMetadata<unknown, HookMap>>() =>
+    <PluginProps>(
+        pluginName: string,
+        defaultProps: Partial<PluginProps>,
+        plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>,
+        merge: (params: PluginProps[]) => PluginProps[] = defaultMerge
+    ): Plugin<PluginProps, TARGET> => {
+        const res: Plugin<PluginProps, TARGET> = {
+            pluginName,
+            defaultProps,
+            plugin,
+            use: (props) => {
+                return {
+                    key: res as unknown as Plugin<PluginProps, TARGET>,
+                    props: { ...defaultProps, ...props } as PluginProps,
+                };
+            },
+            merge,
+        };
+        return res;
     };
-    return res;
-};
 
 /** Describe entities in your project. */
 export interface IGeneralMetadata<TARGET, HOOKS extends HookMap = HookMap> {
     target: TARGET;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugins?: PluginInfo<IPROPS, this, Plugin<any, this>>[];
+    plugins?: PluginInfo<unknown, this, Plugin<any, this>>[];
     __hooks?: HOOKS;
 }
 
-export interface IRenderableHooks<PLUGINPARAMS extends IPROPS = never> extends HookMap<PLUGINPARAMS> {
+export interface IRenderableHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPARAMS> {
     beforeAppendCanvas?(props: PLUGINPARAMS, canvas: HTMLElement): void;
     beforeStageCleanUp?(props: PLUGINPARAMS, canvas: HTMLElement): void;
     beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
@@ -164,6 +169,7 @@ export interface ISimulation<ComponentType, P, HOOKS extends HookMap = HookMap> 
     props: P;
 }
 
-export type SetupSimulationStage = (
-    simulation: IRenderableMetadataBase
-) => { canvas: HTMLElement; cleanup: () => void };
+export type SetupSimulationStage = (simulation: IRenderableMetadataBase) => {
+    canvas: HTMLElement;
+    cleanup: () => void;
+};
