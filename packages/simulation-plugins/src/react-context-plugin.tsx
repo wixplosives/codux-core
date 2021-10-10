@@ -6,16 +6,18 @@ export interface ContextPluginProps<T> {
     value: T;
 }
 
-export const reactContextPlugin = createPlugin<IReactStory>()<ContextPluginProps<unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const reactContextPlugin = createPlugin<IReactStory<any>>()<ContextPluginProps<any>>(
     'React-context',
     {},
     {
         wrapRender(props, _metaData, el) {
-            return <props.context.Provider value={props.value}>{el}</props.context.Provider>;
+            return <props.context.Provider value={props.value as unknown}>{el}</props.context.Provider>;
         },
     },
     (params) => {
-        const usedContexts = new Set<React.Context<unknown>>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const usedContexts = new Set<React.Context<any>>();
         return params.filter((p) => {
             if (usedContexts.has(p.context)) {
                 return false;

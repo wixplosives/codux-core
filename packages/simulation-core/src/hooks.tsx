@@ -1,8 +1,8 @@
 import type { IGeneralMetadata, PluginInfo, Plugin, HookMap, HOOK } from './types';
 
-export type HookNames<DATA extends IGeneralMetadata<unknown, HookMap>> = keyof NonNullable<DATA['__hooks']> & string;
+export type HookNames<DATA extends IGeneralMetadata<HookMap>> = keyof NonNullable<DATA['__hooks']> & string;
 
-export function getPluginsWithHooks<DATA extends IGeneralMetadata<unknown, HookMap>>(
+export function getPluginsWithHooks<DATA extends IGeneralMetadata<HookMap>>(
     data: DATA,
     hookName: HookNames<DATA>
 ): PluginInfo<unknown, DATA, Plugin<unknown, DATA>>[] {
@@ -16,13 +16,13 @@ export function getPluginsWithHooks<DATA extends IGeneralMetadata<unknown, HookM
     >[];
 }
 
-export type HookParams<DATA extends IGeneralMetadata<unknown, HookMap>, HOOK extends HookNames<DATA>> = NonNullable<
+export type HookParams<DATA extends IGeneralMetadata<HookMap>, HOOK extends HookNames<DATA>> = NonNullable<
     NonNullable<DATA['__hooks']>[HOOK]
 > extends (pluginParams: never, ...args: infer U) => void | unknown
     ? U
     : never;
 
-export function callHooks<DATA extends IGeneralMetadata<unknown, HookMap>, HOOKNAME extends HookNames<DATA>>(
+export function callHooks<DATA extends IGeneralMetadata<HookMap>, HOOKNAME extends HookNames<DATA>>(
     data: DATA,
     hookName: HOOKNAME,
     ...props: HookParams<DATA, HOOKNAME>

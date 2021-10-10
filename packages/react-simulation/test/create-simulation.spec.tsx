@@ -36,6 +36,5 @@ createSimulation({
 });
 
 export const a = createMetadata({
-    target: x,
     plugins: [],
 });

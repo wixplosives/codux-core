@@ -37,7 +37,6 @@ export interface ICanvasEnvironmentProps {
     canvasPadding?: LayoutSpacing;
 }
 
-
 export type HOOK<PLUGINPARAMS, HOOKPARAMS extends unknown[], RES> = (
     params: PLUGINPARAMS,
     ...hookParams: HOOKPARAMS
@@ -54,18 +53,18 @@ export interface ISetupController {
 
 export type SimulationSetupFunction = (controller: ISetupController) => void | Promise<void>;
 
-export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetadata<unknown, HookMap>> {
+export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetadata<HookMap>> {
     pluginName: string;
     defaultProps: Partial<PLUGINPARAMS>;
     plugin: TARGET['__hooks'];
-    use: (props: Partial<PLUGINPARAMS>) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
+    use: (props: PLUGINPARAMS) => PluginInfo<PLUGINPARAMS, TARGET, Plugin<PLUGINPARAMS, TARGET>>;
     /** for  use in WCS */
     merge: (pluginProps: PLUGINPARAMS[]) => PLUGINPARAMS[];
 }
 
 export interface PluginInfo<
     PLUGINPARAMS,
-    TARGET extends IGeneralMetadata<unknown, HookMap>,
+    TARGET extends IGeneralMetadata<HookMap>,
     SYMB extends Plugin<PLUGINPARAMS, TARGET>
 > {
     key: SYMB;
@@ -86,7 +85,7 @@ export const defaultMerge = <T>(props: T[]): T[] => [
     }),
 ];
 export const createPlugin =
-    <TARGET extends IGeneralMetadata<unknown, HookMap> = IGeneralMetadata<unknown, HookMap>>() =>
+    <TARGET extends IGeneralMetadata<HookMap> = IGeneralMetadata<HookMap>>() =>
     <PluginProps>(
         pluginName: string,
         defaultProps: Partial<PluginProps>,
@@ -109,8 +108,7 @@ export const createPlugin =
     };
 
 /** Describe entities in your project. */
-export interface IGeneralMetadata<TARGET, HOOKS extends HookMap = HookMap> {
-    target: TARGET;
+export interface IGeneralMetadata<HOOKS extends HookMap = HookMap> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins?: PluginInfo<unknown, this, Plugin<any, this>>[];
     __hooks?: HOOKS;
@@ -124,7 +122,7 @@ export interface IRenderableHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPA
 }
 
 export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
-    extends IGeneralMetadata<unknown, HOOKS & IRenderableHooks> {
+    extends IGeneralMetadata<HOOKS & IRenderableHooks> {
     /**
      * renders the Renderable into an html element
      */

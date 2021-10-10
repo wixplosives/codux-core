@@ -10,28 +10,38 @@ import {
     createRenderableBase,
 } from '@wixc3/simulation-core';
 
-export type OmitReactStory<DATA extends IReactStory> = Omit<OmitIRenderableMetadataBase<DATA>, 'renderer' | 'cleanup'>;
-export interface IReactStory extends IRenderableMetadataBase<IReactStoryHooks<never>> {
+export type StoryProps<DATA extends IReactStory<any>> = DATA extends IReactStory<infer PROPS> ? PROPS : never;
+
+export type OmitReactStory<DATA extends IReactStory<any>> = Omit<
+    OmitIRenderableMetadataBase<DATA>,
+    'renderer' | 'cleanup' | 'props'
+> & {
+    props?: StoryProps<DATA>;
+};
+export interface IReactStory<PROPS = Record<string, never>> extends IRenderableMetadataBase<IReactStoryHooks<never>> {
     /** The name of the story. */
     name: string;
 
     /**
      * the story to render
      */
-    story: React.ComponentType<Record<string, never>>;
+    story: React.ComponentType<PROPS>;
+
+    props: PROPS;
 }
 
 /**
  * Create story of React components.
  */
-export function createStory(input: OmitReactStory<IReactStory>): IReactStory {
-    const res = createRenderableBase<IReactStory>({
+export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): IReactStory<PROPS> {
+    const res = createRenderableBase<IReactStory<PROPS>>({
+        props: {} as PROPS,
         ...input,
         renderer(target) {
             baseRender(
                 res,
                 () => {
-                    let element = <res.story />;
+                    let element = <res.story {...this.props} />;
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
