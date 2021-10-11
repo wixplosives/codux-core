@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import {
     getPluginsWithHooks,
     baseRender,
-    IRenderableHooks,
+    IRenderableLifeCycleHooks,
     IRenderableMetadataBase,
     OmitIRenderableMetadataBase,
     createRenderableBase,
@@ -61,7 +61,7 @@ export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): I
     return res;
 }
 
-export interface IReactStoryHooks<PLUGINPROPS> extends IRenderableHooks<PLUGINPROPS> {
+export interface IReactStoryHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,

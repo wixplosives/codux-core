@@ -114,7 +114,7 @@ export interface IGeneralMetadata<HOOKS extends HookMap = HookMap> {
     __hooks?: HOOKS;
 }
 
-export interface IRenderableHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPARAMS> {
+export interface IRenderableLifeCycleHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPARAMS> {
     beforeAppendCanvas?(props: PLUGINPARAMS, canvas: HTMLElement): void;
     beforeStageCleanUp?(props: PLUGINPARAMS, canvas: HTMLElement): void;
     beforeRender?(pluginProps: PLUGINPARAMS, canvas: HTMLElement): void;
@@ -122,7 +122,7 @@ export interface IRenderableHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPA
 }
 
 export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
-    extends IGeneralMetadata<HOOKS & IRenderableHooks> {
+    extends IGeneralMetadata<HOOKS & IRenderableLifeCycleHooks> {
     /**
      * renders the Renderable into an html element
      */
