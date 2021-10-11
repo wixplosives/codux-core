@@ -10,7 +10,7 @@ describe('react context plugin', () => {
         cleanupAfterTest.clear();
     });
 
-    it('wraps the simulation with context', () => {
+    it('wraps the story with context', () => {
         const { canvas, cleanup } = story.setupStage();
         cleanupAfterTest.add(cleanup);
         story.renderer(canvas);
