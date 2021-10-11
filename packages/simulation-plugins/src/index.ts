@@ -1,2 +1,2 @@
 export * from './css-vars-plugin';
-export * from './tags-plugin';
+export * from './react-context-plugin';

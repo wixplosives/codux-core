@@ -9,5 +9,5 @@ export type OmitSimulation<DATA extends ISimulation<unknown, unknown, HookMap>> 
 export function createSimulationBase<DATA extends ISimulation<unknown, unknown, HookMap>>(
     data: OmitSimulation<DATA>
 ): DATA {
-    return createRenderableBase({ target: data.componentType, ...data } as DATA);
+    return createRenderableBase({ ...data } as DATA);
 }

@@ -6,8 +6,7 @@ import {
     createSimulationBase,
     OmitSimulation,
     baseRender,
-    IPROPS,
-    IRenderableHooks,
+    IRenderableLifeCycleHooks,
     IRenderableMetadataBase,
     ISimulation,
 } from '@wixc3/simulation-core';
@@ -63,7 +62,7 @@ export interface ISimulationWrapperProps<P> {
     renderSimulation(overrides?: Partial<P>): React.ReactElement<P>;
 }
 
-export interface IReactSimulationHooks<PLUGINPROPS extends IPROPS> extends IRenderableHooks<PLUGINPROPS> {
+export interface IReactSimulationHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,
