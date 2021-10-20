@@ -126,7 +126,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
     /**
      * renders the Renderable into an html element
      */
-    renderer: (targetElement: HTMLElement) => void;
+    render: (targetElement: HTMLElement, callback?: () => void) => void;
     /**
      * cleans everything the renderer does
      */

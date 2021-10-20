@@ -21,5 +21,5 @@ let lastCleanUp: undefined | (() => void);
 const setupAndRun = (data: IRenderableMetadataBase) => {
     const { canvas, cleanup } = data.setupStage();
     lastCleanUp = cleanup;
-    data.renderer(canvas);
+    data.render(canvas);
 };

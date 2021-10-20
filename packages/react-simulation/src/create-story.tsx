@@ -37,7 +37,7 @@ export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): I
     const res = createRenderableBase<IReactStory<PROPS>>({
         props: {} as PROPS,
         ...input,
-        renderer(target) {
+        render(target, callback) {
             baseRender(
                 res,
                 () => {
@@ -49,7 +49,7 @@ export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): I
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target);
+                    ReactDOM.render(element, target, callback);
                 },
                 target
             );

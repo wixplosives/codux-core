@@ -21,7 +21,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
 ): IReactSimulation<ComponentProps<COMP>, COMP> {
     const res = createSimulationBase<IReactSimulation<ComponentProps<COMP>, COMP>>({
         ...input,
-        renderer(target) {
+        render(target, callback) {
             baseRender(
                 res,
                 () => {
@@ -42,7 +42,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target);
+                    ReactDOM.render(element, target, callback);
                 },
                 target
             );

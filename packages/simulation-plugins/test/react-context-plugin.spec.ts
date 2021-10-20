@@ -13,7 +13,7 @@ describe('react context plugin', () => {
     it('wraps the story with context', () => {
         const { canvas, cleanup } = story.setupStage();
         cleanupAfterTest.add(cleanup);
-        story.renderer(canvas);
+        story.render(canvas);
 
         expect(canvas.innerText).to.include('context text');
         cleanup();

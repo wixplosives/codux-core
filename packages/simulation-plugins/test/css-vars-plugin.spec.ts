@@ -13,7 +13,7 @@ describe('css var plugin', () => {
     it('wraps the simulation with context', () => {
         const { canvas, cleanup } = story.setupStage();
         cleanupAfterTest.add(cleanup);
-        story.renderer(canvas);
+        story.render(canvas);
         const compElement = canvas.children[0];
         const style = window.getComputedStyle(compElement);
         expect(style.color).to.equal('rgb(255, 0, 0)');
