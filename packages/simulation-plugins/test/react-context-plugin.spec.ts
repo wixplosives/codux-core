@@ -10,10 +10,10 @@ describe('react context plugin', () => {
         cleanupAfterTest.clear();
     });
 
-    it('wraps the demo with context', () => {
+    it('wraps the demo with context', async () => {
         const { canvas, cleanup } = demo.setupStage();
         cleanupAfterTest.add(cleanup);
-        demo.render(canvas);
+        await demo.render(canvas);
 
         expect(canvas.innerText).to.include('context text');
         cleanup();
