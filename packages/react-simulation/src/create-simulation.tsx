@@ -19,12 +19,14 @@ export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimula
 export function createSimulation<COMP extends React.ComponentType<any>>(
     input: OmitReactSimulation<IReactSimulation<ComponentProps<COMP>, COMP>>
 ): IReactSimulation<ComponentProps<COMP>, COMP> {
-    const res = createSimulationBase<IReactSimulation<ComponentProps<COMP>, COMP>>({
+    const res: IReactSimulation<ComponentProps<COMP>, COMP> = createSimulationBase<
+        IReactSimulation<ComponentProps<COMP>, COMP>
+    >({
         ...input,
-        render(target, callback) {
-            baseRender(
+        render(target) {
+            return baseRender(
                 res,
-                () => {
+                async (target) => {
                     let element = this.wrapper ? (
                         <this.wrapper
                             renderSimulation={(props) => {
@@ -38,11 +40,13 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
-                            const el = plugin.key.plugin?.wrapRender(plugin.props as never, res, element, target);
+                            const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target, callback);
+                    await new Promise<void>((res) => {
+                        ReactDOM.render(element, target, res);
+                    });
                 },
                 target
             );

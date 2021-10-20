@@ -34,22 +34,24 @@ export interface IReactDemo<PROPS = Record<string, never>> extends IRenderableMe
  * Create demo of React components.
  */
 export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IReactDemo<PROPS> {
-    const res = createRenderableBase<IReactDemo<PROPS>>({
+    const res: IReactDemo<PROPS> = createRenderableBase<IReactDemo<PROPS>>({
         props: {} as PROPS,
         ...input,
-        render(target, callback) {
-            baseRender(
+        render(target) {
+            return baseRender(
                 res,
-                () => {
+                async () => {
                     let element = <res.demo {...this.props} />;
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
-                            const el = plugin.key.plugin?.wrapRender(plugin.props as never, res, element, target);
+                            const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target, callback);
+                    await new Promise<void>((res) => {
+                        ReactDOM.render(element, target, res);
+                    });
                 },
                 target
             );

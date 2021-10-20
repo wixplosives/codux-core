@@ -8,13 +8,13 @@ export type OmitIRenderableMetadataBase<DATA extends IRenderableMetadataBase> = 
     'setupStage' | 'cleanupStage'
 >;
 
-export function baseRender<DATA extends IRenderableMetadataBase>(
+export async function baseRender<DATA extends IRenderableMetadataBase>(
     data: DATA,
-    render: (target: HTMLElement) => void,
+    render: (target: HTMLElement) => Promise<void>,
     canvas: HTMLElement
-): void {
+): Promise<void> {
     callHooks<IRenderableMetadataBase, 'beforeRender'>(data, 'beforeRender', canvas);
-    render(canvas);
+    await render(canvas);
     callHooks<IRenderableMetadataBase, 'afterRender'>(data, 'afterRender', canvas);
 }
 
