@@ -12,8 +12,7 @@ for (const examp of examples) {
         if (lastCleanUp) {
             lastCleanUp();
         }
-        // eslint-disable-next-line no-console
-        setupAndRun(examp).catch(console.error);
+        setupAndRun(examp);
     };
     menu.appendChild(linkButton);
 }
@@ -22,5 +21,6 @@ let lastCleanUp: undefined | (() => void);
 const setupAndRun = (data: IRenderableMetadataBase) => {
     const { canvas, cleanup } = data.setupStage();
     lastCleanUp = cleanup;
-    return data.render(canvas);
+    // eslint-disable-next-line no-console
+    data.render(canvas).catch(console.error);
 };
