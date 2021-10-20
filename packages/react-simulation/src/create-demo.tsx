@@ -14,7 +14,7 @@ export type DemoProps<DATA extends IReactDemo<any>> = DATA extends IReactDemo<in
 
 export type OmitReactDemo<DATA extends IReactDemo<any>> = Omit<
     OmitIRenderableMetadataBase<DATA>,
-    'renderer' | 'cleanup' | 'props'
+    'render' | 'cleanup' | 'props'
 > & {
     props?: DemoProps<DATA>;
 };
@@ -61,7 +61,6 @@ export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IRea
     return res;
 }
 
-export interface IReactDemoHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
 export interface IReactDemoHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,

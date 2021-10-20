@@ -11,7 +11,7 @@ import {
     ISimulation,
 } from '@wixc3/simulation-core';
 
-export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
+export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'render' | 'cleanup'>;
 
 /**
  * Create simulation of a React component.
