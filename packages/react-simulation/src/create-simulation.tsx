@@ -11,7 +11,7 @@ import {
     ISimulation,
 } from '@wixc3/simulation-core';
 
-export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'renderer' | 'cleanup'>;
+export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'render' | 'cleanup'>;
 
 /**
  * Create simulation of a React component.
@@ -19,12 +19,14 @@ export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimula
 export function createSimulation<COMP extends React.ComponentType<any>>(
     input: OmitReactSimulation<IReactSimulation<ComponentProps<COMP>, COMP>>
 ): IReactSimulation<ComponentProps<COMP>, COMP> {
-    const res = createSimulationBase<IReactSimulation<ComponentProps<COMP>, COMP>>({
+    const res: IReactSimulation<ComponentProps<COMP>, COMP> = createSimulationBase<
+        IReactSimulation<ComponentProps<COMP>, COMP>
+    >({
         ...input,
-        renderer(target) {
-            baseRender(
+        render(target) {
+            return baseRender(
                 res,
-                () => {
+                async (target) => {
                     let element = this.wrapper ? (
                         <this.wrapper
                             renderSimulation={(props) => {
@@ -38,11 +40,13 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
-                            const el = plugin.key.plugin?.wrapRender(plugin.props as never, res, element, target);
+                            const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target);
+                    await new Promise<void>((res) => {
+                        ReactDOM.render(element, target, res);
+                    });
                 },
                 target
             );

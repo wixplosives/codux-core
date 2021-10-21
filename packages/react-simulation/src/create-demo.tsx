@@ -10,46 +10,48 @@ import {
     createRenderableBase,
 } from '@wixc3/simulation-core';
 
-export type StoryProps<DATA extends IReactStory<any>> = DATA extends IReactStory<infer PROPS> ? PROPS : never;
+export type DemoProps<DATA extends IReactDemo<any>> = DATA extends IReactDemo<infer PROPS> ? PROPS : never;
 
-export type OmitReactStory<DATA extends IReactStory<any>> = Omit<
+export type OmitReactDemo<DATA extends IReactDemo<any>> = Omit<
     OmitIRenderableMetadataBase<DATA>,
-    'renderer' | 'cleanup' | 'props'
+    'render' | 'cleanup' | 'props'
 > & {
-    props?: StoryProps<DATA>;
+    props?: DemoProps<DATA>;
 };
-export interface IReactStory<PROPS = Record<string, never>> extends IRenderableMetadataBase<IReactStoryHooks<never>> {
-    /** The name of the story. */
+export interface IReactDemo<PROPS = Record<string, never>> extends IRenderableMetadataBase<IReactDemoHooks<never>> {
+    /** The name of the demo. */
     name: string;
 
     /**
-     * the story to render
+     * the demo to render
      */
-    story: React.ComponentType<PROPS>;
+    demo: React.ComponentType<PROPS>;
 
     props: PROPS;
 }
 
 /**
- * Create story of React components.
+ * Create demo of React components.
  */
-export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): IReactStory<PROPS> {
-    const res = createRenderableBase<IReactStory<PROPS>>({
+export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IReactDemo<PROPS> {
+    const res: IReactDemo<PROPS> = createRenderableBase<IReactDemo<PROPS>>({
         props: {} as PROPS,
         ...input,
-        renderer(target) {
-            baseRender(
+        render(target) {
+            return baseRender(
                 res,
-                () => {
-                    let element = <res.story {...this.props} />;
+                async () => {
+                    let element = <res.demo {...this.props} />;
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
-                            const el = plugin.key.plugin?.wrapRender(plugin.props as never, res, element, target);
+                            const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
                             element = el || element;
                         }
                     }
-                    ReactDOM.render(element, target);
+                    await new Promise<void>((res) => {
+                        ReactDOM.render(element, target, res);
+                    });
                 },
                 target
             );
@@ -61,7 +63,7 @@ export function createStory<PROPS>(input: OmitReactStory<IReactStory<PROPS>>): I
     return res;
 }
 
-export interface IReactStoryHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
+export interface IReactDemoHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,

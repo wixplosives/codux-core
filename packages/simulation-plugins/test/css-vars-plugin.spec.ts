@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import story from './fixtures/css-vars-user.story';
+import demo from './fixtures/css-vars-user.demo';
 
 describe('css var plugin', () => {
     const cleanupAfterTest = new Set<() => unknown>();
@@ -10,10 +10,10 @@ describe('css var plugin', () => {
         cleanupAfterTest.clear();
     });
 
-    it('wraps the simulation with context', () => {
-        const { canvas, cleanup } = story.setupStage();
+    it('wraps the simulation with context', async () => {
+        const { canvas, cleanup } = demo.setupStage();
         cleanupAfterTest.add(cleanup);
-        story.renderer(canvas);
+        await demo.render(canvas);
         const compElement = canvas.children[0];
         const style = window.getComputedStyle(compElement);
         expect(style.color).to.equal('rgb(255, 0, 0)');

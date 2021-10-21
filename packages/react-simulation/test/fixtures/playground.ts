@@ -21,5 +21,6 @@ let lastCleanUp: undefined | (() => void);
 const setupAndRun = (data: IRenderableMetadataBase) => {
     const { canvas, cleanup } = data.setupStage();
     lastCleanUp = cleanup;
-    data.renderer(canvas);
+    // eslint-disable-next-line no-console
+    data.render(canvas).catch(console.error);
 };

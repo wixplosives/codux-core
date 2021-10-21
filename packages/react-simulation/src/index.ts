@@ -1,2 +1,2 @@
 export * from './create-simulation';
-export * from './create-story';
+export * from './create-demo';

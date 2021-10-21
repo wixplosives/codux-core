@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import story from './fixtures/context-user.story';
+import demo from './fixtures/context-user.demo';
 
 describe('react context plugin', () => {
     const cleanupAfterTest = new Set<() => unknown>();
@@ -10,10 +10,10 @@ describe('react context plugin', () => {
         cleanupAfterTest.clear();
     });
 
-    it('wraps the story with context', () => {
-        const { canvas, cleanup } = story.setupStage();
+    it('wraps the demo with context', async () => {
+        const { canvas, cleanup } = demo.setupStage();
         cleanupAfterTest.add(cleanup);
-        story.renderer(canvas);
+        await demo.render(canvas);
 
         expect(canvas.innerText).to.include('context text');
         cleanup();
