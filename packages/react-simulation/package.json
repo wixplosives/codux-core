@@ -1,14 +1,14 @@
 {
   "name": "@wixc3/react-simulation",
   "description": "Library for creation of React component simulations",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": "^16.0.0 || ^17.0.0",
     "react-dom": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
-    "@wixc3/simulation-core": "^6.0.0"
+    "@wixc3/simulation-core": "^7.0.0"
   },
   "files": [
     "dist",
