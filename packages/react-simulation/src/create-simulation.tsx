@@ -10,6 +10,7 @@ import {
     IRenderableMetadataBase,
     ISimulation,
 } from '@wixc3/simulation-core';
+import { reactErrorHandledRendering } from './react-error-handled-render';
 
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'render' | 'cleanup'>;
 
@@ -44,9 +45,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                             element = el || element;
                         }
                     }
-                    await new Promise<void>((res) => {
-                        ReactDOM.render(element, target, res);
-                    });
+                    await reactErrorHandledRendering(element, target);
                 },
                 target
             );

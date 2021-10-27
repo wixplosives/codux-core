@@ -9,6 +9,7 @@ import {
     OmitIRenderableMetadataBase,
     createRenderableBase,
 } from '@wixc3/simulation-core';
+import { reactErrorHandledRendering } from './react-error-handled-render';
 
 export type DemoProps<DATA extends IReactDemo<any>> = DATA extends IReactDemo<infer PROPS> ? PROPS : never;
 
@@ -49,9 +50,7 @@ export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IRea
                             element = el || element;
                         }
                     }
-                    await new Promise<void>((res) => {
-                        ReactDOM.render(element, target, res);
-                    });
+                    await reactErrorHandledRendering(element, target);
                 },
                 target
             );
