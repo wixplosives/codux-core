@@ -10,7 +10,7 @@ import {
     IRenderableMetadataBase,
     ISimulation,
 } from '@wixc3/simulation-core';
-import { reactAsyncRender } from './react-async-render';
+import { reactErrorHandledRendering } from './react-error-handled-render';
 
 export type OmitReactSimulation<DATA extends IReactSimulation> = Omit<OmitSimulation<DATA>, 'render' | 'cleanup'>;
 
@@ -45,7 +45,7 @@ export function createSimulation<COMP extends React.ComponentType<any>>(
                             element = el || element;
                         }
                     }
-                    await reactAsyncRender(element, target);
+                    await reactErrorHandledRendering(element, target);
                 },
                 target
             );

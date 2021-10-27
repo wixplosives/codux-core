@@ -1,7 +1,7 @@
 import React, { ErrorInfo } from 'react';
 import ReactDOM from 'react-dom';
 
-export const reactAsyncRender = (element: JSX.Element, container: HTMLElement) =>
+export const reactErrorHandledRendering = (element: JSX.Element, container: HTMLElement) =>
     new Promise<void>((resolve, reject) => {
         ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
     });
