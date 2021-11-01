@@ -1,5 +1,5 @@
 import { callHooks } from './hooks';
-import type { SetupSimulationStage, IWindowEnvironmentProps, ICanvasEnvironmentProps } from './types';
+import type { SetupSimulationStage, IWindowEnvironmentProps } from './types';
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}) => {
     const oldWindowHeight = window.outerHeight;
