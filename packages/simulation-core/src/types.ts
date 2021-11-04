@@ -138,7 +138,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      * @returns canvas an html element for rendering into, cleanup a method for cleaing up the sideeffects
      *
      */
-    setupStage: () => { canvas: HTMLElement; cleanup: () => void };
+    setupStage: (parentElement?: HTMLElement) => ReturnType<SetupSimulationStage>;
 
     /**
      * Simulation's environment properties (e.g. the window size, the component alignment, etc.)
@@ -167,7 +167,12 @@ export interface ISimulation<ComponentType, P, HOOKS extends HookMap = HookMap> 
     props: P;
 }
 
-export type SetupSimulationStage = (simulation: IRenderableMetadataBase) => {
+export type SetupSimulationStage = (
+    simulation: IRenderableMetadataBase,
+    parentElement: HTMLElement
+) => {
     canvas: HTMLElement;
     cleanup: () => void;
+    updateCanvas: (canvasEnvironmentProps: ICanvasEnvironmentProps) => void;
+    updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
 };

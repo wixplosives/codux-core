@@ -23,8 +23,8 @@ export function createRenderableBase<DATA extends IRenderableMetadataBase>(
 ): DATA {
     const res: DATA = createMetadata({
         ...data,
-        setupStage() {
-            return setupSimulationStage(this);
+        setupStage(parentElement = document.body) {
+            return setupSimulationStage(this, parentElement);
         },
     } as DATA);
     return res;

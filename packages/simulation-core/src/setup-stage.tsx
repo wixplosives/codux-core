@@ -19,10 +19,10 @@ type CanvasStyles = Pick<
 const defaultCanvasStyles: CanvasStyles = {
     width: 'fit-content',
     height: 'fit-content',
-    marginLeft: '0px',
-    marginRight: '0px',
-    marginBottom: '0px',
-    marginTop: '0px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 'auto',
+    marginTop: 'auto',
     paddingLeft: '0px',
     paddingRight: '0px',
     paddingBottom: '0px',
@@ -30,68 +30,102 @@ const defaultCanvasStyles: CanvasStyles = {
     backgroundColor: '#fff',
 };
 
-const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}) => {
-    const oldWindowHeight = window.outerHeight;
-    const oldWindowWidth = window.outerWidth;
-    const oldBackgroundColor = document.body.style.backgroundColor;
+const applyStylesToWindow = (
+    windowStyles: IWindowEnvironmentProps = {},
+    previousWindowEnvironmentProps: IWindowEnvironmentProps
+) => {
+    previousWindowEnvironmentProps.windowHeight = window.outerHeight;
+    previousWindowEnvironmentProps.windowWidth = window.outerWidth;
+    previousWindowEnvironmentProps.windowBackgroundColor = document.body.style.backgroundColor;
 
-    window.resizeTo(windowStyles.windowWidth || oldWindowWidth, windowStyles.windowHeight || oldWindowHeight);
-    document.body.style.backgroundColor = windowStyles.windowBackgroundColor || oldBackgroundColor;
+    window.resizeTo(
+        windowStyles.windowWidth || previousWindowEnvironmentProps.windowWidth,
+        windowStyles.windowHeight || previousWindowEnvironmentProps.windowHeight
+    );
 
-    return () => {
-        window.resizeTo(oldWindowWidth, oldWindowHeight);
-        document.body.style.backgroundColor = oldBackgroundColor;
-    };
+    document.body.style.backgroundColor =
+        windowStyles.windowBackgroundColor || previousWindowEnvironmentProps.windowBackgroundColor;
 };
 
-const calculateCanvasStyle = (environmentProps: ICanvasEnvironmentProps = {}): CanvasStyles => ({
-    width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
-    height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
-    marginLeft: environmentProps.canvasMargin?.left
-        ? `${environmentProps.canvasMargin?.left}px`
-        : defaultCanvasStyles.marginLeft,
-    marginRight: environmentProps.canvasMargin?.right
-        ? `${environmentProps.canvasMargin?.right}px`
-        : defaultCanvasStyles.marginRight,
-    marginBottom: environmentProps.canvasMargin?.bottom
-        ? `${environmentProps.canvasMargin?.bottom}px`
-        : defaultCanvasStyles.marginBottom,
-    marginTop: environmentProps.canvasMargin?.top
-        ? `${environmentProps.canvasMargin?.top}px`
-        : defaultCanvasStyles.marginTop,
-    paddingLeft: environmentProps.canvasPadding?.left
-        ? `${environmentProps.canvasPadding?.left}px`
-        : defaultCanvasStyles.paddingLeft,
-    paddingRight: environmentProps.canvasPadding?.right
-        ? `${environmentProps.canvasPadding?.right}px`
-        : defaultCanvasStyles.paddingRight,
-    paddingBottom: environmentProps.canvasPadding?.bottom
-        ? `${environmentProps.canvasPadding?.bottom}px`
-        : defaultCanvasStyles.paddingBottom,
-    paddingTop: environmentProps.canvasPadding?.top
-        ? `${environmentProps.canvasPadding?.top}px`
-        : defaultCanvasStyles.paddingTop,
-    backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
-});
+const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
+    const canvasStyle = {
+        width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
+        height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
+        marginLeft: environmentProps.canvasMargin?.left
+            ? `${environmentProps.canvasMargin?.left}px`
+            : defaultCanvasStyles.marginLeft,
+        marginRight: environmentProps.canvasMargin?.right
+            ? `${environmentProps.canvasMargin?.right}px`
+            : defaultCanvasStyles.marginRight,
+        marginBottom: environmentProps.canvasMargin?.bottom
+            ? `${environmentProps.canvasMargin?.bottom}px`
+            : defaultCanvasStyles.marginBottom,
+        marginTop: environmentProps.canvasMargin?.top
+            ? `${environmentProps.canvasMargin?.top}px`
+            : defaultCanvasStyles.marginTop,
+        paddingLeft: environmentProps.canvasPadding?.left
+            ? `${environmentProps.canvasPadding?.left}px`
+            : defaultCanvasStyles.paddingLeft,
+        paddingRight: environmentProps.canvasPadding?.right
+            ? `${environmentProps.canvasPadding?.right}px`
+            : defaultCanvasStyles.paddingRight,
+        paddingBottom: environmentProps.canvasPadding?.bottom
+            ? `${environmentProps.canvasPadding?.bottom}px`
+            : defaultCanvasStyles.paddingBottom,
+        paddingTop: environmentProps.canvasPadding?.top
+            ? `${environmentProps.canvasPadding?.top}px`
+            : defaultCanvasStyles.paddingTop,
+        backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
+    };
 
-export const setupSimulationStage: SetupSimulationStage = (simulation) => {
+    // Canvas gets stretched horizontally/vertically
+    // when vertical (top and bottom) or horizontal (left and right) margins are applied.
+
+    if (environmentProps.canvasMargin?.left !== undefined && environmentProps.canvasMargin.right !== undefined) {
+        canvasStyle.width = '100%';
+    }
+
+    if (environmentProps.canvasMargin?.top !== undefined && environmentProps.canvasMargin.bottom !== undefined) {
+        canvasStyle.height = 'auto';
+    }
+
+    Object.assign(canvas.style, canvasStyle);
+};
+
+export const setupSimulationStage: SetupSimulationStage = (simulation, parentElement) => {
+    const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'simulation-canvas');
 
     const { environmentProps } = simulation;
-    const resetWindow = applyStylesToWindow(environmentProps);
-    Object.assign(canvas.style, calculateCanvasStyle(environmentProps));
+
+    applyStylesToWindow(environmentProps, previousWindowEnvironmentProps);
+    applyStylesToCanvas(canvas, environmentProps);
 
     callHooks(simulation, 'beforeAppendCanvas', canvas);
 
-    document.body.appendChild(canvas);
+    parentElement.appendChild(canvas);
+
+    const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
+        applyStylesToCanvas(canvas, canvasEnvironmentProps);
+    };
+
+    const updateWindow = (windowEnvironmentProps: IWindowEnvironmentProps) => {
+        applyStylesToWindow(windowEnvironmentProps, previousWindowEnvironmentProps);
+    };
 
     const cleanup = () => {
         callHooks(simulation, 'beforeStageCleanUp', canvas);
-
         canvas.remove();
-        resetWindow();
+
+        if (previousWindowEnvironmentProps.windowWidth && previousWindowEnvironmentProps.windowHeight) {
+            window.resizeTo(previousWindowEnvironmentProps.windowWidth, previousWindowEnvironmentProps.windowHeight);
+        }
+
+        if (previousWindowEnvironmentProps.windowBackgroundColor) {
+            document.body.style.backgroundColor = previousWindowEnvironmentProps.windowBackgroundColor;
+        }
     };
 
-    return { canvas, cleanup };
+    return { canvas, updateCanvas, updateWindow, cleanup };
 };
