@@ -80,7 +80,6 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
 
     // Canvas gets stretched horizontally/vertically
     // when vertical (top and bottom) or horizontal (left and right) margins are applied.
-
     if (environmentProps.canvasMargin?.left !== undefined && environmentProps.canvasMargin.right !== undefined) {
         canvasStyle.width = '100%';
     }
