@@ -4,7 +4,7 @@ import { setupSimulationStage } from '@wixc3/simulation-core';
 
 const CONTAINER_HEIGHT = 50;
 
-describe('setup-stage', () => {
+describe('setup stage', () => {
     const cleanupAfterTest = new Set<() => unknown>();
     afterEach(() => {
         for (const cleanup of cleanupAfterTest) {
