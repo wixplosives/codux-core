@@ -84,8 +84,8 @@ describe('setup-stage', () => {
 
         updateWindow({ windowHeight: 500, windowWidth: 500 });
 
-        expect(window.outerHeight, 'window width was not updated').to.eql(500);
-        expect(window.outerWidth, 'window height was not updated').to.eql(500);
+        expect(window.outerHeight, 'window height was not updated').to.eql(500);
+        expect(window.outerWidth, 'window width was not updated').to.eql(500);
     });
 
     it('sets window background color', () => {
