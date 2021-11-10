@@ -1,4 +1,3 @@
-import React from 'react';
 import { expect } from 'chai';
 import { createSimulation } from '@wixc3/react-simulation';
 import { setupSimulationStage } from '@wixc3/simulation-core';
@@ -14,10 +13,10 @@ describe('setup-stage', () => {
         cleanupAfterTest.clear();
     });
 
-    it('renders the canvas into a parent element', () => {
+    function setupSimulation() {
         const container = createCanvasContainer();
 
-        const { canvas, cleanup } = setupSimulationStage(
+        const { canvas, cleanup, updateCanvas, updateWindow } = setupSimulationStage(
             createSimulation({
                 name: 'Test1',
                 props: {},
@@ -27,21 +26,17 @@ describe('setup-stage', () => {
         );
 
         cleanupAfterTest.add(cleanup);
-        expect(canvas.parentElement).to.eql(container);
+
+        return { canvas, container, updateWindow, updateCanvas };
+    }
+
+    it('renders the canvas into a parent element', () => {
+        const { canvas, container } = setupSimulation();
+        expect(canvas.parentElement, 'canvas was not rendered into a provided container').to.eql(container);
     });
 
     it('sets canvas height and canvas width to the provided values if no margin is provided', () => {
-        const container = createCanvasContainer();
-
-        const { canvas, updateCanvas, cleanup } = setupSimulationStage(
-            createSimulation({
-                name: 'Test1',
-                props: {},
-                componentType: () => null,
-            }),
-            container
-        );
-        cleanupAfterTest.add(cleanup);
+        const { updateCanvas, canvas } = setupSimulation();
 
         const canvasSize = { canvasHeight: 690, canvasWidth: 420 };
 
@@ -50,44 +45,56 @@ describe('setup-stage', () => {
             canvasHeight: canvasSize.canvasHeight,
         });
 
-        expect(canvas?.offsetHeight).equal(canvasSize.canvasHeight);
-        expect(canvas?.offsetWidth).equal(canvasSize.canvasWidth);
+        expect(canvas?.offsetHeight, 'canvas height was not updated').equal(canvasSize.canvasHeight);
+        expect(canvas?.offsetWidth, 'canvas width was not updated').equal(canvasSize.canvasWidth);
     });
 
     it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
-        const container = createCanvasContainer();
-
-        const { canvas, cleanup, updateCanvas } = setupSimulationStage(
-            createSimulation({
-                name: 'Test1',
-                props: {},
-                componentType: () => <>123</>,
-            }),
-            container
-        );
-        cleanupAfterTest.add(cleanup);
+        const { updateCanvas, canvas } = setupSimulation();
 
         updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
 
-        expect(canvas?.offsetHeight).equal(CONTAINER_HEIGHT - 2 * 5);
+        expect(canvas?.offsetHeight, 'canvas height is not stretched when margins are applied').equal(
+            CONTAINER_HEIGHT - 2 * 5
+        );
     });
 
     it('sets canvas width to auto if "left" and "right" margin is provided', () => {
-        const container = createCanvasContainer();
-
-        const { canvas, updateCanvas, cleanup } = setupSimulationStage(
-            createSimulation({
-                name: 'Test1',
-                props: {},
-                componentType: () => null,
-            }),
-            container
-        );
-        cleanupAfterTest.add(cleanup);
+        const { updateCanvas, canvas } = setupSimulation();
 
         updateCanvas({ canvasWidth: 5, canvasMargin: { left: 5, right: 5 } });
 
-        expect(canvas?.offsetWidth).equal(window.innerWidth - 2 * 5);
+        expect(canvas?.offsetWidth, 'canvas width is not stretched when margins are applied').equal(
+            window.innerWidth - 2 * 5
+        );
+    });
+
+    it('sets canvas background color', () => {
+        const { updateCanvas, canvas } = setupSimulation();
+
+        updateCanvas({ canvasBackgroundColor: '#fff' });
+
+        expect(window.getComputedStyle(canvas).backgroundColor, 'canvas background color was not updated').equal(
+            'rgb(255, 255, 255)'
+        );
+    });
+
+    it('sets window dimensions', () => {
+        const { updateWindow } = setupSimulation();
+
+        updateWindow({ windowHeight: 500, windowWidth: 500 });
+
+        expect(window.outerHeight, 'window width was not updated').to.eql(500);
+        expect(window.outerWidth, 'window height was not updated').to.eql(500);
+    });
+
+    it('sets window background color', () => {
+        const { updateWindow } = setupSimulation();
+
+        updateWindow({ windowBackgroundColor: '#fff' });
+        expect(window.getComputedStyle(document.body).backgroundColor, 'window background color was not updated').equal(
+            'rgb(255, 255, 255)'
+        );
     });
 });
 
