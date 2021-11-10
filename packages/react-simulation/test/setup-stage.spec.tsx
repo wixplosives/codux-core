@@ -6,10 +6,18 @@ import { setupSimulationStage } from '@wixc3/simulation-core';
 const CONTAINER_HEIGHT = 50;
 
 describe('setup-stage', () => {
+    const cleanupAfterTest = new Set<() => unknown>();
+    afterEach(() => {
+        for (const cleanup of cleanupAfterTest) {
+            cleanup();
+        }
+        cleanupAfterTest.clear();
+    });
+
     it('renders the canvas into a parent element', () => {
         const container = createCanvasContainer();
 
-        const { canvas } = setupSimulationStage(
+        const { canvas, cleanup } = setupSimulationStage(
             createSimulation({
                 name: 'Test1',
                 props: {},
@@ -18,13 +26,14 @@ describe('setup-stage', () => {
             container
         );
 
+        cleanupAfterTest.add(cleanup);
         expect(canvas.parentElement).to.eql(container);
     });
 
     it('sets canvas height and canvas width to the provided values if no margin is provided', () => {
         const container = createCanvasContainer();
 
-        const { canvas, updateCanvas } = setupSimulationStage(
+        const { canvas, updateCanvas, cleanup } = setupSimulationStage(
             createSimulation({
                 name: 'Test1',
                 props: {},
@@ -32,6 +41,7 @@ describe('setup-stage', () => {
             }),
             container
         );
+        cleanupAfterTest.add(cleanup);
 
         const canvasSize = { canvasHeight: 690, canvasWidth: 420 };
 
@@ -47,7 +57,7 @@ describe('setup-stage', () => {
     it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
         const container = createCanvasContainer();
 
-        const { canvas, updateCanvas } = setupSimulationStage(
+        const { canvas, cleanup, updateCanvas } = setupSimulationStage(
             createSimulation({
                 name: 'Test1',
                 props: {},
@@ -55,6 +65,7 @@ describe('setup-stage', () => {
             }),
             container
         );
+        cleanupAfterTest.add(cleanup);
 
         updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
 
@@ -64,7 +75,7 @@ describe('setup-stage', () => {
     it('sets canvas width to auto if "left" and "right" margin is provided', () => {
         const container = createCanvasContainer();
 
-        const { canvas, updateCanvas } = setupSimulationStage(
+        const { canvas, updateCanvas, cleanup } = setupSimulationStage(
             createSimulation({
                 name: 'Test1',
                 props: {},
@@ -72,6 +83,7 @@ describe('setup-stage', () => {
             }),
             container
         );
+        cleanupAfterTest.add(cleanup);
 
         updateCanvas({ canvasWidth: 5, canvasMargin: { left: 5, right: 5 } });
 
