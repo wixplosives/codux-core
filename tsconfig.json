@@ -5,6 +5,7 @@
     { "path": "./packages/wcs-core/test" },
 
     { "path": "./packages/simulation-core/src" },
+
     { "path": "./packages/simulation-plugins/src" },
     { "path": "./packages/simulation-plugins/test" },
 

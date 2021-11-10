@@ -176,3 +176,18 @@ export type SetupSimulationStage = (
     updateCanvas: (canvasEnvironmentProps: ICanvasEnvironmentProps) => void;
     updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
 };
+
+export type CanvasStyles = Pick<
+    CSSStyleDeclaration,
+    | 'backgroundColor'
+    | 'height'
+    | 'width'
+    | 'paddingLeft'
+    | 'paddingRight'
+    | 'paddingBottom'
+    | 'paddingTop'
+    | 'marginLeft'
+    | 'marginRight'
+    | 'marginBottom'
+    | 'marginTop'
+>;

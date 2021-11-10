@@ -1,22 +1,13 @@
 import { callHooks } from './hooks';
-import type { SetupSimulationStage, IWindowEnvironmentProps, ICanvasEnvironmentProps } from './types';
+import type { SetupSimulationStage, IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
 
-type CanvasStyles = Pick<
-    CSSStyleDeclaration,
-    | 'backgroundColor'
-    | 'height'
-    | 'width'
-    | 'paddingLeft'
-    | 'paddingRight'
-    | 'paddingBottom'
-    | 'paddingTop'
-    | 'marginLeft'
-    | 'marginRight'
-    | 'marginBottom'
-    | 'marginTop'
->;
+export const defaultWindowStyles = {
+    width: 1024,
+    height: 640,
+    backgroundColor: '#fcfcfc',
+} as const;
 
-const defaultCanvasStyles: CanvasStyles = {
+export const defaultCanvasStyles: CanvasStyles = {
     width: 'fit-content',
     height: 'fit-content',
     marginLeft: 'auto',
@@ -28,23 +19,30 @@ const defaultCanvasStyles: CanvasStyles = {
     paddingBottom: '0px',
     paddingTop: '0px',
     backgroundColor: '#fff',
+} as const;
+
+export const defaultEnvironmentProperties = {
+    windowWidth: defaultWindowStyles.width,
+    windowHeight: defaultWindowStyles.height,
+    windowBackgroundColor: '#fcfcfc',
+    canvasMargin: {},
+    canvasPadding: {},
+    canvasBackgroundColor: '#fff',
 };
 
-const applyStylesToWindow = (
-    windowStyles: IWindowEnvironmentProps = {},
-    previousWindowEnvironmentProps: IWindowEnvironmentProps
-) => {
-    previousWindowEnvironmentProps.windowHeight = window.outerHeight;
-    previousWindowEnvironmentProps.windowWidth = window.outerWidth;
-    previousWindowEnvironmentProps.windowBackgroundColor = document.body.style.backgroundColor;
+const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
+    previousProps.windowHeight = previousProps.windowHeight ? window.outerHeight : defaultWindowStyles.height;
+    previousProps.windowWidth = previousProps.windowWidth ? window.outerWidth : defaultWindowStyles.width;
+    previousProps.windowBackgroundColor = previousProps.windowBackgroundColor
+        ? document.body.style.backgroundColor
+        : defaultWindowStyles.backgroundColor;
 
     window.resizeTo(
-        windowStyles.windowWidth || previousWindowEnvironmentProps.windowWidth,
-        windowStyles.windowHeight || previousWindowEnvironmentProps.windowHeight
+        windowStyles.windowWidth || previousProps.windowWidth,
+        windowStyles.windowHeight || previousProps.windowHeight
     );
 
-    document.body.style.backgroundColor =
-        windowStyles.windowBackgroundColor || previousWindowEnvironmentProps.windowBackgroundColor;
+    document.body.style.backgroundColor = windowStyles.windowBackgroundColor || previousProps.windowBackgroundColor;
 };
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
