@@ -6,7 +6,7 @@ import { setupSimulationStage } from '@wixc3/simulation-core';
 const CONTAINER_HEIGHT = 50;
 
 describe('setup-stage', () => {
-    it('renders canvas to parent element', () => {
+    it('renders the canvas into a parent element', () => {
         const container = createCanvasContainer();
 
         const { canvas } = setupSimulationStage(
@@ -44,7 +44,7 @@ describe('setup-stage', () => {
         expect(canvas?.offsetWidth).equal(canvasSize.canvasWidth);
     });
 
-    it('sets canvas height to auto if a top and bottom margin is provided', () => {
+    it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
         const container = createCanvasContainer();
 
         const { canvas, updateCanvas } = setupSimulationStage(
@@ -61,7 +61,7 @@ describe('setup-stage', () => {
         expect(canvas?.offsetHeight).equal(CONTAINER_HEIGHT - 2 * 5);
     });
 
-    it('sets canvas width to auto if a left and right margin is provided', () => {
+    it('sets canvas width to auto if "left" and "right" margin is provided', () => {
         const container = createCanvasContainer();
 
         const { canvas, updateCanvas } = setupSimulationStage(
