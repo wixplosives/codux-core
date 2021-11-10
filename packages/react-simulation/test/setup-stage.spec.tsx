@@ -34,6 +34,7 @@ describe('setup-stage', () => {
         );
 
         const canvasSize = { canvasHeight: 690, canvasWidth: 420 };
+
         updateCanvas({
             canvasWidth: canvasSize.canvasWidth,
             canvasHeight: canvasSize.canvasHeight,
@@ -56,6 +57,7 @@ describe('setup-stage', () => {
         );
 
         updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
+
         expect(canvas?.offsetHeight).equal(CONTAINER_HEIGHT - 2 * 5);
     });
 

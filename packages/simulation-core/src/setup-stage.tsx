@@ -24,13 +24,14 @@ export const defaultCanvasStyles: CanvasStyles = {
 export const defaultEnvironmentProperties = {
     windowWidth: defaultWindowStyles.width,
     windowHeight: defaultWindowStyles.height,
-    windowBackgroundColor: '#fcfcfc',
+    windowBackgroundColor: defaultWindowStyles.backgroundColor,
     canvasMargin: {},
     canvasPadding: {},
-    canvasBackgroundColor: '#fff',
+    canvasBackgroundColor: defaultCanvasStyles.backgroundColor,
 };
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
+    // we revert the changes to previous values when running cleanup
     previousProps.windowHeight = previousProps.windowHeight ? window.outerHeight : defaultWindowStyles.height;
     previousProps.windowWidth = previousProps.windowWidth ? window.outerWidth : defaultWindowStyles.width;
     previousProps.windowBackgroundColor = previousProps.windowBackgroundColor
