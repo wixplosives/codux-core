@@ -7,7 +7,7 @@
     "clean": "rimraf ./packages/*/dist",
     "build": "tsc --build",
     "lint": "eslint .",
-    "pretest": "yarn build && yarn lint",
+    "pretest": "yarn lint && yarn build",
     "test": "yarn test:browser",
     "test:browser": "mocha-play \"packages/*/dist/test/**/*.spec.js\"",
     "prettify": "npx prettier . --write"
