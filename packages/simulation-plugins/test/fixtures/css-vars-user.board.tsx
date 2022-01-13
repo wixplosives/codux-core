@@ -1,11 +1,11 @@
 import { CSSVarsUser } from './css-vars-user';
-import { createDemo } from '@wixc3/react-simulation';
+import { createBoard } from '@wixc3/react-simulation';
 import React from 'react';
 import { cssVarsPlugin } from '@wixc3/simulation-plugins';
 
-export default createDemo({
+export default createBoard({
     name: 'Checkbox',
-    demo: () => {
+    board: () => {
         return <CSSVarsUser></CSSVarsUser>;
     },
     plugins: [

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -11,38 +10,32 @@ import {
 } from '@wixc3/simulation-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
 
-export type DemoProps<DATA extends IReactDemo<any>> = DATA extends IReactDemo<infer PROPS> ? PROPS : never;
-
-export type OmitReactDemo<DATA extends IReactDemo<any>> = Omit<
+export type OmitReactBoard<DATA extends IReactBoard> = Omit<
     OmitIRenderableMetadataBase<DATA>,
     'render' | 'cleanup' | 'props'
-> & {
-    props?: DemoProps<DATA>;
-};
-export interface IReactDemo<PROPS = Record<string, never>> extends IRenderableMetadataBase<IReactDemoHooks<never>> {
-    /** The name of the demo. */
+>;
+
+export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<never>> {
+    /** The name of the board. */
     name: string;
 
     /**
-     * the demo to render
+     * the board to render
      */
-    demo: React.ComponentType<PROPS>;
-
-    props: PROPS;
+    board: React.ComponentType;
 }
 
 /**
- * Create demo of React components.
+ * Create board of React components.
  */
-export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IReactDemo<PROPS> {
-    const res: IReactDemo<PROPS> = createRenderableBase<IReactDemo<PROPS>>({
-        props: {} as PROPS,
+export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
+    const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
         render(target) {
             return baseRender(
                 res,
                 async () => {
-                    let element = <res.demo {...this.props} />;
+                    let element = <res.board />;
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
@@ -62,7 +55,7 @@ export function createDemo<PROPS>(input: OmitReactDemo<IReactDemo<PROPS>>): IRea
     return res;
 }
 
-export interface IReactDemoHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
+export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,

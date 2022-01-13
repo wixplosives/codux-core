@@ -1,10 +1,10 @@
 import { ContextUser, textContext } from './context-user';
-import { createDemo } from '@wixc3/react-simulation';
+import { createBoard } from '@wixc3/react-simulation';
 import React from 'react';
 import { reactContextPlugin } from '@wixc3/simulation-plugins';
-export default createDemo({
+export default createBoard({
     name: 'Context user',
-    demo: () => {
+    board: () => {
         return <ContextUser></ContextUser>;
     },
     plugins: [

@@ -1,5 +1,5 @@
 import { createPlugin } from '@wixc3/simulation-core';
-import type { IReactDemo } from '@wixc3/react-simulation/src';
+import type { IReactBoard } from '@wixc3/react-simulation/src';
 import React from 'react';
 export interface ContextPluginProps<T> {
     context: React.Context<T>;
@@ -7,7 +7,7 @@ export interface ContextPluginProps<T> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const reactContextPlugin = createPlugin<IReactDemo<any>>()<ContextPluginProps<any>>(
+export const reactContextPlugin = createPlugin<IReactBoard>()<ContextPluginProps<any>>(
     'React-context',
     {},
     {

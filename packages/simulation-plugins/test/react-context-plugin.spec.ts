@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import demo from './fixtures/context-user.demo';
+import board from './fixtures/context-user.board';
 
 describe('react context plugin', () => {
     const cleanupAfterTest = new Set<() => unknown>();
@@ -10,10 +10,10 @@ describe('react context plugin', () => {
         cleanupAfterTest.clear();
     });
 
-    it('wraps the demo with context', async () => {
-        const { canvas, cleanup } = demo.setupStage();
+    it('wraps the board with context', async () => {
+        const { canvas, cleanup } = board.setupStage();
         cleanupAfterTest.add(cleanup);
-        await demo.render(canvas);
+        await board.render(canvas);
 
         expect(canvas.innerText).to.include('context text');
         cleanup();
