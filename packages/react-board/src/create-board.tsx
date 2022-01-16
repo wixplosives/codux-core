@@ -25,9 +25,6 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     Board: React.ComponentType;
 }
 
-/**
- * Create board of React components.
- */
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
     const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
