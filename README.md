@@ -4,13 +4,11 @@
 
 ### Packages
 
-- **[@wixc3/wcs-core](https://github.com/wixplosives/wcs-core/tree/master/packages/wcs-core)** - Types and helpers for component simulations.
+- **[@wixc3/board-core](https://github.com/wixplosives/wcs-core/tree/master/packages/board-core)** - Single board types, and methods for testing boards.
 
-- **[@wixc3/simulation-core](https://github.com/wixplosives/wcs-core/tree/master/packages/simulation-core)** - Single simulation types, and methods for testing simulations.
+- **[@wixc3/react-board](https://github.com/wixplosives/wcs-core/tree/master/packages/react-board)** - Creation of React component boards.
 
-- **[@wixc3/react-simulation](https://github.com/wixplosives/wcs-core/tree/master/packages/react-simulation)** - Creation of React component simulations.
-
-- **[@wixc3/simulation-plugins](https://github.com/wixplosives/wcs-core/tree/master/packages/simulation-plugins)** - Plugins for simulations.
+- **[@wixc3/board-plugins](https://github.com/wixplosives/wcs-core/tree/master/packages/board-plugins)** - Plugins for boards.
 
 ### License
 

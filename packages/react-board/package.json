@@ -1,0 +1,26 @@
+{
+  "name": "@wixc3/react-board",
+  "description": "Library for creation of React component boards",
+  "version": "4.0.0",
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "react": "^16.0.0 || ^17.0.0",
+    "react-dom": "^16.0.0 || ^17.0.0"
+  },
+  "dependencies": {
+    "@wixc3/board-core": "^8.0.0"
+  },
+  "files": [
+    "dist",
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/react-board",
+  "homepage": "https://github.com/wixplosives/wcs-core",
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  }
+}
