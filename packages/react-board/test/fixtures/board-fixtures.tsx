@@ -4,7 +4,7 @@ import { createBoard } from '@wixc3/react-board';
 export const MockComponent: React.FC<{ text: string }> = (props) => <div>{props.text}</div>;
 
 export const propsOnlyBoard = createBoard({
-    Board: () => <MockComponent text={'this is a test'} />,
+    Board: () => <MockComponent text="this is a test" />,
     name: 'mock board',
 });
 
@@ -14,11 +14,11 @@ export const overrideProps = {
 
 export const boardWithWrapper = createBoard({
     name: 'mock board',
-    Board: () => <MockComponent text={'mock board'} />,
+    Board: () => <MockComponent text="mock board" />,
 });
 
 export const boardWithEnvironmentProps = createBoard({
-    Board: () => <MockComponent text={'this is a test'} />,
+    Board: () => <MockComponent text="this is a test" />,
     name: 'mock board',
     environmentProps: {
         canvasWidth: 50,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createBoard } from '../../src';
+import { createBoard } from '@wixc3/react-board';
 import { Checkbox } from './checkbox';
 
 export default createBoard({

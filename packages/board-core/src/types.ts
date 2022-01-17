@@ -138,7 +138,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      * @returns canvas an html element for rendering into, cleanup a method for cleaning up the side-effects
      *
      */
-    setupStage: (parentElement?: HTMLElement) => ReturnType<SetupBoardStage>;
+    setupStage: (parentElement?: HTMLElement) => ReturnType<BoardSetupStageFunction>;
 
     /**
      * Board's environment properties (e.g. the window size, the component alignment, etc.)
@@ -151,7 +151,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
     setup?: BoardSetupFunction | BoardSetupFunction[];
 }
 
-export type SetupBoardStage = (
+export type BoardSetupStageFunction = (
     board: IRenderableMetadataBase,
     parentElement: HTMLElement
 ) => {

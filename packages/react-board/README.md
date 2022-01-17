@@ -29,8 +29,7 @@ import { Hello } from './hello';
 
 createBoard({
   name: 'basic board',
-  componentType: Hello,
-  props: { name: 'World' },
+  board: () => <Hello name="World" />,
 });
 ```
 

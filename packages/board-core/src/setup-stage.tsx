@@ -1,5 +1,5 @@
 import { callHooks } from './hooks';
-import type { SetupBoardStage, IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
+import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
 
 export const defaultWindowStyles = {
     width: 1024,
@@ -90,7 +90,7 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
     Object.assign(canvas.style, canvasStyle);
 };
 
-export const setupBoardStage: SetupBoardStage = (board, parentElement) => {
+export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'board-canvas');

@@ -1,5 +1,5 @@
 import { createPlugin } from '@wixc3/board-core';
-import type { IReactBoard } from '@wixc3/react-board/src';
+import type { IReactBoard } from '@wixc3/react-board';
 import React from 'react';
 export interface ContextPluginProps<T> {
     context: React.Context<T>;
