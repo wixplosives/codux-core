@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/board-plugins",
   "description": "Plugins for boards",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -10,6 +10,9 @@
     "!*/tsconfig.{json,tsbuildinfo}"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@wixc3/react-board": "^1.0.0"
+  },
   "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/board-plugins",
   "homepage": "https://github.com/wixplosives/wcs-core",
   "private": true,
