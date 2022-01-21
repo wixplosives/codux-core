@@ -4,7 +4,7 @@ import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironme
 export const defaultWindowStyles = {
     width: 1024,
     height: 640,
-    backgroundColor: '#fcfcfc',
+    backgroundColor: '',
 } as const;
 
 export const defaultCanvasStyles: CanvasStyles = {
@@ -18,7 +18,7 @@ export const defaultCanvasStyles: CanvasStyles = {
     paddingRight: '0px',
     paddingBottom: '0px',
     paddingTop: '0px',
-    backgroundColor: '#fff',
+    backgroundColor: '',
 } as const;
 
 export const defaultEnvironmentProperties = {
