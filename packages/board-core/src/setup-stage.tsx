@@ -90,10 +90,21 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
     Object.assign(canvas.style, canvasStyle);
 };
 
+export const SIMULATION_CANVAS_ID = 'board-canvas';
+
 export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
     const canvas = document.createElement('div');
-    canvas.setAttribute('id', 'board-canvas');
+    const style = `<style>
+        body {
+            background-color: #fcfcfc;
+        }
+
+        #${SIMULATION_CANVAS_ID} {
+            background-color: #fff;
+        }
+    </style>`;
+    canvas.setAttribute('id', SIMULATION_CANVAS_ID);
 
     const { environmentProps } = board;
 
@@ -103,6 +114,7 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
     callHooks(board, 'beforeAppendCanvas', canvas);
 
     parentElement.appendChild(canvas);
+    parentElement.ownerDocument.head.insertAdjacentHTML('beforeend', style);
 
     const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
         applyStylesToCanvas(canvas, canvasEnvironmentProps);
