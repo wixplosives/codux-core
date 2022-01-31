@@ -19,7 +19,6 @@
   "license": "MIT",
   "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/react-board",
   "homepage": "https://github.com/wixplosives/wcs-core",
-  "private": true,
   "publishConfig": {
     "access": "public"
   }

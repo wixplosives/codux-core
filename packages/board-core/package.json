@@ -12,7 +12,6 @@
   "license": "MIT",
   "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/board-core",
   "homepage": "https://github.com/wixplosives/wcs-core",
-  "private": true,
   "publishConfig": {
     "access": "public"
   }

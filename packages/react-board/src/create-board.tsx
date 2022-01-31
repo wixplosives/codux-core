@@ -1,29 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-    getPluginsWithHooks,
-    baseRender,
-    IRenderableLifeCycleHooks,
-    IRenderableMetadataBase,
-    OmitIRenderableMetadataBase,
-    createRenderableBase,
-} from '@wixc3/board-core';
+import { getPluginsWithHooks, baseRender, createRenderableBase } from '@wixc3/board-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
-
-export type OmitReactBoard<DATA extends IReactBoard> = Omit<
-    OmitIRenderableMetadataBase<DATA>,
-    'render' | 'cleanup' | 'props'
->;
-
-export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<never>> {
-    /** The name of the board. */
-    name: string;
-
-    /**
-     * the board to render
-     */
-    Board: React.ComponentType;
-}
+import type { IReactBoard, OmitReactBoard } from './types';
 
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
     const res: IReactBoard = createRenderableBase<IReactBoard>({
@@ -50,13 +29,4 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
         },
     });
     return res;
-}
-
-export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
-    wrapRender?: (
-        props: PLUGINPROPS,
-        renderable: IRenderableMetadataBase,
-        renderableElement: JSX.Element,
-        canvas: HTMLElement
-    ) => null | JSX.Element;
 }
