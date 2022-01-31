@@ -110,7 +110,7 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
     callHooks(board, 'beforeAppendCanvas', canvas);
 
     parentElement.appendChild(canvas);
-    parentElement.ownerDocument.head.insertAdjacentHTML('beforeend', style);
+    document.head.insertAdjacentHTML('beforeend', style);
 
     const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
         applyStylesToCanvas(canvas, canvasEnvironmentProps);
