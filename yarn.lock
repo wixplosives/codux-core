@@ -2336,9 +2336,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.4.17:
-  version "1.4.69"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.69.tgz#d52eb7887d2ec5ba62a8cb3491b990983cb6d2e0"
-  integrity sha512-0rxK21MqWhN/fVUXNOeBksRlw79Wq26y6R8lxEEL2v7vwzRWbYhXI7Id5msee7/q1NNgu4mG78qaablN2xtfTQ==
+  version "1.4.71"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.71.tgz#17056914465da0890ce00351a3b946fd4cd51ff6"
+  integrity sha512-Hk61vXXKRb2cd3znPE9F+2pLWdIOmP7GjiTj45y6L3W/lO+hSnUSUhq+6lEaERWBdZOHbk2s3YV5c9xVl3boVw==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -4067,9 +4067,9 @@ minimatch@3.0.4:
     brace-expansion "^1.1.7"
 
 minimatch@^3.0.4:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.1.tgz#879ad447200773912898b46cd516a7abbb5e50b0"
-  integrity sha512-reLxBcKUPNBnc/sVtAbxgRVFSegoGeLaSjmphNhcwcolhYLRgtJscn5mRl6YRZNQv40Y7P6JM2YhSIsbL9OB5A==
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"
+  integrity sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==
   dependencies:
     brace-expansion "^1.1.7"
 
@@ -4267,10 +4267,15 @@ mute-stream@0.0.8, mute-stream@~0.0.4:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nanoid@3.2.0, nanoid@^3.2.0:
+nanoid@3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.2.0.tgz#62667522da6673971cca916a6d3eff3f415ff80c"
   integrity sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==
+
+nanoid@^3.2.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.0.tgz#5906f776fd886c66c24f3653e0c46fcb1d4ad6b0"
+  integrity sha512-JzxqqT5u/x+/KOFSd7JP15DOo9nOoHpx6DYatqIHUW2+flybkm+mdcraotSQR5WcnZr+qhGVh8Ted0KdfSMxlg==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -4932,17 +4937,17 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-chromium@^1.19.0:
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.19.0.tgz#ad819a60c65dc50b1be83f6167196aefc21f4785"
-  integrity sha512-KmqJRTRFJqwvIny0XNjQV/PTjUszvjO2E9Rpe/WOljOgnFH3TKRSf0ShFcP8YrPirVF2GOXYtyw+Ip0z2Y+7Xg==
+playwright-chromium@^1.19.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.19.1.tgz#2fed98583d699e0e44e132b3f670988a09a6992b"
+  integrity sha512-gObASFcY8oOAqlJw89UXM/i4GNLvxKADn4DgoEMkXPxG7ATaN3eIyuWg5fGeYjKbAR15SHi+fCmP8n43LWKVTg==
   dependencies:
-    playwright-core "1.19.0"
+    playwright-core "1.19.1"
 
-playwright-core@1.19.0, playwright-core@^1.18.1:
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.19.0.tgz#54fb197d1820d6821b4e800857c7cda19e6b45fe"
-  integrity sha512-mlT/2pHUQbcZumVIKD4iwIKtO2k/BFHYmOAwOepdEvHLgqJrmsCgHvDgpehM6wDh5chksh2sJZIp8dZQ6158Yw==
+playwright-core@1.19.1, playwright-core@^1.18.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.19.1.tgz#d41939730170d53df26f5c8c16f5821e6328b24d"
+  integrity sha512-+ByjhWX39PlINVRXr4ef9Kle85mk5QzA2WLioCoMQc3bSUtZpLV1mbeUDtRp/bvFw6YDIEyptj4QvzzRTXN3vg==
   dependencies:
     commander "8.3.0"
     debug "4.3.3"
