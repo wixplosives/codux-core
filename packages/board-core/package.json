@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/board-core",
   "description": "Types and helpers for component boards",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "files": [
     "dist",
