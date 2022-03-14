@@ -14,7 +14,7 @@ export const isRecord = (value: unknown): value is Record<string, unknown> => {
  * @param value an unknown instance
  * @returns if the value is a React Board
  */
-export const ensureBoard = (value: unknown): value is IReactBoard => {
+export const ensureBoardFormat = (value: unknown): value is IReactBoard => {
     if (!isRecord(value)) {
         throw new Error(`provided value is not an object`);
     }

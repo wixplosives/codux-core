@@ -1,11 +1,11 @@
 import React from 'react';
-import { ensureBoard } from '@wixc3/react-board/ensure-board';
+import { ensureBoardFormat } from '@wixc3/react-board/ensure-board-format';
 import { expect } from 'chai';
 
 describe('Ensure board', () => {
     it('ensures an instance is a board', () => {
         expect(
-            ensureBoard({
+            ensureBoardFormat({
                 name: 'some name',
                 Board: () => <div />,
             })
@@ -13,15 +13,15 @@ describe('Ensure board', () => {
     });
 
     it('ensures an instance is a record', () => {
-        expect(() => ensureBoard([])).to.throw('provided value is not an object');
+        expect(() => ensureBoardFormat([])).to.throw('provided value is not an object');
     });
     it('ensures an instance has a name key', () => {
-        expect(() => ensureBoard({})).to.throw('provided value is missing a name property');
+        expect(() => ensureBoardFormat({})).to.throw('provided value is missing a name property');
     });
     it('ensures an instance has a Board key', () => {
-        expect(() => ensureBoard({ name: 'aaa' })).to.throw('provided value is missing a Board property');
+        expect(() => ensureBoardFormat({ name: 'aaa' })).to.throw('provided value is missing a Board property');
     });
     it('ensures the Board key is a method', () => {
-        expect(ensureBoard({ name: 'aaa', Board: 'value' })).to.eq(false);
+        expect(ensureBoardFormat({ name: 'aaa', Board: 'value' })).to.eq(false);
     });
 });
