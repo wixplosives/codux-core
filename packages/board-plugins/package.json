@@ -11,7 +11,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@wixc3/react-board": "^1.1.0"
+    "@wixc3/react-board": "^1.1.1"
   },
   "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/board-plugins",
   "homepage": "https://github.com/wixplosives/wcs-core",
