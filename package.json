@@ -24,7 +24,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-react": "^7.29.4",
-    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-react-hooks": "^4.4.0",
     "lerna": "^4.0.0",
     "mocha": "^9.2.2",
     "mocha-play": "^3.1.0",
