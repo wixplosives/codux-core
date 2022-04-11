@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { createBoard } from '@wixc3/react-board';
 import { createMetadata } from '@wixc3/board-core';
 import { cssVarsPlugin } from '@wixc3/board-plugins';
@@ -10,7 +10,7 @@ createBoard({
     Board: () => null,
 });
 
-const x: React.FC = ({ children }) => <>{children}</>;
+const x: React.FC<PropsWithChildren<any>> = ({ children }) => <>{children}</>;
 
 createBoard({
     name: 'Test1',
