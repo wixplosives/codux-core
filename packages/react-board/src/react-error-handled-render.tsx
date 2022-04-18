@@ -1,17 +1,8 @@
-import React, { ErrorInfo, useEffect, PropsWithChildren } from 'react';
-import ReactDOM from 'react-dom/client';
+import React, { ErrorInfo, PropsWithChildren } from 'react';
+import type ReactDOM from 'react-dom/client';
 
-export const reactErrorHandledRendering = (element: JSX.Element, container: HTMLElement) =>
-    new Promise<void>((resolve, reject) => {
-        const AppWithCallbackAfterRender = () => {
-            useEffect(() => {
-              resolve
-            });
-            return <ErrorBoundary reportError={reject}>{element}</ErrorBoundary>
-        }
-        const root = ReactDOM.createRoot(container)
-        root.render(<AppWithCallbackAfterRender/>);
-    });
+export const reactErrorHandledRendering = (element: JSX.Element, root: ReactDOM.Root) =>
+    new Promise<void>((resolve, reject) => {root.render(<div ref={()=>{resolve()}}><ErrorBoundary reportError={reject}>{element}</ErrorBoundary></div>)})
 
 class ErrorBoundary extends React.Component<PropsWithChildren<
     { reportError?(error: unknown, errorInfo: ErrorInfo): void }>,
