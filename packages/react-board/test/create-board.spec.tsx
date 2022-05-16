@@ -10,7 +10,7 @@ createBoard({
     Board: () => null,
 });
 
-const x: React.FC = ({ children }) => <>{children}</>;
+const x: React.FC<{ children?: React.ReactNode }> = ({ children }) => <>{children}</>;
 
 createBoard({
     name: 'Test1',

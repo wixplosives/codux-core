@@ -1,4 +1,4 @@
-import React, { ErrorInfo } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 export const reactErrorHandledRendering = (element: JSX.Element, container: HTMLElement) =>
@@ -7,7 +7,7 @@ export const reactErrorHandledRendering = (element: JSX.Element, container: HTML
     });
 
 class ErrorBoundary extends React.Component<
-    { reportError?(error: unknown, errorInfo: ErrorInfo): void },
+    React.PropsWithChildren<{ reportError?(error: unknown, errorInfo: React.ErrorInfo): void }>,
     { hasError: boolean }
 > {
     public override state = { hasError: false };
@@ -15,7 +15,7 @@ class ErrorBoundary extends React.Component<
     static getDerivedStateFromError() {
         return { hasError: true };
     }
-    public override componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
+    public override componentDidCatch(error: unknown, errorInfo: React.ErrorInfo) {
         this.props.reportError?.(error, errorInfo);
     }
 

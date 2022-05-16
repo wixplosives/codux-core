@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
     IRenderableLifeCycleHooks,
     IRenderableMetadataBase,
@@ -26,5 +27,5 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     /**
      * the board to render
      */
-    Board: React.ComponentType;
+    Board: React.ComponentType<any>;
 }
