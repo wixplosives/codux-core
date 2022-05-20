@@ -39,9 +39,7 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
         windowStyles.windowHeight || previousProps.windowHeight
     );
 
-    document.body.style.backgroundColor =
-        windowStyles.windowBackgroundColor ||
-        (previousProps.windowBackgroundColor ? document.body.style.backgroundColor : '');
+    document.body.style.backgroundColor = windowStyles.windowBackgroundColor || '';
 };
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
