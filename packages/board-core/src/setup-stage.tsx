@@ -4,6 +4,9 @@ import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironme
 export const BOARD_CANVAS_ID = 'board-canvas';
 export const BOARD_CANVAS_CLASS_NAME = 'simulationCanvas';
 
+export const previewBodyBackgroundColor = '#fcfcfc';
+export const previewCanvasBackgroundColor = '#fff';
+
 export const defaultWindowStyles = {
     width: 1024,
     height: 640,
@@ -91,11 +94,11 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
     const canvas = document.createElement('div');
     const style = `<style>
         body {
-            background-color: #fcfcfc;
+            background-color: ${previewBodyBackgroundColor};
         }
 
         .${BOARD_CANVAS_CLASS_NAME} {
-            background-color: #fff;
+            background-color: ${previewCanvasBackgroundColor};
         }
     </style>`;
     canvas.setAttribute('id', BOARD_CANVAS_ID);
