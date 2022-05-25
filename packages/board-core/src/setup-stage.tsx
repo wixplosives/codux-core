@@ -4,7 +4,6 @@ import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironme
 export const defaultWindowStyles = {
     width: 1024,
     height: 640,
-    backgroundColor: '#fcfcfc',
 } as const;
 
 export const defaultCanvasStyles: CanvasStyles = {
@@ -18,32 +17,26 @@ export const defaultCanvasStyles: CanvasStyles = {
     paddingRight: '0px',
     paddingBottom: '0px',
     paddingTop: '0px',
-    backgroundColor: '#fff',
 } as const;
 
 export const defaultEnvironmentProperties = {
     windowWidth: defaultWindowStyles.width,
     windowHeight: defaultWindowStyles.height,
-    windowBackgroundColor: defaultWindowStyles.backgroundColor,
     canvasMargin: {},
     canvasPadding: {},
-    canvasBackgroundColor: defaultCanvasStyles.backgroundColor,
 };
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
     // we revert the changes to previous values when running cleanup
     previousProps.windowHeight = previousProps.windowHeight ? window.outerHeight : defaultWindowStyles.height;
     previousProps.windowWidth = previousProps.windowWidth ? window.outerWidth : defaultWindowStyles.width;
-    previousProps.windowBackgroundColor = previousProps.windowBackgroundColor
-        ? document.body.style.backgroundColor
-        : defaultWindowStyles.backgroundColor;
 
     window.resizeTo(
         windowStyles.windowWidth || previousProps.windowWidth,
         windowStyles.windowHeight || previousProps.windowHeight
     );
 
-    document.body.style.backgroundColor = windowStyles.windowBackgroundColor || previousProps.windowBackgroundColor;
+    document.body.style.backgroundColor = windowStyles.windowBackgroundColor || '';
 };
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
@@ -74,7 +67,7 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
         paddingTop: environmentProps.canvasPadding?.top
             ? `${environmentProps.canvasPadding?.top}px`
             : defaultCanvasStyles.paddingTop,
-        backgroundColor: environmentProps.canvasBackgroundColor || defaultCanvasStyles.backgroundColor,
+        backgroundColor: environmentProps.canvasBackgroundColor || '',
     };
 
     // Canvas gets stretched horizontally/vertically
@@ -118,10 +111,6 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
 
         if (previousWindowEnvironmentProps.windowWidth && previousWindowEnvironmentProps.windowHeight) {
             window.resizeTo(previousWindowEnvironmentProps.windowWidth, previousWindowEnvironmentProps.windowHeight);
-        }
-
-        if (previousWindowEnvironmentProps.windowBackgroundColor) {
-            document.body.style.backgroundColor = previousWindowEnvironmentProps.windowBackgroundColor;
         }
     };
 
