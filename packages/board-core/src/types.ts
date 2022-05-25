@@ -163,7 +163,6 @@ export type BoardSetupStageFunction = (
 
 export type CanvasStyles = Pick<
     CSSStyleDeclaration,
-    | 'backgroundColor'
     | 'height'
     | 'width'
     | 'paddingLeft'
