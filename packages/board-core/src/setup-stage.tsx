@@ -34,9 +34,6 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
     // we revert the changes to previous values when running cleanup
     previousProps.windowHeight = previousProps.windowHeight ? window.outerHeight : defaultWindowStyles.height;
     previousProps.windowWidth = previousProps.windowWidth ? window.outerWidth : defaultWindowStyles.width;
-    previousProps.windowBackgroundColor = previousProps.windowBackgroundColor
-        ? document.body.style.backgroundColor
-        : defaultWindowStyles.backgroundColor;
 
     window.resizeTo(
         windowStyles.windowWidth || previousProps.windowWidth,
@@ -118,10 +115,6 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
 
         if (previousWindowEnvironmentProps.windowWidth && previousWindowEnvironmentProps.windowHeight) {
             window.resizeTo(previousWindowEnvironmentProps.windowWidth, previousWindowEnvironmentProps.windowHeight);
-        }
-
-        if (previousWindowEnvironmentProps.windowBackgroundColor) {
-            document.body.style.backgroundColor = previousWindowEnvironmentProps.windowBackgroundColor;
         }
     };
 
