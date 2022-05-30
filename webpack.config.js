@@ -11,4 +11,10 @@ module.exports = {
             },
         ],
     },
+    resolve: {
+        fallback: {
+            // for react@17 test run
+            'react-dom/client': false
+        }
+    }
 };

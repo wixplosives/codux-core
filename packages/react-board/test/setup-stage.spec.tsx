@@ -1,20 +1,20 @@
 import { expect } from 'chai';
+import { createDisposables } from '@wixc3/create-disposables';
 import { createBoard } from '@wixc3/react-board';
 import { setupBoardStage } from '@wixc3/board-core';
 
-const CONTAINER_HEIGHT = 50;
+describe('setupBoardStage', () => {
+    const disposables = createDisposables();
+    afterEach(disposables.dispose);
 
-describe('setup stage', () => {
-    const cleanupAfterTest = new Set<() => unknown>();
-    afterEach(() => {
-        for (const cleanup of cleanupAfterTest) {
-            cleanup();
-        }
-        cleanupAfterTest.clear();
-    });
+    const CONTAINER_HEIGHT = 50;
 
     function setupBoard() {
-        const container = createCanvasContainer();
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.height = `${CONTAINER_HEIGHT}px`;
+        document.body.appendChild(container);
+        disposables.add(() => document.body.removeChild(container));
 
         const { canvas, cleanup, updateCanvas, updateWindow } = setupBoardStage(
             createBoard({
@@ -24,28 +24,30 @@ describe('setup stage', () => {
             container
         );
 
-        cleanupAfterTest.add(cleanup);
+        disposables.add(cleanup);
 
         return { canvas, container, updateWindow, updateCanvas };
     }
 
     it('renders the canvas into a parent element', () => {
         const { canvas, container } = setupBoard();
+
         expect(canvas.parentElement, 'canvas was not rendered into a provided container').to.eql(container);
     });
 
     it('sets canvas height and canvas width to the provided values if no margin is provided', () => {
         const { updateCanvas, canvas } = setupBoard();
 
-        const canvasSize = { canvasHeight: 690, canvasWidth: 420 };
+        const canvasWidth = 420;
+        const canvasHeight = 690;
 
         updateCanvas({
-            canvasWidth: canvasSize.canvasWidth,
-            canvasHeight: canvasSize.canvasHeight,
+            canvasWidth,
+            canvasHeight,
         });
 
-        expect(canvas?.offsetHeight, 'canvas height was not updated').equal(canvasSize.canvasHeight);
-        expect(canvas?.offsetWidth, 'canvas width was not updated').equal(canvasSize.canvasWidth);
+        expect(canvas.offsetWidth, 'canvas width was not updated').equal(canvasWidth);
+        expect(canvas.offsetHeight, 'canvas height was not updated').equal(canvasHeight);
     });
 
     it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
@@ -91,16 +93,9 @@ describe('setup stage', () => {
         const { updateWindow } = setupBoard();
 
         updateWindow({ windowBackgroundColor: '#fff' });
+
         expect(window.getComputedStyle(document.body).backgroundColor, 'window background color was not updated').equal(
             'rgb(255, 255, 255)'
         );
     });
 });
-
-function createCanvasContainer() {
-    const container = document.createElement('div');
-    container.style.display = 'flex';
-    container.style.height = `${CONTAINER_HEIGHT}px`;
-    document.body.appendChild(container);
-    return container;
-}

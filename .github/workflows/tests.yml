@@ -18,3 +18,5 @@ jobs:
       - run: yarn config set network-timeout 300000
       - run: yarn --frozen-lockfile
       - run: yarn test
+      - run: yarn add react@17 react-dom@17 --dev -W
+      - run: yarn test:browser

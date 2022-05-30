@@ -124,13 +124,11 @@ export interface IRenderableLifeCycleHooks<PLUGINPARAMS = never> extends HookMap
 export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
     extends IGeneralMetadata<HOOKS & IRenderableLifeCycleHooks> {
     /**
-     * renders the Renderable into an html element
+     * Renders the Renderable into an html element
+     *
+     * @returns a cleanup function
      */
-    render: (targetElement: HTMLElement) => Promise<void>;
-    /**
-     * cleans everything render does
-     */
-    cleanup: (targetElement: HTMLElement) => void;
+    render: (targetElement: HTMLElement) => Promise<() => void>;
     /**
      * sets the stage for the renderer.
      * this function has many side effects ( such as effecting window styles and sizes )
