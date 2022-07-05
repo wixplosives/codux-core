@@ -3,17 +3,24 @@ import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 
 export const reactErrorHandledRendering = async (element: React.ReactElement, container: HTMLElement) => {
-    const reactRoot = ReactDOMClient.createRoot
-        ? ReactDOMClient.createRoot(container)
-        : createReactLegacyRoot(container);
-    await new Promise<void>((resolve, reject) => {
-        reactRoot.render(
-            <ErrorBoundary onMount={resolve} reportError={reject}>
-                {element}
-            </ErrorBoundary>
-        );
-    });
-    return () => reactRoot.unmount();
+    if (ReactDOMClient.createRoot) {
+        // react 18+
+        const reactRoot = ReactDOMClient.createRoot(container);
+        await new Promise<void>((resolve, reject) => {
+            reactRoot.render(
+                <ErrorBoundary onMount={resolve} reportError={reject}>
+                    {element}
+                </ErrorBoundary>
+            );
+        });
+        return () => reactRoot.unmount();
+    } else {
+        // react <18
+        await new Promise<void>((resolve, reject) => {
+            ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
+        });
+        return () => ReactDOM.unmountComponentAtNode(container);
+    }
 };
 
 interface ErrorBoundryProps {
@@ -35,16 +42,4 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<ErrorBoundry
     public override render() {
         return this.state.hasError ? null : this.props.children;
     }
-}
-
-// react-dom@<=17 didn't have createRoot, so we polyfill one that uses previous APIs
-function createReactLegacyRoot(container: HTMLElement) {
-    return {
-        render(children: React.ReactElement) {
-            ReactDOM.render(children, container);
-        },
-        unmount() {
-            ReactDOM.unmountComponentAtNode(container);
-        },
-    };
 }
