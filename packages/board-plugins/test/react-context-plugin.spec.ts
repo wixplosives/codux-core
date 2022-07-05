@@ -1,24 +1,17 @@
 import { expect } from 'chai';
+import { createDisposables } from '@wixc3/create-disposables';
 import board from './fixtures/context-user.board';
 
 describe('react context plugin', () => {
-    const cleanupAfterTest = new Set<() => unknown>();
-    afterEach(() => {
-        for (const cleanup of cleanupAfterTest) {
-            cleanup();
-        }
-        cleanupAfterTest.clear();
-    });
+    const disposables = createDisposables();
+    afterEach(disposables.dispose);
 
     it('wraps the board with context', async () => {
         const { canvas, cleanup } = board.setupStage();
-        cleanupAfterTest.add(cleanup);
-        await board.render(canvas);
+        disposables.add(cleanup);
+        const cleanupRender = await board.render(canvas);
+        disposables.add(cleanupRender);
 
         expect(canvas.innerText).to.include('context text');
-        cleanup();
-        cleanupAfterTest.delete(cleanup);
-
-        expect(document.getElementById('board-canvas')).to.equal(null);
     });
 });

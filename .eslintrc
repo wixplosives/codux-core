@@ -29,6 +29,9 @@
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ],
+      "rules": {
+        "@typescript-eslint/unbound-method": "off"
+      },
       "excludedFiles": ["packages/*/*.d.ts"]
     }
   ]

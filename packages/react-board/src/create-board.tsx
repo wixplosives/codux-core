@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { getPluginsWithHooks, baseRender, createRenderableBase } from '@wixc3/board-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
 import type { IReactBoard, OmitReactBoard } from './types';
@@ -19,13 +18,10 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
                             element = el || element;
                         }
                     }
-                    await reactErrorHandledRendering(element, target);
+                    return reactErrorHandledRendering(element, target);
                 },
                 target
             );
-        },
-        cleanup(target) {
-            ReactDOM.unmountComponentAtNode(target);
         },
     });
     return res;
