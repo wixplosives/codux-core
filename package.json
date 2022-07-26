@@ -29,7 +29,7 @@
     "lerna": "^5.2.0",
     "mocha": "^10.0.0",
     "mocha-play": "^3.1.0",
-    "playwright-chromium": "^1.24.0",
+    "playwright-chromium": "^1.24.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^3.0.2",
