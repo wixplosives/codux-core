@@ -4,13 +4,13 @@ export type LayoutSizeWithAuto = LayoutSize | 'auto';
 
 export interface LayoutSpacing {
     /** @visualizer spacing */
-    top?: LayoutSize;
+    top?: LayoutSize | undefined;
     /** @visualizer spacing */
-    right?: LayoutSize;
+    right?: LayoutSize | undefined;
     /** @visualizer spacing */
-    bottom?: LayoutSize;
+    bottom?: LayoutSize | undefined;
     /** @visualizer spacing */
-    left?: LayoutSize;
+    left?: LayoutSize | undefined;
 }
 
 export type IPreviewEnvironmentPropsBase = IWindowEnvironmentProps & ICanvasEnvironmentProps;
@@ -26,15 +26,15 @@ export interface IWindowEnvironmentProps {
 
 export interface ICanvasEnvironmentProps {
     /** @visualizer spacing */
-    canvasWidth?: LayoutSizeWithAuto;
+    canvasWidth?: LayoutSizeWithAuto | undefined;
     /** @visualizer spacing */
-    canvasHeight?: LayoutSizeWithAuto;
+    canvasHeight?: LayoutSizeWithAuto | undefined;
     /** @visualizer color */
-    canvasBackgroundColor?: string;
+    canvasBackgroundColor?: string | undefined;
     /** @visualizer canvasMargin */
-    canvasMargin?: LayoutSpacing;
+    canvasMargin?: LayoutSpacing | undefined;
     /** @visualizer canvasPadding */
-    canvasPadding?: LayoutSpacing;
+    canvasPadding?: LayoutSpacing | undefined;
 }
 
 export type HOOK<PLUGINPARAMS, HOOKPARAMS extends unknown[], RES> = (
@@ -110,8 +110,8 @@ export const createPlugin =
 /** Describe entities in your project. */
 export interface IGeneralMetadata<HOOKS extends HookMap = HookMap> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugins?: PluginInfo<unknown, this, Plugin<any, this>>[];
-    __hooks?: HOOKS;
+    plugins?: PluginInfo<unknown, this, Plugin<any, this>>[] | undefined;
+    __hooks?: HOOKS | undefined;
 }
 
 export interface IRenderableLifeCycleHooks<PLUGINPARAMS = never> extends HookMap<PLUGINPARAMS> {
@@ -141,12 +141,12 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
     /**
      * Board's environment properties (e.g. the window size, the component alignment, etc.)
      */
-    environmentProps?: IPreviewEnvironmentPropsBase;
+    environmentProps?: IPreviewEnvironmentPropsBase | undefined;
     /**
      * Functions for setting up the page for the board: adding global styles,
      * scripts, etc. These functions run only once before the board is mounted.
      */
-    setup?: BoardSetupFunction | BoardSetupFunction[];
+    setup?: BoardSetupFunction | BoardSetupFunction[] | undefined;
 }
 
 export type BoardSetupStageFunction = (
