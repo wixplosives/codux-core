@@ -2,18 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 
+let reactRoot: ReactDOMClient.Root | undefined = undefined;
+
 export const reactErrorHandledRendering = async (element: React.ReactElement, container: HTMLElement) => {
     if (ReactDOMClient.createRoot) {
         // react 18+
-        const reactRoot = ReactDOMClient.createRoot(container);
+        reactRoot = reactRoot || ReactDOMClient.createRoot(container);
         await new Promise<void>((resolve, reject) => {
-            reactRoot.render(
+            reactRoot?.render(
                 <ErrorBoundary onMount={resolve} reportError={reject}>
                     {element}
                 </ErrorBoundary>
             );
         });
-        return () => reactRoot.unmount();
+        return () => {
+            reactRoot?.unmount();
+            reactRoot = undefined;
+        };
     } else {
         // react <18
         await new Promise<void>((resolve, reject) => {
