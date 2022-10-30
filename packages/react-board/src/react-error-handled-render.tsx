@@ -10,7 +10,7 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         reactRoot = reactRoot || ReactDOMClient.createRoot(container);
         await new Promise<void>((resolve, reject) => {
             reactRoot?.render(
-                <ErrorBoundary onMount={resolve} reportError={reject}>
+                <ErrorBoundary onRender={resolve} reportError={reject}>
                     {element}
                 </ErrorBoundary>
             );
@@ -29,7 +29,7 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
 };
 
 interface ErrorBoundryProps {
-    onMount?(): void;
+    onRender?(): void;
     reportError?(error: unknown, errorInfo: React.ErrorInfo): void;
 }
 
@@ -42,10 +42,10 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<ErrorBoundry
         this.props.reportError?.(error, errorInfo);
     }
     public override componentDidMount() {
-        this.props.onMount?.();
+        this.props.onRender?.();
     }
     public override componentDidUpdate() {
-        this.props.onMount?.();
+        this.props.onRender?.();
     }
     public override render() {
         return this.state.hasError ? null : this.props.children;
