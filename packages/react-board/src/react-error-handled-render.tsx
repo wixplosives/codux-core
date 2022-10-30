@@ -2,12 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 
-let reactRoot: ReactDOMClient.Root | undefined = undefined;
+// let reactRoot: ReactDOMClient.Root | undefined = undefined;
+const reactRootByContainer = new Map<HTMLElement, ReactDOMClient.Root>();
 
 export const reactErrorHandledRendering = async (element: React.ReactElement, container: HTMLElement) => {
     if (ReactDOMClient.createRoot) {
         // react 18+
-        reactRoot = reactRoot || ReactDOMClient.createRoot(container);
+        const reactRoot = reactRootByContainer.get(container) || ReactDOMClient.createRoot(container);
+        reactRootByContainer.set(container, reactRoot);
         await new Promise<void>((resolve, reject) => {
             reactRoot?.render(
                 <ErrorBoundary onRender={resolve} reportError={reject}>
@@ -17,7 +19,7 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         });
         return () => {
             reactRoot?.unmount();
-            reactRoot = undefined;
+            reactRootByContainer.delete(container);
         };
     } else {
         // react <18
