@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMClient from 'react-dom/client';
 
-// let reactRoot: ReactDOMClient.Root | undefined = undefined;
 const reactRootByContainer = new Map<HTMLElement, ReactDOMClient.Root>();
 
 export const reactErrorHandledRendering = async (element: React.ReactElement, container: HTMLElement) => {
