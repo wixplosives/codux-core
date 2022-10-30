@@ -13,7 +13,8 @@ describe('css var plugin', () => {
     it('wraps the board with context', async () => {
         const { canvas, cleanup } = board.setupStage();
         cleanupAfterTest.add(cleanup);
-        await board.render(canvas);
+        const cleanupRender = await board.render(canvas);
+        cleanupAfterTest.add(cleanupRender);
         const compElement = canvas.children[0];
         const style = window.getComputedStyle(compElement);
         expect(style.color).to.equal('rgb(255, 0, 0)');
