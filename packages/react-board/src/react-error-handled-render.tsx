@@ -44,6 +44,9 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<ErrorBoundry
     public override componentDidMount() {
         this.props.onMount?.();
     }
+    public override componentDidUpdate() {
+        this.props.onMount?.();
+    }
     public override render() {
         return this.state.hasError ? null : this.props.children;
     }
