@@ -4,6 +4,10 @@ import { createMetadata } from '@wixc3/board-core';
 import { cssVarsPlugin } from '@wixc3/board-plugins';
 import { createDisposables } from '@wixc3/create-disposables';
 import board from './fixtures/simple.board';
+import chaiAsPromised from 'chai-as-promised';
+import chai, { expect } from 'chai';
+
+chai.use(chaiAsPromised);
 
 // Type tests
 
@@ -43,7 +47,7 @@ describe('create board', () => {
         const cleanupRender = await board.render(canvas);
         disposables.add(cleanupRender);
 
-        // This doesn't need a check because it will throw an exception if it fails
-        await board.render(canvas);
+        // await board.render(canvas);
+        await expect(board.render(canvas)).not.to.be.rejected;
     });
 });
