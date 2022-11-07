@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.3",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^10.0.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
@@ -21,6 +22,7 @@
     "@typescript-eslint/parser": "^5.42.0",
     "@wixc3/create-disposables": "^2.2.0",
     "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
