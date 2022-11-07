@@ -1,14 +1,14 @@
 {
   "name": "@wixc3/react-board",
   "description": "Library for creation of React component boards",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": "^16.0.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
-    "@wixc3/board-core": "^2.0.6"
+    "@wixc3/board-core": "^2.1.0"
   },
   "files": [
     "dist",
