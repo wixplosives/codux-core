@@ -10,8 +10,8 @@
     "!*/tsconfig.{json,tsbuildinfo}"
   ],
   "license": "MIT",
-  "repository": "https://github.com/wixplosives/wcs-core/tree/master/packages/board-core",
-  "homepage": "https://github.com/wixplosives/wcs-core",
+  "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/board-core",
+  "homepage": "https://github.com/wixplosives/codux-core",
   "publishConfig": {
     "access": "public"
   }
