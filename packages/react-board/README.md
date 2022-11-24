@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@wixc3/react-board.svg)](https://www.npmjs.com/package/@wixc3/react-board)
 
-This library is here to help you create React component boards for WCS.
+This library is here to help you create React component boards for Codux.
 
 ## Usage
 
