@@ -22,10 +22,25 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         };
     } else {
         // react <18
-        await new Promise<void>((resolve, reject) => {
-            ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
-        });
-        return () => ReactDOM.unmountComponentAtNode(container);
+        const cleanup = () => ReactDOM.unmountComponentAtNode(container);
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
+            });
+        } catch (e) {
+            /**
+             * only in case of react 17 error during render that rejects promise above
+             * will leave container DOM node with corrupted react object attached to it in _reactRootContainer
+             * this will result in empty renders even when render function does not fail
+             * issue https://github.com/wixplosives/codux/issues/12211
+             * In case of such error we need to cleanup container DOM node
+             */
+            cleanup();
+            throw e;
+        }
+
+        return cleanup;
     }
 };
 
