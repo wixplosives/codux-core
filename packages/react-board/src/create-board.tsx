@@ -2,8 +2,11 @@ import React from 'react';
 import { getPluginsWithHooks, baseRender, createRenderableBase } from '@wixc3/board-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
 import type { IReactBoard, OmitReactBoard } from './types';
+import RefreshRuntime from 'react-refresh';
 
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
+    RefreshRuntime.injectIntoGlobalHook(window);
+
     const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
         render(target) {
@@ -23,6 +26,11 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
                 target
             );
         },
+
+        update() {
+            RefreshRuntime.performReactRefresh();
+        },
     });
+
     return res;
 }

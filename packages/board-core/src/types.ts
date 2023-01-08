@@ -130,6 +130,11 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      */
     render: (targetElement: HTMLElement) => Promise<() => void>;
     /**
+     * Updates everything that was previously rendered,
+     * update doesn't require a cleanup because it doesn't add anything
+     */
+    update: () => void;
+    /**
      * sets the stage for the renderer.
      * this function has many side effects ( such as effecting window styles and sizes )
      *
@@ -137,11 +142,10 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      *
      */
     setupStage: (parentElement?: HTMLElement) => ReturnType<BoardSetupStageFunction>;
-
     /**
      * Board's environment properties (e.g. the window size, the component alignment, etc.)
      */
-    environmentProps?: IPreviewEnvironmentPropsBase | undefined;
+    environmentProps?: (IPreviewEnvironmentPropsBase & IWindowEnvironmentProps) | undefined;
     /**
      * Functions for setting up the page for the board: adding global styles,
      * scripts, etc. These functions run only once before the board is mounted.

@@ -9,7 +9,7 @@ export { BoardSetupFunction } from '@wixc3/board-core';
 
 export type OmitReactBoard<DATA extends IReactBoard> = Omit<
     OmitIRenderableMetadataBase<DATA>,
-    'render' | 'cleanup' | 'props'
+    'render' | 'cleanup' | 'update' | 'props'
 >;
 
 export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
