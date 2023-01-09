@@ -1437,9 +1437,9 @@
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
 "@yarnpkg/parsers@^3.0.0-rc.18":
-  version "3.0.0-rc.34"
-  resolved "https://registry.yarnpkg.com/@yarnpkg/parsers/-/parsers-3.0.0-rc.34.tgz#db1d16e082e167db6dbc67f1c264639e0b4c5e1a"
-  integrity sha512-NhEA0BusInyk7EiJ7i7qF1Mkrb6gGjZcQQ/W1xxGazxapubEmGO7v5WSll6hWxFXE2ngtLj8lflq1Ff5VtqEww==
+  version "3.0.0-rc.35"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/parsers/-/parsers-3.0.0-rc.35.tgz#5a22f2c4e9341ca991e4331de0f0c286a0fcefab"
+  integrity sha512-J6ySgEdQUqAmlttvZOoXOEsrDTAnHyR/MtEvuAG5a+gwKY/2Cc7xn4CWcpgfuwkp+0a4vXmt2BDwzacDoGDN1g==
   dependencies:
     js-yaml "^3.10.0"
     tslib "^2.4.0"
@@ -2152,7 +2152,7 @@ commander@^8.3.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
-commander@^9.4.1:
+commander@^9.5.0:
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-9.5.0.tgz#bc08d1eb5cedf7ccb797a96199d41c7bc3e60d30"
   integrity sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==
@@ -2318,10 +2318,10 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-create-listening-server@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/create-listening-server/-/create-listening-server-1.0.0.tgz#d33d93a8a71b613bb937ab27a54a82b0f6079661"
-  integrity sha512-Nb94WAhopCcWAmCzlAy+rJ8lsCojeZP/1YLcReOdsi5i9mXgC+TDKAjZQYMmEvlEGq/qKvt44EdH9RAxEMRr6A==
+create-listening-server@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/create-listening-server/-/create-listening-server-2.0.0.tgz#71bc6de5018c43ebd6fe4ea43aa1958ab0b0519a"
+  integrity sha512-PWpk8o6LXXUCz7/rmSBekd9BbBvgsgshccRDbZWTf8+DVFIM6eEDM3FJ2pHlEGkIqhJAnv2j0tV92FBcg9VBqA==
 
 cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
@@ -4340,9 +4340,9 @@ media-typer@0.3.0:
   integrity sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==
 
 memfs@^3.4.12:
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.12.tgz#d00f8ad8dab132dc277c659dc85bfd14b07d03bd"
-  integrity sha512-BcjuQn6vfqP+k100e0E9m61Hyqa//Brp+I3f0OBmN0ATHlFA8vx3Lt8z57R3u2bPqe3WGDBC+nF72fTH7isyEw==
+  version "3.4.13"
+  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.13.tgz#248a8bd239b3c240175cd5ec548de5227fc4f345"
+  integrity sha512-omTM41g3Skpvx5dSYeZIbXKcXoAVc/AoMNwn9TKx++L/gaen/+4TTttmu8ZSch5vfVJ8uJvGbroTsIlslRg6lg==
   dependencies:
     fs-monkey "^1.0.3"
 
@@ -4543,18 +4543,18 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mocha-play@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/mocha-play/-/mocha-play-4.1.0.tgz#45483ea31de9233a2f7448d4698c3a4696792848"
-  integrity sha512-kjD5EIDvH8wbQpLZ9TaMUIOVeTgQsiWzXBMre+ZXutDcdW4toehCHlgtkGYdDKDzgAEXBg3qEml1o45fWObjIw==
+mocha-play@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/mocha-play/-/mocha-play-4.1.1.tgz#c42b955250b6cca1fdb7f6f9be0919110217bef5"
+  integrity sha512-2ljNygIvu+KgbsruI26l8PB93M/x/umqK3q+UbMcM+Cy4wc0Bxc/eMCO9DlxKxkMPECphfSPkRsKMkXvFhnZCQ==
   dependencies:
-    commander "^9.4.1"
-    create-listening-server "^1.0.0"
+    commander "^9.5.0"
+    create-listening-server "^2.0.0"
     express "^4.18.2"
     find-up "^6.3.0"
     glob "^8.0.3"
     html-webpack-plugin "^5.5.0"
-    playwright-core "^1.28.1"
+    playwright-core "^1.29.2"
     webpack-dev-middleware "^6.0.1"
 
 mocha@^10.2.0:
@@ -5317,7 +5317,7 @@ playwright-chromium@^1.29.2:
   dependencies:
     playwright-core "1.29.2"
 
-playwright-core@1.29.2, playwright-core@^1.28.1:
+playwright-core@1.29.2, playwright-core@^1.29.2:
   version "1.29.2"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.29.2.tgz#2e8347e7e8522409f22b244e600e703b64022406"
   integrity sha512-94QXm4PMgFoHAhlCuoWyaBYKb92yOcGVHdQLoxQ7Wjlc7Flg4aC/jbFW7xMR52OfXMVkWicue4WXE7QEegbIRA==
