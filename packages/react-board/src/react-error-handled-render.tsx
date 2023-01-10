@@ -30,9 +30,10 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
             });
         } catch (e) {
             /**
-             * only in case of react 17 error during render that rejects promise above
-             * will leave container DOM node with corrupted react object attached to it in _reactRootContainer
-             * this will result in empty renders even when render function does not fail
+             * If an error occurs during ReactDOM.render(), React 17 will keep
+             * _reactRootContainer property attached to the container DOM node.
+             * This property points to an a stale fiber object, which prevents
+             * subsequent ReactDOM.render() calls from working.
              * issue https://github.com/wixplosives/codux/issues/12211
              * In case of such error we need to cleanup container DOM node
              */
