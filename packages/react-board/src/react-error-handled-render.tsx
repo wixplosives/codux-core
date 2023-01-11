@@ -34,8 +34,6 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
              * _reactRootContainer property attached to the container DOM node.
              * This property points to an a stale fiber object, which prevents
              * subsequent ReactDOM.render() calls from working.
-             * issue https://github.com/wixplosives/codux/issues/12211
-             * In case of such error we need to cleanup container DOM node
              */
             cleanup();
             throw e;
