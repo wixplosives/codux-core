@@ -22,10 +22,24 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         };
     } else {
         // react <18
-        await new Promise<void>((resolve, reject) => {
-            ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
-        });
-        return () => ReactDOM.unmountComponentAtNode(container);
+        const cleanup = () => ReactDOM.unmountComponentAtNode(container);
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
+            });
+        } catch (e) {
+            /**
+             * If an error occurs during ReactDOM.render(), React 17 will keep
+             * _reactRootContainer property attached to the container DOM node.
+             * This property points to an a stale fiber object, which prevents
+             * subsequent ReactDOM.render() calls from working.
+             */
+            cleanup();
+            throw e;
+        }
+
+        return cleanup;
     }
 };
 
