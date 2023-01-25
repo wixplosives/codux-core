@@ -11,6 +11,9 @@
       "version": "detect"
     }
   },
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
     "no-only-tests/no-only-tests": "error",
     "no-console": "error",
