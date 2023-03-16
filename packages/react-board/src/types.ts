@@ -31,8 +31,6 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     /** A list of tags. */
     tags?: string[];
 
-    /**
-     * the board to render
-     */
+    /** A React component representing the board. */
     Board: React.ComponentType<any>;
 }
