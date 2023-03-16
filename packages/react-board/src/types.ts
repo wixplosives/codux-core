@@ -25,7 +25,7 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     /** The name of the board. */
     name: string;
 
-    /** An image URL to be used as the board's thumbnail. */
+    /** An image URL to be used as board's thumbnail. */
     cover?: string;
 
     /** List of tags to classify board's content */
