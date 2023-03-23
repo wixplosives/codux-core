@@ -31,10 +31,10 @@
     "lerna": "^6.5.1",
     "mocha": "^10.2.0",
     "mocha-play": "^5.0.0",
-    "playwright-chromium": "^1.31.2",
+    "playwright-chromium": "^1.32.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "rimraf": "^4.4.0",
+    "rimraf": "^4.4.1",
     "source-map-loader": "^4.0.1",
     "typescript": "~5.0.2",
     "webpack": "^5.76.3"
