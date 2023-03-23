@@ -28,7 +28,7 @@
     "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "lerna": "^6.5.1",
+    "lerna": "^6.6.0",
     "mocha": "^10.2.0",
     "mocha-play": "^5.0.0",
     "playwright-chromium": "^1.32.0",
