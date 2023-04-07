@@ -18,8 +18,8 @@
     "@types/mocha": "^10.0.1",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
     "@wixc3/create-disposables": "^2.2.0",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
@@ -31,13 +31,13 @@
     "lerna": "^6.6.1",
     "mocha": "^10.2.0",
     "mocha-play": "^5.0.0",
-    "playwright-chromium": "^1.32.1",
+    "playwright-chromium": "^1.32.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^4.4.1",
     "source-map-loader": "^4.0.1",
     "typescript": "~5.0.3",
-    "webpack": "^5.77.0"
+    "webpack": "^5.78.0"
   },
   "license": "MIT",
   "private": true
