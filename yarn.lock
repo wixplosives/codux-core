@@ -704,9 +704,9 @@
     "@types/estree" "*"
 
 "@types/eslint@*":
-  version "8.37.0"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.37.0.tgz#29cebc6c2a3ac7fea7113207bf5a828fdf4d7ef1"
-  integrity sha512-Piet7dG2JBuDIfohBngQ3rCt7MgO9xCO4xIMKxBThCq5PNRB91IjlJ10eJVwfoNtvTErmxLzwBZ7rHZtbOMmFQ==
+  version "8.40.0"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.40.0.tgz#ae73dc9ec5237f2794c4f79efd6a4c73b13daf23"
+  integrity sha512-nbq2mvc/tBrK9zQQuItvjJl++GTN5j06DaPtp3hZCpngmG6Q3xoyEmd0TwZI0gAy/G1X0zhGBbr2imsGFdFV0g==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"
@@ -2247,9 +2247,9 @@ ejs@^3.1.7:
     jake "^10.8.5"
 
 electron-to-chromium@^1.4.284:
-  version "1.4.403"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.403.tgz#8b4666d1ea6cf97e03c1ed39ded1f25212865ecc"
-  integrity sha512-evCMqXJWmbQHdlh307peXNguqVIMmcLGrQwXiR+Qc98js8jPDeT9rse1+EF2YRjWgueuzj1r4WWLAe4/U+xjMg==
+  version "1.4.404"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.404.tgz#16baf653a7a2613e221da61480ad02fe84e40231"
+  integrity sha512-te57sWvQdpxmyd1GiswaodKdXdPgn9cN4ht8JlNa04QgtrfnUdWEo1261rY2vaC6TKaiHn0E7QerJWPKFCvMVw==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -5338,17 +5338,17 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-chromium@^1.34.0:
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.34.0.tgz#6d138a2e9dfa5361db90a1f82f6d9de53097c126"
-  integrity sha512-w3nNawEvAOD+HgrwzVWmlMZJ+B98ySf9OZ/R5MyXDaW4NELUb/sM1pTAx6ue8C9seY8CE6rw556VByRfLtwg5A==
+playwright-chromium@^1.34.1:
+  version "1.34.1"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.34.1.tgz#0d92ef10c02a48b61728fae8d8053b62857d76fa"
+  integrity sha512-IgRyf+UvBXcByjQszSgt87cBalr0pRWDcSWLvN/Kb80UudsffipJEieHmKB6N7ahfU/mYh5T8RELkNgQgGQiCw==
   dependencies:
-    playwright-core "1.34.0"
+    playwright-core "1.34.1"
 
-playwright-core@1.34.0, playwright-core@^1.32.3:
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.34.0.tgz#6a8f05c657400677591ed82b6749ef7e120a152d"
-  integrity sha512-fMUY1+iR6kYbJF/EsOOqzBA99ZHXbw9sYPNjwA4X/oV0hVF/1aGlWYBGPVUEqxBkGANDKMziYoOdKGU5DIP5Gg==
+playwright-core@1.34.1, playwright-core@^1.32.3:
+  version "1.34.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.34.1.tgz#e0af750c0fa684adf2a1d34a69b7b25f1ee1ffdb"
+  integrity sha512-4Y5hGLoSrnB/BXj2NFKBNWP/bI9uVejTVbso1ZBtkKZ+O2KiVIeCJ3R4c7Cf2PbP7htjLolHXY+mImt2IWOlEg==
 
 postcss-selector-parser@^6.0.10:
   version "6.0.13"
