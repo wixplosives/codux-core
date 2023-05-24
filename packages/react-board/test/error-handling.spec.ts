@@ -6,15 +6,21 @@ import chai, { expect } from 'chai';
 
 chai.use(chaiAsPromised);
 
+function errorHandler(event: ErrorEvent) {
+    event.preventDefault();
+}
+
 describe('create board error handling', () => {
     // Mocha has its own error handler that traps unhandled exceptions.
     // We want to disable it for this test suite in order to test the error handling of create board.
     let globalMochaErrorHandler: OnErrorEventHandler = null;
     before(() => {
+        globalThis.addEventListener('error', errorHandler);
         globalMochaErrorHandler = window.onerror;
         window.onerror = null;
     });
     after(() => {
+        globalThis.removeEventListener('error', errorHandler);
         window.onerror = globalMochaErrorHandler;
         globalMochaErrorHandler = null;
     });
