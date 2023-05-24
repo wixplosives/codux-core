@@ -6,9 +6,10 @@ import chai, { expect } from 'chai';
 
 chai.use(chaiAsPromised);
 
-const dismissEvent = (event: Event) => event.preventDefault();
-
 describe('Board.render() error handling', () => {
+    // We want to prevent the default behavior of the error event, which makes the tests fail.
+    const dismissEvent = (event: Event) => event.preventDefault();
+
     // Mocha has its own error handler that traps unhandled exceptions.
     // We want to disable it for this test suite in order to test the error handling of create board.
     let globalMochaErrorHandler: OnErrorEventHandler = null;
