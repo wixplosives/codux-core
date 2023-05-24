@@ -9,17 +9,26 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         // react 18+
         const reactRoot = reactRootByContainer.get(container) || ReactDOMClient.createRoot(container);
         reactRootByContainer.set(container, reactRoot);
-        await new Promise<void>((resolve, reject) => {
-            reactRoot?.render(
-                <ErrorBoundary onRender={resolve} reportError={reject}>
-                    {element}
-                </ErrorBoundary>
-            );
-        });
-        return () => {
+
+        const cleanup = () => {
             reactRoot?.unmount();
             reactRootByContainer.delete(container);
         };
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                reactRoot?.render(
+                    <ErrorBoundary onRender={resolve} reportError={reject}>
+                        {element}
+                    </ErrorBoundary>
+                );
+            });
+        } catch (e) {
+            cleanup();
+            throw e;
+        }
+
+        return cleanup;
     } else {
         // react <18
         const cleanup = () => ReactDOM.unmountComponentAtNode(container);
@@ -57,10 +66,14 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<ErrorBoundry
         this.props.reportError?.(error, errorInfo);
     }
     public override componentDidMount() {
-        this.props.onRender?.();
+        if (!this.state.hasError) {
+            this.props.onRender?.();
+        }
     }
     public override componentDidUpdate() {
-        this.props.onRender?.();
+        if (!this.state.hasError) {
+            this.props.onRender?.();
+        }
     }
     public override render() {
         return this.state.hasError ? null : this.props.children;
