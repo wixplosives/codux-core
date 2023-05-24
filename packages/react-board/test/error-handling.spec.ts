@@ -6,21 +6,19 @@ import chai, { expect } from 'chai';
 
 chai.use(chaiAsPromised);
 
-function errorHandler(event: ErrorEvent) {
-    event.preventDefault();
-}
+const dismissEvent = (event: Event) => event.preventDefault();
 
-describe('create board error handling', () => {
+describe('Board.render() error handling', () => {
     // Mocha has its own error handler that traps unhandled exceptions.
     // We want to disable it for this test suite in order to test the error handling of create board.
     let globalMochaErrorHandler: OnErrorEventHandler = null;
     before(() => {
-        globalThis.addEventListener('error', errorHandler);
+        globalThis.addEventListener('error', dismissEvent);
         globalMochaErrorHandler = window.onerror;
         window.onerror = null;
     });
     after(() => {
-        globalThis.removeEventListener('error', errorHandler);
+        globalThis.removeEventListener('error', dismissEvent);
         window.onerror = globalMochaErrorHandler;
         globalMochaErrorHandler = null;
     });
@@ -39,8 +37,6 @@ describe('create board error handling', () => {
         disposables.add(cleanup);
         const cleanupRender = await throwingOnRerenderBoard.render(canvas);
         disposables.add(cleanupRender);
-
-        document.getElementById('divId')?.click();
-        await expect(throwingOnRerenderBoard.render(canvas)).to.be.rejectedWith('ref.current.map is not a function');
+        await expect(throwingOnRerenderBoard.render(canvas)).to.be.rejectedWith('Intentional Error on re-render');
     });
 });

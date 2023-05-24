@@ -4,11 +4,11 @@ import React from 'react';
 export default createBoard({
     name: 'Throwing On Click Board',
     Board: () => {
-        const ref = React.useRef([1, 2, 3]);
-        return (
-            <div id="divId" onClick={() => ((ref.current as unknown as string) = 'not array')}>
-                {ref.current.map((item) => item)}
-            </div>
-        );
+        const renderCount = React.useRef(1);
+        if (renderCount.current === 2) {
+            throw new Error('Intentional Error on re-render');
+        }
+        renderCount.current++;
+        return <div>Rendered</div>;
     },
 });
