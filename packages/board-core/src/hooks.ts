@@ -18,7 +18,7 @@ export function getPluginsWithHooks<DATA extends IGeneralMetadata<HookMap>>(
 
 export type HookParams<DATA extends IGeneralMetadata<HookMap>, HOOK extends HookNames<DATA>> = NonNullable<
     NonNullable<DATA['__hooks']>[HOOK]
-> extends (pluginParams: never, ...args: infer U) => void | unknown
+> extends (pluginParams: never, ...args: infer U) => unknown
     ? U
     : never;
 
