@@ -31,6 +31,9 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     /** A list of tags. */
     tags?: string[];
 
+    /** Defines whether the board can be used as a snippet. */
+    isSnippet?: boolean;
+
     /** A React component representing the board. */
     Board: React.ComponentType<any>;
 }
