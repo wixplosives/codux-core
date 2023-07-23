@@ -31,10 +31,12 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
         return cleanup;
     } else {
         // react <18
+        // eslint-disable-next-line react/no-deprecated
         const cleanup = () => ReactDOM.unmountComponentAtNode(container);
 
         try {
             await new Promise<void>((resolve, reject) => {
+                // eslint-disable-next-line react/no-deprecated
                 ReactDOM.render(<ErrorBoundary reportError={reject}>{element}</ErrorBoundary>, container, resolve);
             });
         } catch (e) {
