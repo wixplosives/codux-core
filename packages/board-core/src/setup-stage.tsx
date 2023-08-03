@@ -33,7 +33,7 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
 
     window.resizeTo(
         windowStyles.windowWidth || previousProps.windowWidth,
-        windowStyles.windowHeight || previousProps.windowHeight
+        windowStyles.windowHeight || previousProps.windowHeight,
     );
 
     document.body.style.backgroundColor = windowStyles.windowBackgroundColor || '';

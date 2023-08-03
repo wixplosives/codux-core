@@ -17,7 +17,7 @@ export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,
         renderableElement: JSX.Element,
-        canvas: HTMLElement
+        canvas: HTMLElement,
     ) => null | JSX.Element;
 }
 

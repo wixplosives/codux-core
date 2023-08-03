@@ -21,7 +21,7 @@ describe('setupBoardStage', () => {
                 name: 'Test1',
                 Board: () => null,
             }),
-            container
+            container,
         );
 
         disposables.add(cleanup);
@@ -56,7 +56,7 @@ describe('setupBoardStage', () => {
         updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
 
         expect(canvas?.offsetHeight, 'canvas height is not stretched when margins are applied').equal(
-            CONTAINER_HEIGHT - 2 * 5
+            CONTAINER_HEIGHT - 2 * 5,
         );
     });
 
@@ -66,7 +66,7 @@ describe('setupBoardStage', () => {
         updateCanvas({ canvasWidth: 5, canvasMargin: { left: 5, right: 5 } });
 
         expect(canvas?.offsetWidth, 'canvas width is not stretched when margins are applied').equal(
-            window.innerWidth - 2 * 5
+            window.innerWidth - 2 * 5,
         );
     });
 
@@ -76,7 +76,7 @@ describe('setupBoardStage', () => {
         updateCanvas({ canvasBackgroundColor: '#fff' });
 
         expect(window.getComputedStyle(canvas).backgroundColor, 'canvas background color was not updated').equal(
-            'rgb(255, 255, 255)'
+            'rgb(255, 255, 255)',
         );
     });
 
@@ -95,7 +95,7 @@ describe('setupBoardStage', () => {
         updateWindow({ windowBackgroundColor: '#fff' });
 
         expect(window.getComputedStyle(document.body).backgroundColor, 'window background color was not updated').equal(
-            'rgb(255, 255, 255)'
+            'rgb(255, 255, 255)',
         );
     });
 });

@@ -25,5 +25,5 @@ export const reactContextPlugin = createPlugin<IReactBoard>()<ContextPluginProps
             usedContexts.add(p.context);
             return true;
         });
-    }
+    },
 );

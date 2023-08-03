@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 export const CSSVarsUser: React.FC = () => {
     return (
         <span

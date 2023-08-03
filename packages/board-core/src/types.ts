@@ -65,7 +65,7 @@ export interface Plugin<PLUGINPARAMS, TARGET extends IGeneralMetadata<HookMap>> 
 export interface PluginInfo<
     PLUGINPARAMS,
     TARGET extends IGeneralMetadata<HookMap>,
-    SYMB extends Plugin<PLUGINPARAMS, TARGET>
+    SYMB extends Plugin<PLUGINPARAMS, TARGET>,
 > {
     key: SYMB;
     props: PLUGINPARAMS;
@@ -90,7 +90,7 @@ export const createPlugin =
         pluginName: string,
         defaultProps: Partial<PluginProps>,
         plugin: ReplaceParams<NonNullable<TARGET['__hooks']>, PluginProps>,
-        merge: (params: PluginProps[]) => PluginProps[] = defaultMerge
+        merge: (params: PluginProps[]) => PluginProps[] = defaultMerge,
     ): Plugin<PluginProps, TARGET> => {
         const res: Plugin<PluginProps, TARGET> = {
             pluginName,
@@ -151,7 +151,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
 
 export type BoardSetupStageFunction = (
     board: IRenderableMetadataBase,
-    parentElement: HTMLElement
+    parentElement: HTMLElement,
 ) => {
     canvas: HTMLElement;
     cleanup: () => void;

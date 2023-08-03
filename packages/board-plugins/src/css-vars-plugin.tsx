@@ -9,5 +9,5 @@ export const cssVarsPlugin = createPlugin<IRenderableMetadataBase>()<{ [varName:
                 canvas.style.setProperty(varName, varValue);
             }
         },
-    }
+    },
 );

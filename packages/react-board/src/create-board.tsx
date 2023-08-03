@@ -20,7 +20,7 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
                     }
                     return reactErrorHandledRendering(element, target);
                 },
-                target
+                target,
             );
         },
     });

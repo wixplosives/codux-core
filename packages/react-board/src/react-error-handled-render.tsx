@@ -20,7 +20,7 @@ export const reactErrorHandledRendering = async (element: React.ReactElement, co
                 reactRoot?.render(
                     <ErrorBoundary onRender={resolve} reportError={reject}>
                         {element}
-                    </ErrorBoundary>
+                    </ErrorBoundary>,
                 );
             });
         } catch (e) {

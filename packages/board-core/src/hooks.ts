@@ -4,7 +4,7 @@ export type HookNames<DATA extends IGeneralMetadata<HookMap>> = keyof NonNullabl
 
 export function getPluginsWithHooks<DATA extends IGeneralMetadata<HookMap>>(
     data: DATA,
-    hookName: HookNames<DATA>
+    hookName: HookNames<DATA>,
 ): PluginInfo<unknown, DATA, Plugin<unknown, DATA>>[] {
     if (!data.plugins) {
         return [];
