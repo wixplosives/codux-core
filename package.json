@@ -31,7 +31,7 @@
     "lerna": "^7.1.5",
     "mocha": "^10.2.0",
     "mocha-play": "^6.0.0",
-    "playwright-chromium": "^1.37.0",
+    "playwright-chromium": "^1.37.1",
     "prettier": "^3.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
