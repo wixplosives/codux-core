@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
     "@wixc3/create-disposables": "^2.2.0",
-    "chai": "^4.3.7",
+    "chai": "^4.3.8",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",
