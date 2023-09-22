@@ -13,6 +13,7 @@
     "prettify": "npx prettier . --write"
   },
   "devDependencies": {
+    "@playwright/browser-chromium": "^1.38.1",
     "@types/chai": "^4.3.6",
     "@types/chai-as-promised": "^7.1.6",
     "@types/mocha": "^10.0.1",
@@ -31,7 +32,6 @@
     "lerna": "^7.3.0",
     "mocha": "^10.2.0",
     "mocha-play": "^6.0.0",
-    "playwright-chromium": "^1.38.0",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
