@@ -16,7 +16,7 @@
     "@playwright/browser-chromium": "^1.38.1",
     "@types/chai": "^4.3.6",
     "@types/chai-as-promised": "^7.1.6",
-    "@types/mocha": "^10.0.1",
+    "@types/mocha": "^10.0.2",
     "@types/react": "^18.2.23",
     "@types/react-dom": "^18.2.8",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
