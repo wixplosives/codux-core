@@ -19,7 +19,7 @@
     "@types/mocha": "^10.0.4",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
-    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.11.0",
     "@wixc3/create-disposables": "^2.2.0",
     "chai": "^4.3.10",
