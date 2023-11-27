@@ -20,7 +20,7 @@
     "@types/react": "^18.2.38",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
+    "@typescript-eslint/parser": "^6.13.0",
     "@wixc3/create-disposables": "^2.2.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
