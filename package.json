@@ -31,7 +31,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "lerna": "^8.0.2",
     "mocha": "^10.2.0",
-    "mocha-play": "^7.0.1",
+    "mocha-play": "^7.0.3",
     "prettier": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
