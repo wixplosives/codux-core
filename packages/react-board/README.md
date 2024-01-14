@@ -33,6 +33,27 @@ createBoard({
 });
 ```
 
+You can also create boards with separation between the actual content and the board environment.
+
+```tsx
+// hello.board.tsx
+
+import { createBoard, ContentSlot } from '@wixc3/react-board';
+import { Hello } from './hello';
+
+createBoard({
+  name: 'hello board',
+  board: () => (
+    <SomeWrappingComponent>
+      <p>description</p>
+      <ContentSlot>
+        <Hello name="World" />,
+      </ContentSlot>
+    <SomeWrappingComponent>
+  )
+});
+```
+
 ## License
 
 MIT
