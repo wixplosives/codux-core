@@ -508,12 +508,12 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@playwright/browser-chromium@^1.40.1":
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/@playwright/browser-chromium/-/browser-chromium-1.40.1.tgz#74f3a213f082798c838f2ef1405c5e9cfeeebc99"
-  integrity sha512-uNmjHYXBTYTfJkf89D6zVUcesCFzZ/yjkPj8FvBJQ6yf3na/j1rcjVNzx0PzOAGcWKioB/rnWRBi7b5ojOdCHA==
+"@playwright/browser-chromium@^1.41.0":
+  version "1.41.0"
+  resolved "https://registry.yarnpkg.com/@playwright/browser-chromium/-/browser-chromium-1.41.0.tgz#ef8817bf6cef13d4419e7523f8f59c090368d225"
+  integrity sha512-TaHfh3rDsz4+tVKdMMo4kdFOk8/4U6cPyMXHhoiJVmhOhjHXjR0qPMoa5gz5jDGl478cn5SoXmtgKPgTDFuS0g==
   dependencies:
-    playwright-core "1.40.1"
+    playwright-core "1.41.0"
 
 "@sigstore/bundle@^1.1.0":
   version "1.1.0"
@@ -678,9 +678,9 @@
   integrity sha512-dJvrYWxP/UcXm36Qn36fxhUKu8A/xMRXVT2cliFF1Z7UA9liG5Psj3ezNSZw+5puH2czDXRLcXQxf8JbJt0ejg==
 
 "@types/node@*":
-  version "20.11.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.2.tgz#39cea3fe02fbbc2f80ed283e94e1d24f2d3856fb"
-  integrity sha512-cZShBaVa+UO1LjWWBPmWRR4+/eY/JR/UIEcDlVsw3okjWEu+rB7/mH6X3B/L+qJVHDLjk9QW/y2upp9wp1yDXA==
+  version "20.11.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.4.tgz#c724a5d6723182af758b91b994209336f4439cb7"
+  integrity sha512-6I0fMH8Aoy2lOejL3s4LhyIYX34DPwY8bl5xlNjBvUEk8OHrcuzsFt+Ied4LvJihbtXPM+8zUqdydfIti86v9g==
   dependencies:
     undici-types "~5.26.4"
 
@@ -1496,9 +1496,9 @@ camelcase@^6.0.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001565:
-  version "1.0.30001576"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001576.tgz#893be772cf8ee6056d6c1e2d07df365b9ec0a5c4"
-  integrity sha512-ff5BdakGe2P3SQsMsiqmt1Lc8221NR1VzHj5jXN5vBny9A6fpze94HiVV/n7XRosOlsShJcvMv5mdnpjOGCEgg==
+  version "1.0.30001577"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001577.tgz#a24991eb4ad67324ba8b96716340d53151f2f6f8"
+  integrity sha512-rs2ZygrG1PNXMfmncM0B5H1hndY5ZCC9b5TkFaVNfZ+AUlyqcMyVIQtc3fsezi0NUCk5XZfDf9WS6WxMxnfdrg==
 
 chai-as-promised@^7.1.1:
   version "7.1.1"
@@ -2130,9 +2130,9 @@ ejs@^3.1.7:
     jake "^10.8.5"
 
 electron-to-chromium@^1.4.601:
-  version "1.4.630"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.630.tgz#1d9f4169653784997bec98975e11a2c05214ce39"
-  integrity sha512-osHqhtjojpCsACVnuD11xO5g9xaCyw7Qqn/C2KParkMv42i8jrJJgx3g7mkHfpxwhy9MnOJr8+pKOdZ7qzgizg==
+  version "1.4.633"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.633.tgz#df8831d2fef994fe9c013e61db6cfb98eeebf52d"
+  integrity sha512-7BvxzXrHFliyQ1oZc6NRMjyEaKOO1Ma1NY98sFZofogWlm+klLWSgrDw7EhatiMgi4R4NV+iWxDdxuIKXtPbOw==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -5166,10 +5166,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.40.1, playwright-core@^1.40.1:
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.40.1.tgz#442d15e86866a87d90d07af528e0afabe4c75c05"
-  integrity sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==
+playwright-core@1.41.0, playwright-core@^1.40.1:
+  version "1.41.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.0.tgz#dbda9c3948df28a8deae76cc90b424e47174f9d7"
+  integrity sha512-UGKASUhXmvqm2Lxa1fNr8sFwAtqjpgBRr9jQ7XBI8Rn5uFiEowGUGwrruUQsVPIom4bk7Lt+oLGpXobnXzrBIw==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
