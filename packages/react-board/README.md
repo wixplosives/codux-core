@@ -33,7 +33,10 @@ createBoard({
 });
 ```
 
-You can also create boards with separation between the actual content and the board environment.
+You can also create boards with separation between the actual content and the board environment (context providers, board styling).  
+This will be helpful in board templates, to indicate to Codux where to put the component in the generated board.  
+Or in boards, so that when the board is converted to a code snippet, only the children of the `<ContentSlot>` will be included in the snippet.   
+This is useful when the board is wrapped in a router or a context provider that shouldn't be included in the snippet. 
 
 ```tsx
 // hello.board.tsx
