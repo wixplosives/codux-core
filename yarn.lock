@@ -521,12 +521,12 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@playwright/browser-chromium@^1.41.1":
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/@playwright/browser-chromium/-/browser-chromium-1.41.1.tgz#800f9f4f5b10a87e9728d5999dd9e705c1352f7a"
-  integrity sha512-rgPTuAmA+8zQLb7+GDY7hrdnCRMrL2C/JPFylWeQBJkQtldJsk2pELUR7NESeJtXVzML/x+aFnGPRY0r5+YO3Q==
+"@playwright/browser-chromium@^1.41.2":
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/@playwright/browser-chromium/-/browser-chromium-1.41.2.tgz#f6b2e51b95bb98e916e7c42c9a6f885923cfcd4b"
+  integrity sha512-vzobqNg2K6cJPyXCVaUxq8uDV54l3pEJvkO58XK0CBV2nl9IBySXvEqcgwsQc8PmQ930yVDrz0oCrMR6H/Qv3A==
   dependencies:
-    playwright-core "1.41.1"
+    playwright-core "1.41.2"
 
 "@sigstore/bundle@^1.1.0":
   version "1.1.0"
@@ -5179,10 +5179,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.41.1, playwright-core@^1.40.1:
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.1.tgz#9c152670010d9d6f970f34b68e3e935d3c487431"
-  integrity sha512-/KPO5DzXSMlxSX77wy+HihKGOunh3hqndhqeo/nMxfigiKzogn8kfL0ZBDu0L1RKgan5XHCPmn6zXd2NUJgjhg==
+playwright-core@1.41.2, playwright-core@^1.40.1:
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.2.tgz#db22372c708926c697acc261f0ef8406606802d9"
+  integrity sha512-VaTvwCA4Y8kxEe+kfm2+uUUw5Lubf38RxF7FpBxLPmGe5sdNkSg5e3ChEigaGrX7qdqT3pt2m/98LiyvU2x6CA==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
