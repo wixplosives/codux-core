@@ -38,7 +38,7 @@
     "rimraf": "^5.0.5",
     "source-map-loader": "^5.0.0",
     "typescript": "~5.3.3",
-    "webpack": "^5.90.1"
+    "webpack": "^5.90.2"
   },
   "license": "MIT",
   "private": true
