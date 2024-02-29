@@ -40,34 +40,26 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
 };
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
+    const {
+        canvasWidth = defaultCanvasStyles.width,
+        canvasHeight = defaultCanvasStyles.height,
+        canvasMargin = {},
+        canvasPadding = {},
+        canvasBackgroundColor = '',
+    } = environmentProps;
+
     const canvasStyle = {
-        width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
-        height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
-        marginLeft: environmentProps.canvasMargin?.left
-            ? `${environmentProps.canvasMargin?.left}px`
-            : defaultCanvasStyles.marginLeft,
-        marginRight: environmentProps.canvasMargin?.right
-            ? `${environmentProps.canvasMargin?.right}px`
-            : defaultCanvasStyles.marginRight,
-        marginBottom: environmentProps.canvasMargin?.bottom
-            ? `${environmentProps.canvasMargin?.bottom}px`
-            : defaultCanvasStyles.marginBottom,
-        marginTop: environmentProps.canvasMargin?.top
-            ? `${environmentProps.canvasMargin?.top}px`
-            : defaultCanvasStyles.marginTop,
-        paddingLeft: environmentProps.canvasPadding?.left
-            ? `${environmentProps.canvasPadding?.left}px`
-            : defaultCanvasStyles.paddingLeft,
-        paddingRight: environmentProps.canvasPadding?.right
-            ? `${environmentProps.canvasPadding?.right}px`
-            : defaultCanvasStyles.paddingRight,
-        paddingBottom: environmentProps.canvasPadding?.bottom
-            ? `${environmentProps.canvasPadding?.bottom}px`
-            : defaultCanvasStyles.paddingBottom,
-        paddingTop: environmentProps.canvasPadding?.top
-            ? `${environmentProps.canvasPadding?.top}px`
-            : defaultCanvasStyles.paddingTop,
-        backgroundColor: environmentProps.canvasBackgroundColor || '',
+        width: `${canvasWidth}px`,
+        height: `${canvasHeight}px`,
+        marginLeft: `${canvasMargin.left ?? defaultCanvasStyles.marginLeft}px`,
+        marginRight: `${canvasMargin.right ?? defaultCanvasStyles.marginRight}px`,
+        marginBottom: `${canvasMargin.bottom ?? defaultCanvasStyles.marginBottom}px`,
+        marginTop: `${canvasMargin.top ?? defaultCanvasStyles.marginTop}px`,
+        paddingLeft: `${canvasPadding.left ?? defaultCanvasStyles.paddingLeft}px`,
+        paddingRight: `${canvasPadding.right ?? defaultCanvasStyles.paddingRight}px`,
+        paddingBottom: `${canvasPadding.bottom ?? defaultCanvasStyles.paddingBottom}px`,
+        paddingTop: `${canvasPadding.top ?? defaultCanvasStyles.paddingTop}px`,
+        backgroundColor: canvasBackgroundColor,
     };
 
     // Canvas gets stretched horizontally/vertically
