@@ -40,26 +40,48 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
 };
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
-    const {
-        canvasWidth = defaultCanvasStyles.width,
-        canvasHeight = defaultCanvasStyles.height,
-        canvasMargin = {},
-        canvasPadding = {},
-        canvasBackgroundColor = '',
-    } = environmentProps;
-
     const canvasStyle = {
-        width: `${canvasWidth}px`,
-        height: `${canvasHeight}px`,
-        marginLeft: `${canvasMargin.left ?? defaultCanvasStyles.marginLeft}px`,
-        marginRight: `${canvasMargin.right ?? defaultCanvasStyles.marginRight}px`,
-        marginBottom: `${canvasMargin.bottom ?? defaultCanvasStyles.marginBottom}px`,
-        marginTop: `${canvasMargin.top ?? defaultCanvasStyles.marginTop}px`,
-        paddingLeft: `${canvasPadding.left ?? defaultCanvasStyles.paddingLeft}px`,
-        paddingRight: `${canvasPadding.right ?? defaultCanvasStyles.paddingRight}px`,
-        paddingBottom: `${canvasPadding.bottom ?? defaultCanvasStyles.paddingBottom}px`,
-        paddingTop: `${canvasPadding.top ?? defaultCanvasStyles.paddingTop}px`,
-        backgroundColor: canvasBackgroundColor,
+        width:
+            environmentProps.canvasWidth !== undefined
+                ? `${environmentProps.canvasWidth}px`
+                : defaultCanvasStyles.width,
+        height:
+            environmentProps.canvasHeight !== undefined
+                ? `${environmentProps.canvasHeight}px`
+                : defaultCanvasStyles.height,
+        marginLeft:
+            environmentProps.canvasMargin?.left !== undefined
+                ? `${environmentProps.canvasMargin?.left}px`
+                : defaultCanvasStyles.marginLeft,
+        marginRight:
+            environmentProps.canvasMargin?.right !== undefined
+                ? `${environmentProps.canvasMargin?.right}px`
+                : defaultCanvasStyles.marginRight,
+        marginBottom:
+            environmentProps.canvasMargin?.bottom !== undefined
+                ? `${environmentProps.canvasMargin?.bottom}px`
+                : defaultCanvasStyles.marginBottom,
+        marginTop:
+            environmentProps.canvasMargin?.top !== undefined
+                ? `${environmentProps.canvasMargin?.top}px`
+                : defaultCanvasStyles.marginTop,
+        paddingLeft:
+            environmentProps.canvasPadding?.left !== undefined
+                ? `${environmentProps.canvasPadding?.left}px`
+                : defaultCanvasStyles.paddingLeft,
+        paddingRight:
+            environmentProps.canvasPadding?.right !== undefined
+                ? `${environmentProps.canvasPadding?.right}px`
+                : defaultCanvasStyles.paddingRight,
+        paddingBottom:
+            environmentProps.canvasPadding?.bottom !== undefined
+                ? `${environmentProps.canvasPadding?.bottom}px`
+                : defaultCanvasStyles.paddingBottom,
+        paddingTop:
+            environmentProps.canvasPadding?.top !== undefined
+                ? `${environmentProps.canvasPadding?.top}px`
+                : defaultCanvasStyles.paddingTop,
+        backgroundColor: environmentProps.canvasBackgroundColor !== undefined || '',
     };
 
     // Canvas gets stretched horizontally/vertically
