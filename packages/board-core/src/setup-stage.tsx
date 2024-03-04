@@ -81,7 +81,7 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
             environmentProps.canvasPadding?.top !== undefined
                 ? `${environmentProps.canvasPadding?.top}px`
                 : defaultCanvasStyles.paddingTop,
-        backgroundColor: environmentProps.canvasBackgroundColor !== undefined || '',
+        backgroundColor: environmentProps.canvasBackgroundColor || '',
     };
 
     // Canvas gets stretched horizontally/vertically
