@@ -41,32 +41,46 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
 
 const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
     const canvasStyle = {
-        width: environmentProps.canvasWidth ? `${environmentProps.canvasWidth}px` : defaultCanvasStyles.width,
-        height: environmentProps.canvasHeight ? `${environmentProps.canvasHeight}px` : defaultCanvasStyles.height,
-        marginLeft: environmentProps.canvasMargin?.left
-            ? `${environmentProps.canvasMargin?.left}px`
-            : defaultCanvasStyles.marginLeft,
-        marginRight: environmentProps.canvasMargin?.right
-            ? `${environmentProps.canvasMargin?.right}px`
-            : defaultCanvasStyles.marginRight,
-        marginBottom: environmentProps.canvasMargin?.bottom
-            ? `${environmentProps.canvasMargin?.bottom}px`
-            : defaultCanvasStyles.marginBottom,
-        marginTop: environmentProps.canvasMargin?.top
-            ? `${environmentProps.canvasMargin?.top}px`
-            : defaultCanvasStyles.marginTop,
-        paddingLeft: environmentProps.canvasPadding?.left
-            ? `${environmentProps.canvasPadding?.left}px`
-            : defaultCanvasStyles.paddingLeft,
-        paddingRight: environmentProps.canvasPadding?.right
-            ? `${environmentProps.canvasPadding?.right}px`
-            : defaultCanvasStyles.paddingRight,
-        paddingBottom: environmentProps.canvasPadding?.bottom
-            ? `${environmentProps.canvasPadding?.bottom}px`
-            : defaultCanvasStyles.paddingBottom,
-        paddingTop: environmentProps.canvasPadding?.top
-            ? `${environmentProps.canvasPadding?.top}px`
-            : defaultCanvasStyles.paddingTop,
+        width:
+            environmentProps.canvasWidth !== undefined
+                ? `${environmentProps.canvasWidth}px`
+                : defaultCanvasStyles.width,
+        height:
+            environmentProps.canvasHeight !== undefined
+                ? `${environmentProps.canvasHeight}px`
+                : defaultCanvasStyles.height,
+        marginLeft:
+            environmentProps.canvasMargin?.left !== undefined
+                ? `${environmentProps.canvasMargin?.left}px`
+                : defaultCanvasStyles.marginLeft,
+        marginRight:
+            environmentProps.canvasMargin?.right !== undefined
+                ? `${environmentProps.canvasMargin?.right}px`
+                : defaultCanvasStyles.marginRight,
+        marginBottom:
+            environmentProps.canvasMargin?.bottom !== undefined
+                ? `${environmentProps.canvasMargin?.bottom}px`
+                : defaultCanvasStyles.marginBottom,
+        marginTop:
+            environmentProps.canvasMargin?.top !== undefined
+                ? `${environmentProps.canvasMargin?.top}px`
+                : defaultCanvasStyles.marginTop,
+        paddingLeft:
+            environmentProps.canvasPadding?.left !== undefined
+                ? `${environmentProps.canvasPadding?.left}px`
+                : defaultCanvasStyles.paddingLeft,
+        paddingRight:
+            environmentProps.canvasPadding?.right !== undefined
+                ? `${environmentProps.canvasPadding?.right}px`
+                : defaultCanvasStyles.paddingRight,
+        paddingBottom:
+            environmentProps.canvasPadding?.bottom !== undefined
+                ? `${environmentProps.canvasPadding?.bottom}px`
+                : defaultCanvasStyles.paddingBottom,
+        paddingTop:
+            environmentProps.canvasPadding?.top !== undefined
+                ? `${environmentProps.canvasPadding?.top}px`
+                : defaultCanvasStyles.paddingTop,
         backgroundColor: environmentProps.canvasBackgroundColor || '',
     };
 
