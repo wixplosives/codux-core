@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "pretest": "yarn lint && yarn build",
     "test": "yarn test:browser",
-    "test:browser": "mocha-play \"packages/*/dist/test/**/*.spec.js\"",
+    "test:browser": "mocha-web \"packages/*/dist/test/**/*.spec.js\"",
     "prettify": "npx prettier . --write"
   },
   "devDependencies": {
@@ -24,6 +24,7 @@
     "@wixc3/create-disposables": "^2.2.0",
     "chai": "^4.4.1",
     "chai-as-promised": "^7.1.1",
+    "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
@@ -31,14 +32,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "lerna": "^8.1.2",
     "mocha": "^10.3.0",
-    "mocha-play": "^7.0.4",
+    "mocha-web": "^1.0.0",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
-    "source-map-loader": "^5.0.0",
-    "typescript": "~5.4.3",
-    "webpack": "^5.91.0"
+    "typescript": "~5.4.3"
   },
   "license": "MIT",
   "private": true
