@@ -2387,10 +2387,10 @@ exponential-backoff@^3.1.1:
   resolved "https://registry.yarnpkg.com/exponential-backoff/-/exponential-backoff-3.1.1.tgz#64ac7526fe341ab18a39016cd22c787d01e00bf6"
   integrity sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==
 
-express@^4.18.3:
-  version "4.19.1"
-  resolved "https://registry.yarnpkg.com/express/-/express-4.19.1.tgz#4700635795e911600a45596138cf5b0320e78256"
-  integrity sha512-K4w1/Bp7y8iSiVObmCrtq8Cs79XjJc/RU2YYkZQ7wpUu5ZyZ7MtPHkqoMz4pf+mgXfNvo2qft8D9OnrH2ABk9w==
+express@^4.19.2:
+  version "4.19.2"
+  resolved "https://registry.yarnpkg.com/express/-/express-4.19.2.tgz#e25437827a3aa7f2a827bc8171bbbb664a356465"
+  integrity sha512-5T6nhjsT+EOMzuck8JjBHARTHfMht0POzlA60WV2pMD3gyXw2LZnZ+ueGdNxG+0calOJcWKbpFcuzLZ91YWq9Q==
   dependencies:
     accepts "~1.3.8"
     array-flatten "1.1.1"
@@ -4138,14 +4138,14 @@ mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mocha-web@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/mocha-web/-/mocha-web-1.0.0.tgz#218bbf62f9e81f50727be01f18c1686cb32c4bf3"
-  integrity sha512-g99PIa7lddFjrBPv0BuGh8z95Rv3g0wt7jpvP2m069M5ziuoNNimgUwqtcyNDtOZKrpKGD8Ke5gsMaDlQGo2bQ==
+mocha-web@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mocha-web/-/mocha-web-1.0.1.tgz#1f4e13eedc9c4e6bae5823e7ad026465644efc69"
+  integrity sha512-h/aAxtxHwjjlOrOhzxPfD1NRexiWNIxOxD2S/e3Ed1Kr1+3dzgBqWAoDTqCjnG+NgZw8JFLhTpsS4i9DkGJSBQ==
   dependencies:
     commander "^12.0.0"
     create-listening-server "^2.1.0"
-    express "^4.18.3"
+    express "^4.19.2"
     find-up "^7.0.0"
     glob "^10.3.10"
     mime "^4.0.1"
