@@ -34,8 +34,8 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
     /** Defines whether the board can be used as a snippet. */
     isSnippet?: boolean;
 
-    /** The delay in milliseconds before taking a snapshot of the board for thumbnail. */
-    thumbnailSnapshotDelay?: number;
+    /** A function that indicates that board is ready to be snapshotted */
+    readyToSnapshot?: () => Promise<void>;
 
     /** A React component representing the board. */
     Board: React.ComponentType<any>;
