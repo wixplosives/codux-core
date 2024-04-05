@@ -13,12 +13,12 @@
     "prettify": "npx prettier . --write"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.42.1",
+    "@playwright/browser-chromium": "^1.43.0",
     "@types/chai": "^4.3.14",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.6",
     "@types/react": "^18.2.74",
-    "@types/react-dom": "^18.2.23",
+    "@types/react-dom": "^18.2.24",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
     "@wixc3/create-disposables": "^2.2.0",
@@ -37,7 +37,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
-    "typescript": "~5.4.3"
+    "typescript": "~5.4.4"
   },
   "license": "MIT",
   "private": true
