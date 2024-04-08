@@ -2748,7 +2748,7 @@ glob@8.1.0, glob@^8.0.1:
     minimatch "^5.0.1"
     once "^1.3.0"
 
-glob@^10.2.2, glob@^10.3.10, glob@^10.3.7:
+glob@^10.2.2, glob@^10.3.10, glob@^10.3.12, glob@^10.3.7:
   version "10.3.12"
   resolved "https://registry.yarnpkg.com/glob/-/glob-10.3.12.tgz#3a65c363c2e9998d220338e88a5f6ac97302960b"
   integrity sha512-TCNv8vJ+xz4QiqTpfOJA7HvYv+tNIRHKfUWw/q+v2jdgN4ebz+KY9tGx5J4rHP0o84mNP+ApH66HRX8us3Khqg==
@@ -4097,18 +4097,18 @@ mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mocha-web@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/mocha-web/-/mocha-web-1.0.1.tgz#1f4e13eedc9c4e6bae5823e7ad026465644efc69"
-  integrity sha512-h/aAxtxHwjjlOrOhzxPfD1NRexiWNIxOxD2S/e3Ed1Kr1+3dzgBqWAoDTqCjnG+NgZw8JFLhTpsS4i9DkGJSBQ==
+mocha-web@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/mocha-web/-/mocha-web-1.0.2.tgz#deffe89e9e4161a827a3483bdcdb3f0f11fd101a"
+  integrity sha512-gPm7IsYB+3zJa3I6Qaf9Hxbl5DaextX0uKbc3eJUdFUlpvv6mjvLMPvCnCB/fikzrGGlVserzbbxUrs/oFaMfA==
   dependencies:
     commander "^12.0.0"
     create-listening-server "^2.1.0"
     express "^4.19.2"
     find-up "^7.0.0"
-    glob "^10.3.10"
+    glob "^10.3.12"
     mime "^4.0.1"
-    playwright-core "^1.42.1"
+    playwright-core "^1.43.0"
 
 mocha@^10.4.0:
   version "10.4.0"
@@ -4879,7 +4879,7 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.43.0, playwright-core@^1.42.1:
+playwright-core@1.43.0, playwright-core@^1.43.0:
   version "1.43.0"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.43.0.tgz#d8079acb653abebb0b63062e432479647a4e1271"
   integrity sha512-iWFjyBUH97+pUFiyTqSLd8cDMMOS0r2ZYz2qEsPjH8/bX++sbIJT35MSwKnp1r/OQBAqC5XO99xFbJ9XClhf4w==
