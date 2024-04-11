@@ -16,6 +16,6 @@ jobs:
       - run: yarn config set network-timeout 300000
       - run: yarn --frozen-lockfile
       - run: yarn build
-      - run: npx pleb@6 publish
+      - run: npx pleb@7 publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
