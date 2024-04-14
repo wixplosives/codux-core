@@ -14,9 +14,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i -g yarn@1
-      - run: yarn config set network-timeout 300000
-      - run: yarn --frozen-lockfile
-      - run: yarn test
-      - run: yarn add react@17 react-dom@17 --dev -W
-      - run: yarn test:browser
+      - run: npm ci
+      - run: npm test
+      - run: npm i react@17 react-dom@17 -D
+      - run: npm run test:browser
