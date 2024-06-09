@@ -1,5 +1,5 @@
-import { CanvasStyles, ICanvasEnvironmentProps, IWindowEnvironmentProps } from '@wixc3/board-core';
-import { BoardSetupStageFunction } from './types';
+import type { CanvasStyles, ICanvasEnvironmentProps, IWindowEnvironmentProps } from '@wixc3/board-core';
+import type { BoardSetupStageFunction } from './types';
 
 export const defaultWindowStyles = {
     width: 1024,
