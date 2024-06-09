@@ -7,7 +7,10 @@ import type {
     IWindowEnvironmentProps,
 } from '@wixc3/board-core';
 
-export type OmitReactBoard<DATA extends IReactBoard> = Omit<DATA, 'render' | 'cleanup' | 'props' | 'setupStage'>;
+export type OmitReactBoard<DATA extends IReactBoard> = Omit<
+    DATA,
+    'render' | 'cleanup' | 'props' | 'setupStage' | 'version'
+>;
 
 export interface IReactBoard extends IRenderableMetadataBase {
     /** Defines whether the board can be used as a snippet. */
@@ -45,6 +48,7 @@ export interface IReactBoard extends IRenderableMetadataBase {
      * @returns a cleanup function
      */
     render: (targetElement: HTMLElement) => Promise<() => void>;
+    version: string;
 }
 
 export interface BoardPlugin {

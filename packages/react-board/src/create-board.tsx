@@ -22,6 +22,7 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
         setupStage(el) {
             return setupBoardStage(this, el);
         },
+        version: '1',
     };
 
     const plugins = res.plugins;

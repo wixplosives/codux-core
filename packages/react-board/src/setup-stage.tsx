@@ -1,4 +1,9 @@
-import type { CanvasStyles, ICanvasEnvironmentProps, IWindowEnvironmentProps } from '@wixc3/board-core';
+import type {
+    CanvasStyles,
+    ICanvasEnvironmentProps,
+    IPreviewEnvironmentPropsBase,
+    IWindowEnvironmentProps,
+} from '@wixc3/board-core';
 import type { BoardSetupStageFunction } from './types';
 
 export const defaultWindowStyles = {
@@ -19,12 +24,19 @@ export const defaultCanvasStyles: CanvasStyles = {
     paddingTop: '0px',
 } as const;
 
-export const defaultEnvironmentProperties = {
+export const defaultEnvironmentProperties: IPreviewEnvironmentPropsBase = {
     windowWidth: defaultWindowStyles.width,
     windowHeight: defaultWindowStyles.height,
     canvasMargin: {},
     canvasPadding: {},
 };
+
+export const defaultWindowProperties: IWindowEnvironmentProps = {
+    height: defaultWindowStyles.height,
+    width: defaultWindowStyles.width,
+};
+
+export const defaultCanvasProperties: ICanvasEnvironmentProps = {};
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
     // we revert the changes to previous values when running cleanup
