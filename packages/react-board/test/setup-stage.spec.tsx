@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createDisposables } from '@wixc3/create-disposables';
-import { createBoard } from '@wixc3/react-board';
-import { setupBoardStage } from '@wixc3/board-core';
+import { IReactBoard, createBoard } from '@wixc3/react-board';
+import { setupBoardStage } from '../src/setup-stage';
 
 describe('setupBoardStage', () => {
     const disposables = createDisposables();
@@ -9,17 +9,22 @@ describe('setupBoardStage', () => {
 
     const CONTAINER_HEIGHT = 50;
 
-    function setupBoard() {
+    function setupBoard(board: Partial<IReactBoard> = {}) {
         const container = document.createElement('div');
         container.style.display = 'flex';
         container.style.height = `${CONTAINER_HEIGHT}px`;
         document.body.appendChild(container);
-        disposables.add(() => document.body.removeChild(container));
+        disposables.add(() => {
+            if (container.parentElement === document.body) {
+                document.body.removeChild(container);
+            }
+        });
 
         const { canvas, cleanup, updateCanvas, updateWindow } = setupBoardStage(
             createBoard({
                 name: 'Test1',
                 Board: () => null,
+                ...board,
             }),
             container,
         );
@@ -30,30 +35,32 @@ describe('setupBoardStage', () => {
     }
 
     it('renders the canvas into a parent element', () => {
-        const { canvas, container } = setupBoard();
+        const { canvas, container } = setupBoard({
+            environmentProps: {},
+        });
 
         expect(canvas.parentElement, 'canvas was not rendered into a provided container').to.eql(container);
     });
 
     it('sets canvas height and canvas width to the provided values if no margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
+        const { updateCanvas } = setupBoard();
 
-        const canvasWidth = 420;
-        const canvasHeight = 690;
+        const width = 420;
+        const height = 690;
 
-        updateCanvas({
-            canvasWidth,
-            canvasHeight,
+        const canvas = updateCanvas({
+            width,
+            height,
         });
 
-        expect(canvas.offsetWidth, 'canvas width was not updated').equal(canvasWidth);
-        expect(canvas.offsetHeight, 'canvas height was not updated').equal(canvasHeight);
+        expect(canvas.offsetWidth, 'canvas width was not updated').equal(width);
+        expect(canvas.offsetHeight, 'canvas height was not updated').equal(height);
     });
 
     it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
+        const { updateCanvas } = setupBoard();
 
-        updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
+        const canvas = updateCanvas({ height: 5, margin: { top: 5, bottom: 5 }, backgroundColor: 'red' });
 
         expect(canvas?.offsetHeight, 'canvas height is not stretched when margins are applied').equal(
             CONTAINER_HEIGHT - 2 * 5,
@@ -61,9 +68,9 @@ describe('setupBoardStage', () => {
     });
 
     it('sets canvas width to auto if "left" and "right" margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
+        const { updateCanvas } = setupBoard();
 
-        updateCanvas({ canvasWidth: 5, canvasMargin: { left: 5, right: 5 } });
+        const canvas = updateCanvas({ width: 5, margin: { left: 5, right: 5 } });
 
         expect(canvas?.offsetWidth, 'canvas width is not stretched when margins are applied').equal(
             window.innerWidth - 2 * 5,
@@ -71,19 +78,37 @@ describe('setupBoardStage', () => {
     });
 
     it('sets canvas background color', () => {
-        const { updateCanvas, canvas } = setupBoard();
+        const { updateCanvas } = setupBoard();
 
-        updateCanvas({ canvasBackgroundColor: '#fff' });
+        const canvas = updateCanvas({
+            backgroundColor: '#fff',
+        });
 
         expect(window.getComputedStyle(canvas).backgroundColor, 'canvas background color was not updated').equal(
             'rgb(255, 255, 255)',
         );
     });
+    it('toggles canvas off and then on', () => {
+        const { updateCanvas, canvas: startCanvas } = setupBoard({
+            canvas: {
+                backgroundColor: 'red',
+            },
+        });
 
+        updateCanvas(undefined);
+
+        expect(startCanvas.isConnected, 'canvas was not removed').to.equal(false);
+
+        const newCanvas = updateCanvas({
+            backgroundColor: 'red',
+        });
+
+        expect(newCanvas.isConnected, 'new canvas was not connected').to.equal(true);
+    });
     it('sets window dimensions', () => {
         const { updateWindow } = setupBoard();
 
-        updateWindow({ windowHeight: 500, windowWidth: 500 });
+        updateWindow({ height: 500, width: 500 });
 
         expect(window.outerHeight, 'window height was not updated').to.eql(500);
         expect(window.outerWidth, 'window width was not updated').to.eql(500);
@@ -92,7 +117,7 @@ describe('setupBoardStage', () => {
     it('sets window background color', () => {
         const { updateWindow } = setupBoard();
 
-        updateWindow({ windowBackgroundColor: '#fff' });
+        updateWindow({ backgroundColor: '#fff' });
 
         expect(window.getComputedStyle(document.body).backgroundColor, 'window background color was not updated').equal(
             'rgb(255, 255, 255)',

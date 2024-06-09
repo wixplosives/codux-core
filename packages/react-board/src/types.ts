@@ -1,42 +1,70 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from 'react';
 import type {
-    IRenderableLifeCycleHooks,
+    ICanvasEnvironmentProps,
+    IPreviewEnvironmentPropsBase,
     IRenderableMetadataBase,
-    OmitIRenderableMetadataBase,
+    IWindowEnvironmentProps,
 } from '@wixc3/board-core';
-export { BoardSetupFunction } from '@wixc3/board-core';
 
-export type OmitReactBoard<DATA extends IReactBoard> = Omit<
-    OmitIRenderableMetadataBase<DATA>,
-    'render' | 'cleanup' | 'props'
->;
+export type OmitReactBoard<DATA extends IReactBoard> = Omit<DATA, 'render' | 'cleanup' | 'props' | 'setupStage'>;
 
-export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
-    wrapRender?: (
-        props: PLUGINPROPS,
-        renderable: IRenderableMetadataBase,
-        renderableElement: JSX.Element,
-        canvas: HTMLElement,
-    ) => null | JSX.Element;
-}
-
-export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<never>> {
-    /** The name of the board. */
-    name: string;
-
-    /** An image URL to be used as the board's thumbnail. */
-    cover?: string;
-
-    /** A list of tags. */
-    tags?: string[];
-
+export interface IReactBoard extends IRenderableMetadataBase {
     /** Defines whether the board can be used as a snippet. */
     isSnippet?: boolean;
 
-    /** A function that indicates that board is ready to be snapshotted */
-    readyToSnapshot?: () => Promise<void>;
+    /**
+     * if canvas object is omitted no canvas will be rendered around the element
+     */
+    canvas?: ICanvasEnvironmentProps;
 
+    /**
+     * Board's environment properties (e.g. the window size, the component alignment, etc.)
+     * @deprecated use window and canvas instead
+     */
+    environmentProps?: IPreviewEnvironmentPropsBase | undefined;
+    /**
+     * Functions for setting up the page for the board: adding global styles,
+     * scripts, etc. These functions run only once before the board is mounted.
+     */
+    setup?: BoardSetupFunction | BoardSetupFunction[] | undefined;
     /** A React component representing the board. */
     Board: React.ComponentType<any>;
+    plugins?: BoardPlugin[];
+    /**
+     * sets the stage for the renderer.
+     * this function has many side effects ( such as effecting window styles and sizes )
+     *
+     * @returns canvas an html element for rendering into, cleanup a method for cleaning up the side-effects
+     *
+     */
+    setupStage: (parentElement?: HTMLElement) => ReturnType<BoardSetupStageFunction>;
+    /**
+     * Renders the Renderable into an html element
+     *
+     * @returns a cleanup function
+     */
+    render: (targetElement: HTMLElement) => Promise<() => void>;
 }
+
+export interface BoardPlugin {
+    onInit?: (board: IReactBoard) => void;
+    WrapRender?: ({ children }: { children: React.ReactNode; board: IReactBoard }) => React.ReactNode;
+}
+
+export type BoardSetupStageFunction = (
+    board: IReactBoard,
+    parentElement?: HTMLElement,
+) => {
+    canvas: HTMLElement;
+    cleanup: () => void;
+    updateCanvas: (canvasEnvironmentProps?: ICanvasEnvironmentProps) => HTMLElement;
+    updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
+};
+
+export interface ISetupController {
+    addScript(scriptUrl: string): Promise<void>;
+    addStylesheet(stylesheetUrl: string): Promise<void>;
+}
+
+export type BoardSetupFunction = (controller: ISetupController) => void | Promise<void>;

@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@wixc3/board-plugins.svg)](https://www.npmjs.com/package/@wixc3/board-plugins)
 
 Plugins can add more meta data, modify the rendering environment, wrap the render result and much more.
-Plugins are specific to a sub-type of `IGeneralMetadata` and can use the hooks supplied by the meta data type.
+Plugins are specific to a sub-type of `IRenderable` and can use the hooks supplied by the meta data type.
 
 For instance, `cssVarsPlugin` is only applicable to `IRenderable` and uses the `beforeRender` hook.
 

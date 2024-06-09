@@ -1,4 +1,5 @@
-import type { IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
+import { CanvasStyles, ICanvasEnvironmentProps, IWindowEnvironmentProps } from '@wixc3/board-core';
+import { BoardSetupStageFunction } from './types';
 
 export const defaultWindowStyles = {
     width: 1024,
@@ -25,10 +26,7 @@ export const defaultEnvironmentProperties = {
     canvasPadding: {},
 };
 
-export const applyStylesToWindow = (
-    windowStyles: IWindowEnvironmentProps = {},
-    previousProps: IWindowEnvironmentProps,
-) => {
+const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
     // we revert the changes to previous values when running cleanup
     previousProps.height = previousProps.height ? window.outerHeight : defaultWindowStyles.height;
     previousProps.width = previousProps.width ? window.outerWidth : defaultWindowStyles.width;
@@ -38,7 +36,7 @@ export const applyStylesToWindow = (
     document.body.style.backgroundColor = windowStyles.backgroundColor || '';
 };
 
-export const applyStylesToCanvas = (canvas: HTMLElement, environmentProps: ICanvasEnvironmentProps = {}) => {
+const applyStylesToCanvas = (canvas: HTMLElement, environmentProps: ICanvasEnvironmentProps = {}) => {
     const canvasStyle = {
         width: environmentProps.width !== undefined ? `${environmentProps.width}px` : defaultCanvasStyles.width,
         height: environmentProps.height !== undefined ? `${environmentProps.height}px` : defaultCanvasStyles.height,
@@ -90,9 +88,80 @@ export const applyStylesToCanvas = (canvas: HTMLElement, environmentProps: ICanv
     Object.assign(canvas.style, canvasStyle);
 };
 
-export function createContainer() {
+function createContainer() {
     const container = document.createElement('div');
     container.style.display = 'flex';
     document.body.appendChild(container);
     return container;
 }
+export const setupBoardStage: BoardSetupStageFunction = (board, parentElement = createContainer()) => {
+    const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
+
+    const { environmentProps, canvas: canvasProps, window: windowProps } = board;
+
+    let usedWindowProps = windowProps;
+    let usedCanvasProps = canvasProps;
+    if (environmentProps) {
+        // old behavior, canvas is always rendered
+        usedWindowProps = {
+            backgroundColor: environmentProps.windowBackgroundColor,
+            height: environmentProps.windowHeight,
+            width: environmentProps.windowWidth,
+        };
+        usedCanvasProps = {
+            backgroundColor: environmentProps.backgroundColor,
+            height: environmentProps.height,
+            width: environmentProps.width,
+            padding: environmentProps.padding,
+            margin: environmentProps.margin,
+        };
+    }
+    applyStylesToWindow(usedWindowProps, previousWindowEnvironmentProps);
+    const updateWindow = (windowEnvironmentProps: IWindowEnvironmentProps) => {
+        applyStylesToWindow(windowEnvironmentProps, previousWindowEnvironmentProps);
+    };
+    const cleanupWindow = () => {
+        if (previousWindowEnvironmentProps.width && previousWindowEnvironmentProps.height) {
+            window.resizeTo(previousWindowEnvironmentProps.height, previousWindowEnvironmentProps.height);
+        }
+    };
+    function createCanvas(canvasProps: ICanvasEnvironmentProps) {
+        const canvasEl = document.createElement('div');
+        canvasEl.setAttribute('id', 'board-canvas');
+        applyStylesToCanvas(canvasEl, canvasProps);
+        parentElement.appendChild(canvasEl);
+
+        return canvasEl;
+    }
+    let canvasElement: HTMLElement | undefined;
+    if (usedCanvasProps) {
+        canvasElement = createCanvas(usedCanvasProps);
+    }
+    const updateCanvas = (canvasEnvironmentProps?: ICanvasEnvironmentProps) => {
+        if (canvasEnvironmentProps) {
+            if (!canvasElement) {
+                canvasElement = createCanvas(canvasEnvironmentProps);
+            } else {
+                applyStylesToCanvas(canvasElement, canvasEnvironmentProps);
+            }
+        } else {
+            if (canvasElement && canvasElement.parentElement === parentElement) {
+                canvasElement.remove();
+                canvasElement = undefined;
+            }
+        }
+        return canvasElement || parentElement;
+    };
+
+    return {
+        canvas: canvasElement || parentElement,
+        updateCanvas,
+        cleanup() {
+            cleanupWindow();
+            if (canvasElement) {
+                canvasElement.remove();
+            }
+        },
+        updateWindow,
+    };
+};

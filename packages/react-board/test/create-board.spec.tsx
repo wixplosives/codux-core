@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBoard } from '@wixc3/react-board';
-import { createMetadata } from '@wixc3/board-core';
 import { cssVarsPlugin } from '@wixc3/board-plugins';
 import { createDisposables } from '@wixc3/create-disposables';
 import board from './fixtures/simple.board';
@@ -27,14 +26,10 @@ createBoard({
     name: 'Test2',
     Board: x,
     plugins: [
-        cssVarsPlugin.use({
+        cssVarsPlugin({
             '--color': 'red',
         }),
     ],
-});
-
-export const a = createMetadata({
-    plugins: [],
 });
 
 describe('create board', () => {

@@ -1,13 +1,9 @@
-import { createPlugin, IRenderableMetadataBase } from '@wixc3/board-core';
+import { BoardPlugin } from '@wixc3/react-board';
 
-export const cssVarsPlugin = createPlugin<IRenderableMetadataBase>()<{ [varName: string]: string }>(
-    'CSS Vars',
-    {},
-    {
-        beforeRender(props, canvas) {
-            for (const [varName, varValue] of Object.entries(props)) {
-                canvas.style.setProperty(varName, varValue);
-            }
-        },
+export const cssVarsPlugin = (props: Record<string, string>): BoardPlugin => ({
+    onInit() {
+        for (const [varName, varValue] of Object.entries(props)) {
+            document.body.style.setProperty(varName, varValue);
+        }
     },
-);
+});
