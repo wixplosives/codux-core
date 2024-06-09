@@ -109,11 +109,11 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement = 
             width: environmentProps.windowWidth,
         };
         usedCanvasProps = {
-            backgroundColor: environmentProps.backgroundColor,
-            height: environmentProps.height,
-            width: environmentProps.width,
-            padding: environmentProps.padding,
-            margin: environmentProps.margin,
+            backgroundColor: environmentProps.canvasBackgroundColor,
+            height: environmentProps.canvasHeight,
+            width: environmentProps.canvasWidth,
+            padding: environmentProps.canvasPadding,
+            margin: environmentProps.canvasMargin,
         };
     }
     applyStylesToWindow(usedWindowProps, previousWindowEnvironmentProps);

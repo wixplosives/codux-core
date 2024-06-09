@@ -35,15 +35,15 @@ export interface IWindowEnvironmentProps {
 
 export interface ICanvasEnvironmentPropsOld {
     /** @visualizer spacing */
-    width?: LayoutSizeWithAuto | undefined;
+    canvasWidth?: LayoutSizeWithAuto | undefined;
     /** @visualizer spacing */
-    height?: LayoutSizeWithAuto | undefined;
+    canvasHeight?: LayoutSizeWithAuto | undefined;
     /** @visualizer color */
-    backgroundColor?: string | undefined;
+    canvasBackgroundColor?: string | undefined;
     /** @visualizer canvasMargin */
-    margin?: LayoutSpacing | undefined;
+    canvasMargin?: LayoutSpacing | undefined;
     /** @visualizer canvasPadding */
-    padding?: LayoutSpacing | undefined;
+    canvasPadding?: LayoutSpacing | undefined;
 }
 
 export interface ICanvasEnvironmentProps {
