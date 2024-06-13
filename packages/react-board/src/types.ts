@@ -2,9 +2,11 @@
 import type React from 'react';
 import type {
     ICanvasEnvironmentProps,
+    ICanvasEnvironmentPropsOld,
     IPreviewEnvironmentPropsBase,
     IRenderableMetadataBase,
     IWindowEnvironmentProps,
+    IWindowEnvironmentPropsOld,
 } from '@wixc3/board-core';
 
 export type OmitReactBoard<DATA extends IReactBoard> = Omit<
@@ -48,7 +50,7 @@ export interface IReactBoard extends IRenderableMetadataBase {
      * @returns a cleanup function
      */
     render: (targetElement: HTMLElement) => Promise<() => void>;
-    version: string;
+    version: number;
 }
 
 export interface BoardPlugin {
@@ -56,15 +58,21 @@ export interface BoardPlugin {
     WrapRender?: ({ children }: { children: React.ReactNode; board: IReactBoard }) => React.ReactNode;
 }
 
-export type BoardSetupStageFunction = (
-    board: IReactBoard,
-    parentElement?: HTMLElement,
-) => {
+export interface BoardStage {
     canvas: HTMLElement;
     cleanup: () => void;
     updateCanvas: (canvasEnvironmentProps?: ICanvasEnvironmentProps) => HTMLElement;
     updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
-};
+}
+
+export interface BoardStageVer0 {
+    canvas: HTMLElement;
+    cleanup: () => void;
+    updateCanvas: (canvasEnvironmentProps?: ICanvasEnvironmentPropsOld) => HTMLElement;
+    updateWindow: (windowEnvironmentProps: IWindowEnvironmentPropsOld) => void;
+}
+
+export type BoardSetupStageFunction = (board: IReactBoard, parentElement?: HTMLElement) => BoardStage;
 
 export interface ISetupController {
     addScript(scriptUrl: string): Promise<void>;
