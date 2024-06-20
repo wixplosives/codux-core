@@ -136,28 +136,19 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      * @returns canvas an html element for rendering into, cleanup a method for cleaning up the side-effects
      *
      */
-    setupStage: (parentElement?: HTMLElement) => ReturnType<BoardSetupStageFunction>;
-
-    /**
-     * Board's environment properties (e.g. the window size, the component alignment, etc.)
-     */
-    environmentProps?: IPreviewEnvironmentPropsBase | undefined;
-    /**
-     * Functions for setting up the page for the board: adding global styles,
-     * scripts, etc. These functions run only once before the board is mounted.
-     */
-    setup?: BoardSetupFunction | BoardSetupFunction[] | undefined;
+    setupStage: (parentElement?: HTMLElement) => StageSetupResults;
 }
 
-export type BoardSetupStageFunction = (
-    board: IRenderableMetadataBase,
-    parentElement: HTMLElement,
-) => {
+export interface StageSetupResults {
     canvas: HTMLElement;
     cleanup: () => void;
     updateCanvas: (canvasEnvironmentProps: ICanvasEnvironmentProps) => void;
     updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
-};
+}
+export type BoardSetupStageFunction<T extends IRenderableMetadataBase> = (
+    board: T,
+    parentElement: HTMLElement,
+) => StageSetupResults;
 
 export type CanvasStyles = Pick<
     CSSStyleDeclaration,

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createDisposables } from '@wixc3/create-disposables';
 import { createBoard } from '@wixc3/react-board';
-import { setupBoardStage } from '@wixc3/board-core';
+import { setupBoardStage } from '../src/setup-stage';
 
 describe('setupBoardStage', () => {
     const disposables = createDisposables();

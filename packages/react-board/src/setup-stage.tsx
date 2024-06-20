@@ -1,30 +1,12 @@
-import { callHooks } from './hooks';
-import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
-
-export const defaultWindowStyles = {
-    width: 1024,
-    height: 640,
-} as const;
-
-export const defaultCanvasStyles: CanvasStyles = {
-    width: 'fit-content',
-    height: 'fit-content',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 'auto',
-    marginTop: 'auto',
-    paddingLeft: '0px',
-    paddingRight: '0px',
-    paddingBottom: '0px',
-    paddingTop: '0px',
-} as const;
-
-export const defaultEnvironmentProperties = {
-    windowWidth: defaultWindowStyles.width,
-    windowHeight: defaultWindowStyles.height,
-    canvasMargin: {},
-    canvasPadding: {},
-};
+import {
+    BoardSetupStageFunction,
+    ICanvasEnvironmentProps,
+    IWindowEnvironmentProps,
+    callHooks,
+    defaultCanvasStyles,
+    defaultWindowStyles,
+} from '@wixc3/board-core';
+import { IReactBoard } from './types';
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
     // we revert the changes to previous values when running cleanup
@@ -97,7 +79,7 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
     Object.assign(canvas.style, canvasStyle);
 };
 
-export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
+export const setupBoardStage: BoardSetupStageFunction<IReactBoard> = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
     const canvas = document.createElement('div');
     canvas.setAttribute('id', 'board-canvas');

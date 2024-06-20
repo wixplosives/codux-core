@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from 'react';
 import type {
+    BoardSetupFunction,
+    IPreviewEnvironmentPropsBase,
     IRenderableLifeCycleHooks,
     IRenderableMetadataBase,
-    OmitIRenderableMetadataBase,
+    OmitGeneralMetadata,
 } from '@wixc3/board-core';
 export { BoardSetupFunction } from '@wixc3/board-core';
 
 export type OmitReactBoard<DATA extends IReactBoard> = Omit<
-    OmitIRenderableMetadataBase<DATA>,
-    'render' | 'cleanup' | 'props'
+    OmitGeneralMetadata<DATA>,
+    'render' | 'cleanup' | 'props' | 'setupStage'
 >;
 
 export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks<PLUGINPROPS> {
@@ -39,4 +41,13 @@ export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<ne
 
     /** A React component representing the board. */
     Board: React.ComponentType<any>;
+    /**
+     * Functions for setting up the page for the board: adding global styles,
+     * scripts, etc. These functions run only once before the board is mounted.
+     */
+    setup?: BoardSetupFunction | BoardSetupFunction[] | undefined;
+    /**
+     * Board's environment properties (e.g. the window size, the component alignment, etc.)
+     */
+    environmentProps?: IPreviewEnvironmentPropsBase | undefined;
 }
