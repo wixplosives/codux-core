@@ -24,7 +24,12 @@ export interface RouteInfo<T = unknown> {
     isPage?: boolean;
     path: Array<StaticRoutePart | DynamicRoutePart>;
     pageModule: string;
-    extraData?: T;
+    pageExportName?: string;
+    parentLayouts?: Array<{
+        layoutModule: string;
+        layoutExportName?: string;
+    }>;
+    extraData: T;
 }
 export interface IReactAppManifest<T = unknown> {
     routes: RouteInfo<T>[];
