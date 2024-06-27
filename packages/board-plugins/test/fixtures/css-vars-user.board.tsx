@@ -9,7 +9,7 @@ export default createBoard({
         return <CSSVarsUser></CSSVarsUser>;
     },
     plugins: [
-        cssVarsPlugin.use({
+        cssVarsPlugin({
             '--color': 'red',
         }),
     ],

@@ -9,7 +9,7 @@ export default createBoard({
         return <ContextUser></ContextUser>;
     },
     plugins: [
-        reactContextPlugin.use({
+        reactContextPlugin({
             context: textContext,
             value: 'context text',
         }),

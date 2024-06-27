@@ -20,14 +20,16 @@ export const boardWithWrapper = createBoard({
 export const boardWithEnvironmentProps = createBoard({
     Board: () => <MockComponent text="this is a test" />,
     name: 'mock board',
-    environmentProps: {
-        canvasWidth: 50,
-        canvasHeight: 100,
-        canvasPadding: { left: 20, right: 10, top: 5, bottom: 2 },
-        canvasMargin: { left: 210, right: 110, top: 51, bottom: 21 },
-        canvasBackgroundColor: 'red',
-        windowWidth: 500,
-        windowHeight: 600,
-        windowBackgroundColor: 'blue',
+    canvas: {
+        width: 50,
+        height: 100,
+        padding: { left: 20, right: 10, top: 5, bottom: 2 },
+        margin: { left: 210, right: 110, top: 51, bottom: 21 },
+        backgroundColor: 'red',
+    },
+    window: {
+        width: 500,
+        height: 600,
+        backgroundColor: 'blue',
     },
 });

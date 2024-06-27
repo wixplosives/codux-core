@@ -6,4 +6,9 @@ export default createBoard({
     Board: () => {
         return <span>Simple Board</span>;
     },
+    canvas: {
+        width: 500,
+        height: 500,
+        backgroundColor: 'blue',
+    },
 });
