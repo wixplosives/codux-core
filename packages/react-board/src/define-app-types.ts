@@ -1,4 +1,4 @@
-import { IFileSystem } from '@file-services/types';
+import { IDirectoryContents, IFileSystem } from '@file-services/types';
 import { IRenderableMetadataBase } from '@wixc3/board-core';
 
 export interface DirChildInfo {
@@ -53,6 +53,11 @@ export interface IPrepareAppOptions {
     onAppUpdate: (appProps: IAppManifest) => void;
     fs: IFileSystem;
 }
+export interface IGetNewPageInfoOptions<T> {
+    fs: IFileSystem;
+    wantedPath: RouteInfo['path'];
+    manifest: IReactAppManifest<T>;
+}
 export interface IReactApp<T = unknown> extends IRenderableMetadataBase {
     /** An image URL to be used as the board's thumbnail. */
     cover?: string;
@@ -67,6 +72,10 @@ export interface IReactApp<T = unknown> extends IRenderableMetadataBase {
         manifest: IReactAppManifest<T>;
         dispose: () => void;
     }>;
+    getNewPageInfo?: (options: IGetNewPageInfoOptions<T>) => {
+        pagePath: string;
+        contents: string | IDirectoryContents;
+    };
     getRouteUrls?: (route: RouteInfo<T>) => string[];
     bookmarks?: string[];
 }
