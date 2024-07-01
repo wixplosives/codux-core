@@ -99,25 +99,30 @@ const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEn
 
 export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
-    const canvas = document.createElement('div');
+    const canvas = parentElement.appendChild(document.createElement('div'));
+
+    callHooks(board, 'beforeAppendCanvas', canvas);
     canvas.setAttribute('id', 'board-canvas');
 
     const { environmentProps } = board;
 
-    applyStylesToWindow(environmentProps, previousWindowEnvironmentProps);
-    applyStylesToCanvas(canvas, environmentProps);
-
-    callHooks(board, 'beforeAppendCanvas', canvas);
-
-    parentElement.appendChild(canvas);
-
-    const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
-        applyStylesToCanvas(canvas, canvasEnvironmentProps);
-    };
-
     const updateWindow = (windowEnvironmentProps: IWindowEnvironmentProps) => {
         applyStylesToWindow(windowEnvironmentProps, previousWindowEnvironmentProps);
     };
+
+    const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
+        if (canvasEnvironmentProps.showCanvas) {
+            applyStylesToCanvas(canvas, canvasEnvironmentProps);
+        } else {
+            Object.assign(canvas.style, {});
+        }
+    };
+
+    applyStylesToWindow(environmentProps, previousWindowEnvironmentProps);
+
+    if (environmentProps?.showCanvas) {
+        applyStylesToCanvas(canvas, environmentProps);
+    }
 
     const cleanup = () => {
         callHooks(board, 'beforeStageCleanUp', canvas);

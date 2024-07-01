@@ -25,6 +25,8 @@ export interface IWindowEnvironmentProps {
 }
 
 export interface ICanvasEnvironmentProps {
+    /** @visualizer toggleCanvas */
+    showCanvas?: boolean;
     /** @visualizer spacing */
     canvasWidth?: LayoutSizeWithAuto | undefined;
     /** @visualizer spacing */
