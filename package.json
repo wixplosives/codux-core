@@ -13,7 +13,7 @@
     "prettify": "prettier . --write"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.45.0",
+    "@playwright/browser-chromium": "^1.45.1",
     "@types/chai": "^4.3.16",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.7",
