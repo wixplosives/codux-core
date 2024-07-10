@@ -16,7 +16,7 @@ describe('setupBoardStage', () => {
         document.body.appendChild(container);
         disposables.add(() => document.body.removeChild(container));
 
-        const { canvas, cleanup, updateCanvas, updateWindow } = setupBoardStage(
+        const { canvas, cleanup, updateWindow } = setupBoardStage(
             createBoard({
                 name: 'Test1',
                 Board: () => null,
@@ -26,58 +26,13 @@ describe('setupBoardStage', () => {
 
         disposables.add(cleanup);
 
-        return { canvas, container, updateWindow, updateCanvas };
+        return { canvas, container, updateWindow };
     }
 
     it('renders the canvas into a parent element', () => {
         const { canvas, container } = setupBoard();
 
         expect(canvas.parentElement, 'canvas was not rendered into a provided container').to.eql(container);
-    });
-
-    it('sets canvas height and canvas width to the provided values if no margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
-
-        const canvasWidth = 420;
-        const canvasHeight = 690;
-
-        updateCanvas({
-            canvasWidth,
-            canvasHeight,
-        });
-
-        expect(canvas.offsetWidth, 'canvas width was not updated').equal(canvasWidth);
-        expect(canvas.offsetHeight, 'canvas height was not updated').equal(canvasHeight);
-    });
-
-    it('sets canvas height to auto if a "top" and "bottom" margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
-
-        updateCanvas({ canvasHeight: 5, canvasMargin: { top: 5, bottom: 5 } });
-
-        expect(canvas?.offsetHeight, 'canvas height is not stretched when margins are applied').equal(
-            CONTAINER_HEIGHT - 2 * 5,
-        );
-    });
-
-    it('sets canvas width to auto if "left" and "right" margin is provided', () => {
-        const { updateCanvas, canvas } = setupBoard();
-
-        updateCanvas({ canvasWidth: 5, canvasMargin: { left: 5, right: 5 } });
-
-        expect(canvas?.offsetWidth, 'canvas width is not stretched when margins are applied').equal(
-            window.innerWidth - 2 * 5,
-        );
-    });
-
-    it('sets canvas background color', () => {
-        const { updateCanvas, canvas } = setupBoard();
-
-        updateCanvas({ canvasBackgroundColor: '#fff' });
-
-        expect(window.getComputedStyle(canvas).backgroundColor, 'canvas background color was not updated').equal(
-            'rgb(255, 255, 255)',
-        );
     });
 
     it('sets window dimensions', () => {

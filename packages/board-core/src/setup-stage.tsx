@@ -1,29 +1,14 @@
 import { callHooks } from './hooks';
-import type { BoardSetupStageFunction, IWindowEnvironmentProps, ICanvasEnvironmentProps, CanvasStyles } from './types';
+import type { BoardSetupStageFunction, IWindowEnvironmentProps } from './types';
 
 export const defaultWindowStyles = {
     width: 1024,
     height: 640,
 } as const;
 
-export const defaultCanvasStyles: CanvasStyles = {
-    width: 'fit-content',
-    height: 'fit-content',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 'auto',
-    marginTop: 'auto',
-    paddingLeft: '0px',
-    paddingRight: '0px',
-    paddingBottom: '0px',
-    paddingTop: '0px',
-} as const;
-
 export const defaultEnvironmentProperties = {
     windowWidth: defaultWindowStyles.width,
     windowHeight: defaultWindowStyles.height,
-    canvasMargin: {},
-    canvasPadding: {},
 };
 
 const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previousProps: IWindowEnvironmentProps) => {
@@ -39,64 +24,6 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
     document.body.style.backgroundColor = windowStyles.windowBackgroundColor || '';
 };
 
-const applyStylesToCanvas = (canvas: HTMLDivElement, environmentProps: ICanvasEnvironmentProps = {}) => {
-    const canvasStyle = {
-        width:
-            environmentProps.canvasWidth !== undefined
-                ? `${environmentProps.canvasWidth}px`
-                : defaultCanvasStyles.width,
-        height:
-            environmentProps.canvasHeight !== undefined
-                ? `${environmentProps.canvasHeight}px`
-                : defaultCanvasStyles.height,
-        marginLeft:
-            environmentProps.canvasMargin?.left !== undefined
-                ? `${environmentProps.canvasMargin?.left}px`
-                : defaultCanvasStyles.marginLeft,
-        marginRight:
-            environmentProps.canvasMargin?.right !== undefined
-                ? `${environmentProps.canvasMargin?.right}px`
-                : defaultCanvasStyles.marginRight,
-        marginBottom:
-            environmentProps.canvasMargin?.bottom !== undefined
-                ? `${environmentProps.canvasMargin?.bottom}px`
-                : defaultCanvasStyles.marginBottom,
-        marginTop:
-            environmentProps.canvasMargin?.top !== undefined
-                ? `${environmentProps.canvasMargin?.top}px`
-                : defaultCanvasStyles.marginTop,
-        paddingLeft:
-            environmentProps.canvasPadding?.left !== undefined
-                ? `${environmentProps.canvasPadding?.left}px`
-                : defaultCanvasStyles.paddingLeft,
-        paddingRight:
-            environmentProps.canvasPadding?.right !== undefined
-                ? `${environmentProps.canvasPadding?.right}px`
-                : defaultCanvasStyles.paddingRight,
-        paddingBottom:
-            environmentProps.canvasPadding?.bottom !== undefined
-                ? `${environmentProps.canvasPadding?.bottom}px`
-                : defaultCanvasStyles.paddingBottom,
-        paddingTop:
-            environmentProps.canvasPadding?.top !== undefined
-                ? `${environmentProps.canvasPadding?.top}px`
-                : defaultCanvasStyles.paddingTop,
-        backgroundColor: environmentProps.canvasBackgroundColor || '',
-    };
-
-    // Canvas gets stretched horizontally/vertically
-    // when horizontal (left and right) or vertical (top and bottom) margins are applied.
-    if (environmentProps.canvasMargin?.left !== undefined && environmentProps.canvasMargin.right !== undefined) {
-        canvasStyle.width = '100%';
-    }
-
-    if (environmentProps.canvasMargin?.top !== undefined && environmentProps.canvasMargin.bottom !== undefined) {
-        canvasStyle.height = 'auto';
-    }
-
-    Object.assign(canvas.style, canvasStyle);
-};
-
 export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
     const canvas = parentElement.appendChild(document.createElement('div'));
@@ -110,19 +37,7 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
         applyStylesToWindow(windowEnvironmentProps, previousWindowEnvironmentProps);
     };
 
-    const updateCanvas = (canvasEnvironmentProps: ICanvasEnvironmentProps) => {
-        if (canvasEnvironmentProps.showCanvas) {
-            applyStylesToCanvas(canvas, canvasEnvironmentProps);
-        } else {
-            Object.assign(canvas.style, {});
-        }
-    };
-
     applyStylesToWindow(environmentProps, previousWindowEnvironmentProps);
-
-    if (environmentProps?.showCanvas) {
-        applyStylesToCanvas(canvas, environmentProps);
-    }
 
     const cleanup = () => {
         callHooks(board, 'beforeStageCleanUp', canvas);
@@ -133,5 +48,5 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
         }
     };
 
-    return { canvas, updateCanvas, updateWindow, cleanup };
+    return { canvas, updateWindow, cleanup };
 };

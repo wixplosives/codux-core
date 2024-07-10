@@ -25,17 +25,15 @@ export interface IWindowEnvironmentProps {
 }
 
 export interface ICanvasEnvironmentProps {
-    /** @visualizer toggleCanvas */
-    showCanvas?: boolean;
-    /** @visualizer spacing */
+    /** @deprecated canvas cannot be edited anymore, create your own container to control the preview */
     canvasWidth?: LayoutSizeWithAuto | undefined;
-    /** @visualizer spacing */
+    /** @deprecated canvas cannot be edited anymore, create your own container to control the preview */
     canvasHeight?: LayoutSizeWithAuto | undefined;
-    /** @visualizer color */
+    /** @deprecated canvas cannot be edited anymore, create your own container to control the preview */
     canvasBackgroundColor?: string | undefined;
-    /** @visualizer canvasMargin */
+    /** @deprecated canvas cannot be edited anymore, create your own container to control the preview */
     canvasMargin?: LayoutSpacing | undefined;
-    /** @visualizer canvasPadding */
+    /** @deprecated canvas cannot be edited anymore, create your own container to control the preview */
     canvasPadding?: LayoutSpacing | undefined;
 }
 
@@ -157,20 +155,5 @@ export type BoardSetupStageFunction = (
 ) => {
     canvas: HTMLElement;
     cleanup: () => void;
-    updateCanvas: (canvasEnvironmentProps: ICanvasEnvironmentProps) => void;
     updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
 };
-
-export type CanvasStyles = Pick<
-    CSSStyleDeclaration,
-    | 'height'
-    | 'width'
-    | 'paddingLeft'
-    | 'paddingRight'
-    | 'paddingBottom'
-    | 'paddingTop'
-    | 'marginLeft'
-    | 'marginRight'
-    | 'marginBottom'
-    | 'marginTop'
->;
