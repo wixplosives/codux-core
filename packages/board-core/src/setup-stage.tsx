@@ -26,9 +26,11 @@ const applyStylesToWindow = (windowStyles: IWindowEnvironmentProps = {}, previou
 
 export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) => {
     const previousWindowEnvironmentProps: IWindowEnvironmentProps = {};
-    const canvas = parentElement.appendChild(document.createElement('div'));
-
+    const canvas = document.createElement('div');
     callHooks(board, 'beforeAppendCanvas', canvas);
+
+    parentElement.appendChild(canvas);
+
     canvas.setAttribute('id', 'board-canvas');
 
     const { environmentProps } = board;
