@@ -8,7 +8,7 @@ export interface IReactApp<T = unknown> {
      * should call onManifestUpdate when the manifest is updated
      */
     prepareApp: (options: IPrepareAppOptions) => Promise<{
-        manifest: IServerAppManifest<T>;
+        manifest: IAppManifest<T>;
         dispose: () => void;
     }>;
     /**
@@ -93,29 +93,8 @@ export type RequireModule = (
     dispose: () => void;
 };
 
-export interface IServerPageApi<T> extends PageInfo<T> {
-    /**
-     * a list of all the urls that this route can be accessed from
-     * for example if the route is /users/:userId
-     * the urls could be /users/1, /users/2 etc
-     *
-     * @returns a list of all the urls that this route can be accessed from
-     */
-    getDynamicRouteURIs?: () => Promise<TitledURI[]>;
-}
-
-export interface IServerPageInfo<T> extends PageInfo<T>, IServerPageApi<T> {}
-
-export interface IServerRouteInfo<T> extends RouteInfo<T>, IServerPageApi<T> {}
-
-export interface IServerAppManifest<T = unknown> {
-    routes: IServerRouteInfo<T>[];
-    homeRoute: IServerPageInfo<T>;
-    errorRoute?: IServerPageInfo<T>;
-}
-
 export interface IPrepareAppOptions {
-    onManifestUpdate: (appProps: IServerAppManifest) => void;
+    onManifestUpdate: (appProps: IAppManifest) => void;
     fs: IFileSystem;
 }
 export interface IGetNewPageInfoOptions<T> {
