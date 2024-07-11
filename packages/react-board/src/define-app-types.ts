@@ -35,7 +35,7 @@ export interface IReactApp<T = unknown> {
 }
 export interface IAppManifest<T = unknown> {
     routes: RouteInfo<T>[];
-    homeRoute: PageInfo<T>;
+    homeRoute?: PageInfo<T>;
     errorRoute?: PageInfo<T>;
 }
 
