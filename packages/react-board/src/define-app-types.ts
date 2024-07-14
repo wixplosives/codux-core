@@ -107,6 +107,8 @@ export interface EditablePointOfInterest {
     title: string;
     exportName: string;
     /** JSON SCHEMA for the editable point, for a method, the schema for the return value */
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     schema?: any;
 }
 
