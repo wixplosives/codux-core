@@ -155,5 +155,6 @@ export type BoardSetupStageFunction = (
 ) => {
     canvas: HTMLElement;
     cleanup: () => void;
+    updateCanvas: (canvasEnvironmentProps: ICanvasEnvironmentProps) => void;
     updateWindow: (windowEnvironmentProps: IWindowEnvironmentProps) => void;
 };
