@@ -1,11 +1,10 @@
 import React from 'react';
-import { getPluginsWithHooks, baseRender, createMetadata } from '@wixc3/board-core';
+import { getPluginsWithHooks, baseRender, createRenderableBase } from '@wixc3/board-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
 import type { IReactBoard, OmitReactBoard } from './types';
-import { setupBoardStage } from './setup-stage';
 
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
-    const res: IReactBoard = createMetadata<IReactBoard>({
+    const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
         render(target) {
             return baseRender(
@@ -23,9 +22,6 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
                 },
                 target,
             );
-        },
-        setupStage(parentElement = document.body) {
-            return setupBoardStage(this, parentElement);
         },
     });
     return res;
