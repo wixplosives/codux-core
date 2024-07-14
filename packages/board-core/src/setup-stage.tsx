@@ -50,7 +50,8 @@ export const setupBoardStage: BoardSetupStageFunction = (board, parentElement) =
         }
     };
 
-    // backward compatibility with older version of Codux
+    // backward compatibility with older versions
+    //  of Codux that still use updateCanvas
     function updateCanvas() {
         return;
     }
