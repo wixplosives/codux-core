@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./packages/app-core/src" },
     { "path": "./packages/board-core/src" },
 
     { "path": "./packages/board-plugins/src" },
