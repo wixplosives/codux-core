@@ -1,0 +1,26 @@
+{
+  "name": "@wixc3/app-core",
+  "description": "Common types and helpers for building applications",
+  "version": "2.5.0",
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "dependencies": {
+    "@file-services/types": "^9.3.1",
+    "@wixc3/react-board": "^2.5.0"
+  },
+  "files": [
+    "dist",
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/app-core",
+  "homepage": "https://github.com/wixplosives/codux-core",
+  "publishConfig": {
+    "access": "public"
+  }
+}
