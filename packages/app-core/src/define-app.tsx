@@ -1,5 +1,5 @@
 import React from 'react';
-import { reactErrorHandledRendering } from './react-error-handled-render';
+import { reactErrorHandledRendering } from '@wixc3/react-board/dist/react-error-handled-render';
 import { IReactApp, OmitReactApp } from './define-app-types';
 
 export function defineApp<T>(input: OmitReactApp<IReactApp<T>, T>): IReactApp<T> {
