@@ -8,6 +8,7 @@
     "react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
+    "@file-services/types": "^9.3.1",
     "@wixc3/board-core": "^2.5.0"
   },
   "files": [
