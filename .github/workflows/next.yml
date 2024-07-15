@@ -1,8 +1,8 @@
-name: npm
+name: next
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-next.[0-9]+'
 jobs:
   npm:
     runs-on: ubuntu-latest
@@ -15,6 +15,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
       - run: npm ci
       - run: npm run build
-      - run: npx pleb@7 publish
+      - run: npx pleb@7 publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
