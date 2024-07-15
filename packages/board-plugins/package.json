@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/board-plugins",
   "description": "Plugins for boards",
-  "version": "2.6.0",
+  "version": "3.0.0-next.0",
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -11,7 +11,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@wixc3/react-board": "^2.6.0"
+    "@wixc3/react-board": "^3.0.0-next.0"
   },
   "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/board-plugins",
   "homepage": "https://github.com/wixplosives/codux-core",
