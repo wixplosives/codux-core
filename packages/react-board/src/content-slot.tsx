@@ -1,5 +1,9 @@
 import React from 'react';
 
-export function ContentSlot(props: { children?: React.ReactNode; name?: string }) {
-    return <div data-content-slot={props.name}>{props.children}</div>;
+export function ContentSlot(props: { children?: React.ReactNode; className?: string; name?: string }) {
+    return (
+        <div className={props.className} data-content-slot={props.name}>
+            {props.children}
+        </div>
+    );
 }
