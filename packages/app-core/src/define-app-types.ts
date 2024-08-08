@@ -1,4 +1,89 @@
-import { IFileSystem } from '@file-services/types';
+/**
+ * deeply watches a directory for changes and calls the callback with the file paths in the directory
+ * @param path the path to watch
+ * @param callback a function that will be called with the contents of the directory
+ * @returns a function that will stop watching the directory
+ */
+export type WatchDirectory = (
+    path: string,
+    callback: (filePaths: string[]) => void,
+) => {
+    stop: () => void;
+    filePaths: Promise<string[]>;
+};
+/**
+ * watches a file for changes and calls the callback with the contents of the file
+ * @param path the path to watch
+ * @param callback a function that will be called with the contents of the file
+ * @returns a function that will stop watching the file
+ */
+export type WatchFile = (
+    path: string,
+    callback: (contents: string | null) => void,
+) => {
+    stop: () => void;
+    contents: Promise<string | null>;
+};
+
+/**
+ * watches a file for changes and calls the callback with the list of names exported from the file
+ * @param path the path to watch
+ * @param callback a function that will be called with the list of names exported from the file
+ * @returns a function that will stop watching the file
+ */
+export type WatchFileExports = (
+    path: string,
+    callback: (exportNames: string[]) => void,
+) => {
+    stop: () => void;
+    exportNames: Promise<string[]>;
+};
+export interface PathApi {
+    /**
+     * Join all arguments together and normalize the resulting path.
+     * Arguments must be strings. In v0.8, non-string arguments were silently ignored. In v0.10 and up, an exception is thrown.
+     *
+     * @param paths paths to join.
+     */
+    join(...paths: string[]): string;
+
+    /**
+     * Return the directory name of a path. Similar to the Unix dirname command.
+     *
+     * @param p the path to evaluate.
+     */
+    dirname(p: string): string;
+
+    /**
+     * Return the last portion of a path. Similar to the Unix basename command.
+     * Often used to extract the file name from a fully qualified path.
+     *
+     * @param p the path to evaluate.
+     * @param ext optionally, an extension to remove from the result.
+     */
+    basename(p: string, ext?: string): string;
+
+    /**
+     * Return the extension of the path, from the last '.' to end of string in the last portion of the path.
+     * If there is no '.' in the last portion of the path or the first character of it is '.', then it returns an empty string
+     *
+     * @param p the path to evaluate.
+     */
+    extname(p: string): string;
+
+    /**
+     * the separator for the os
+     */
+    sep: string;
+}
+export interface FSApi {
+    watchDirectory: WatchDirectory;
+    watchFile: WatchFile;
+    watchFileExports: WatchFileExports;
+    projectPath: string;
+    appDefFilePath: string;
+    path: PathApi;
+}
 
 export interface IReactApp<T = unknown> {
     /**
@@ -11,6 +96,7 @@ export interface IReactApp<T = unknown> {
         manifest: IAppManifest<T>;
         dispose: () => void;
     }>;
+
     /**
      *
      * Should be isomorphic, should return the same result on the server and in a web worker
@@ -21,8 +107,10 @@ export interface IReactApp<T = unknown> {
     getNewPageInfo?: (options: IGetNewPageInfoOptions<T>) => {
         isValid: boolean;
         errorMessage?: string;
+        warningMessage?: string;
         pageModule: string;
         newPageSourceCode: string;
+        newPageRoute: RouteInfo<T>;
     };
 
     App: React.ComponentType<IReactAppProps<T>>;
@@ -35,11 +123,11 @@ export interface IReactApp<T = unknown> {
 }
 export interface IAppManifest<T = unknown> {
     routes: RouteInfo<T>[];
-    homeRoute?: PageInfo<T>;
-    errorRoute?: PageInfo<T>;
+    homeRoute?: RouteInfo<T>;
+    errorRoutes?: RouteInfo<T>[];
 }
 
-export interface PageInfo<T = unknown> {
+export interface RouteInfo<T = unknown> {
     pageModule: string;
     pageExportName?: string;
     /**
@@ -50,6 +138,10 @@ export interface PageInfo<T = unknown> {
         layoutExportName?: string;
         editablePoints?: EditablePointOfInterest[];
     }>;
+    parentErrorBoundary?: {
+        errorBoundaryModule: string;
+        errorBoundaryExportName?: string;
+    };
     /**
      * a list of export names of the page that should be editable
      * if the page is a function, the UI will edit its return value
@@ -62,10 +154,11 @@ export interface PageInfo<T = unknown> {
      * any extra data that should be passed to the App component
      */
     extraData: T;
-}
-
-export interface RouteInfo<T = unknown> extends PageInfo<T> {
     path: Array<StaticRoutePart | DynamicRoutePart>;
+    /**
+     * readable (and editable) text representation of the path
+     */
+    pathString: string;
 }
 
 export interface StaticRoutePart {
@@ -75,17 +168,19 @@ export interface StaticRoutePart {
 
 export interface DynamicRoutePart {
     kind: 'dynamic';
+    isOptional?: boolean;
+    isCatchAll?: boolean;
     name: string;
 }
 
 export interface IReactAppProps<T = unknown> {
     manifest: IAppManifest<T>;
-    requireModule: RequireModule;
+    importModule: DynamicImport;
     uri: string;
     setUri: (uri: string) => void;
 }
 
-export type RequireModule = (
+export type DynamicImport = (
     filePath: string,
     onModuleChange?: (updatedModule: IResults<unknown>) => void,
 ) => {
@@ -95,32 +190,23 @@ export type RequireModule = (
 
 export interface IPrepareAppOptions {
     onManifestUpdate: (appProps: IAppManifest) => void;
-    fs: IFileSystem;
+    fsApi: FSApi;
 }
 export interface IGetNewPageInfoOptions<T> {
-    fs: IFileSystem;
-    wantedPath: RouteInfo['path'];
+    fsApi: FSApi;
+    requestedURI: string;
     manifest: IAppManifest<T>;
 }
 
 export interface EditablePointOfInterest {
     title: string;
     exportName: string;
-    /** JSON SCHEMA for the editable point, for a method, the schema for the return value */
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    schema?: any;
 }
 
 export interface IResults<T> {
     status: 'ready' | 'invalid' | 'disposed';
     results: T | null;
     errorMessage?: string;
-}
-
-export interface TitledURI {
-    name: string;
-    uri: string;
 }
 
 export type OmitReactApp<T extends IReactApp<D>, D> = Omit<T, 'render' | 'setupStage' | 'setProps'>;
