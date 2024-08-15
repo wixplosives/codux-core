@@ -13,7 +13,6 @@
     "prettify": "prettier . --write"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.9.0",
     "@playwright/browser-chromium": "^1.46.0",
     "@types/chai": "^4.3.17",
@@ -27,7 +26,7 @@
     "esbuild": "^0.23.0",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-no-only-tests": "^3.2.0",
+    "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "5.1.0-rc.0",
     "mocha": "^10.7.3",
