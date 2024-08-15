@@ -1,7 +1,6 @@
-import React from 'react';
-import { ContextUser, textContext } from './context-user';
-import { createBoard } from '@wixc3/react-board';
 import { reactContextPlugin } from '@wixc3/board-plugins';
+import { createBoard } from '@wixc3/react-board';
+import { ContextUser, textContext } from './context-user';
 
 export default createBoard({
     name: 'Context user',
