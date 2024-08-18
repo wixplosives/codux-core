@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/define-remix-app/src" },
     { "path": "./packages/app-core/src" },
+    { "path": "./packages/app-core/test-kit" },
     { "path": "./packages/board-core/src" },
 
     { "path": "./packages/board-plugins/src" },

@@ -8,7 +8,13 @@
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "dependencies": {
+    "@remix-run/node": "^2.11.2",
+    "@remix-run/react": "^2.11.2",
+    "@remix-run/testing": "^2.11.2",
     "@wixc3/app-core": "^3.0.0"
+  },
+  "devDependencies": {
+    "@wixc3/app-core-test-kit": "^3.0.0"
   },
   "files": [
     "dist",
