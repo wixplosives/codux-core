@@ -1,0 +1,25 @@
+{
+  "name": "@wixc3/define-remix-app",
+  "description": "Remix App definition for Codux",
+  "version": "3.0.0",
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "dependencies": {
+    "@wixc3/app-core": "^3.0.0"
+  },
+  "files": [
+    "dist",
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/define-remix-app",
+  "homepage": "https://github.com/wixplosives/codux-core",
+  "publishConfig": {
+    "access": "public"
+  }
+}

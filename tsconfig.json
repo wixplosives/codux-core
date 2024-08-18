@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./packages/define-remix-app/src" },
     { "path": "./packages/app-core/src" },
     { "path": "./packages/board-core/src" },
 
