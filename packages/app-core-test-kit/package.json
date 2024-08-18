@@ -1,0 +1,24 @@
+{
+  "name": "@wixc3/app-core-test-kit",
+  "description": "Types and helpers for component boards",
+  "version": "3.0.0",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/board-core",
+  "homepage": "https://github.com/wixplosives/codux-core",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@wixc3/app-core": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.4.0"
+  }
+}
