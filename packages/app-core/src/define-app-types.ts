@@ -1,3 +1,5 @@
+import type React from 'react';
+
 /**
  * deeply watches a directory for changes and calls the callback with the file paths in the directory
  * @param path the path to watch

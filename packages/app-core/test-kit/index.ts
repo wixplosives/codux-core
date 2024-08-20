@@ -1,7 +1,7 @@
 import { FSApi, IAppManifest, IReactApp } from '@wixc3/app-core';
 import path from 'path';
-export interface AppDefDriverOptions {
-    app: IReactApp;
+export interface AppDefDriverOptions<T> {
+    app: IReactApp<T>;
     initialFiles: Record<
         string,
         {
@@ -23,8 +23,8 @@ export interface AppDefDriverOptions {
     projectPath?: string;
 }
 
-export class AppDefDriver {
-    constructor(private options: AppDefDriverOptions) {}
+export class AppDefDriver<T> {
+    constructor(private options: AppDefDriverOptions<T>) {}
     private lastManifest: IAppManifest | null = null;
     private disposeApp?: () => void;
     async init() {
@@ -38,10 +38,16 @@ export class AppDefDriver {
         this.disposeApp = dispose;
         return manifest;
     }
-    fsApi: FSApi = {
+    getManifest() {
+        return this.lastManifest;
+    }
+    dispose() {
+        this.disposeApp?.();
+    }
+    private fsApi: FSApi = {
         appDefFilePath: this.options.appDefFilePath || '/app-def.ts',
         projectPath: this.options.projectPath || '/',
-        path: (this.options.winFs ? (path as { win32: FSApi['path'] }).win32 : path) as FSApi['path'],
+        path: (this.options.winFs ? (path as { win32: FSApi['path'] }).win32 : path.posix) as FSApi['path'],
         watchDirectory: (dirPath: string) => {
             return {
                 stop: () => {},

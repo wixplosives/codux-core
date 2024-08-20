@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "../dist"
   },
-  "references": [{ "path": "../../react-board/src" }]
+  "references": [{ "path": "../../app-core/src" }, { "path": "../../app-core/test-kit" }]
 }

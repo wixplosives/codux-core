@@ -4,5 +4,5 @@
     "outDir": "../dist/test",
     "types": ["mocha"]
   },
-  "references": [{ "path": "../src" }, { "path": "../../react-board/src" }]
+  "references": [{ "path": "../src" }]
 }
