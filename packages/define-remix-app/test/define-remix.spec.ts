@@ -1,6 +1,6 @@
 import defineRemixApp from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
-import { loaderOnly, simpleLayout, simpleRootWithLayout } from './test-cases/roots';
+import { loaderOnly, simpleLayout, simpleRoot, simpleRootWithLayout } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
 import { RouteExtraInfo } from '../src/remix-app-utils';
@@ -251,7 +251,7 @@ describe('define-remix', () => {
                     ],
                 });
             });
-            it.skip(`manifest for: _layout.about.tsx`, async () => {
+            it(`manifest for: _layout.about.tsx`, async () => {
                 const aboutPage = '/app/routes/_layout.about.tsx';
                 const { manifest } = await getInitialManifest({
                     [aboutPage]: simpleLayout,
@@ -268,7 +268,7 @@ describe('define-remix', () => {
                     ],
                 });
             });
-            it.skip(`manifest for: _layout.tsx, _layout.about.tsx`, async () => {
+            it(`manifest for: _layout.tsx, _layout.about.tsx`, async () => {
                 const aboutPage = '/app/routes/_layout.about.tsx';
                 const layout = '/app/routes/_layout.tsx';
                 const { manifest } = await getInitialManifest({
@@ -431,24 +431,43 @@ describe('define-remix', () => {
                 }),
             );
         });
+        it(`adding layout to root path`, async () => {
+            const testedPath = '/app/routes/about.tsx';
+            const { manifest, driver } = await getInitialManifest({
+                [testedPath]: simpleLayout,
+                [rootPath]: simpleRoot,
+            });
+
+            expectManifest(manifest, {
+                routes: [
+                    aRoute({
+                        routeId: 'routes/about',
+                        pageModule: testedPath,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                        includeRootLayout: false,
+                    }),
+                ],
+            });
+
+            driver.addOrUpdateFile(rootPath, simpleRootWithLayout.contents, simpleRootWithLayout.exports);
+            await waitFor(() =>
+                expectManifest(driver.getManifest()!, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/about',
+                            pageModule: testedPath,
+                            readableUri: 'about',
+                            path: [urlSeg('about')],
+                        }),
+                    ],
+                }),
+            );
+        });
     });
 });
 
 const rootPath = '/app/root.tsx';
-const expectedParentLayouts: RouteExtraInfo['parentLayouts'] = [
-    {
-        id: 'rootLayout',
-        layoutExportName: 'Layout',
-        layoutModule: rootPath,
-        path: '/',
-    },
-    {
-        id: 'root',
-        layoutExportName: 'default',
-        layoutModule: rootPath,
-        path: '/',
-    },
-];
 
 const getInitialManifest = async (files: Record<string, { contents: string; exports: Set<string> }>) => {
     const { manifest, app, driver } = await createAppAndDriver({
@@ -489,29 +508,47 @@ const expectManifest = (manifest: IAppManifest<RouteExtraInfo>, expected: Partia
     expect(manifest).eql(fullExpected);
 };
 
+const rootLayout = {
+    id: 'rootLayout',
+    layoutExportName: 'Layout',
+    layoutModule: rootPath,
+    path: '/',
+};
+const root = {
+    id: 'root',
+    layoutExportName: 'default',
+    layoutModule: rootPath,
+    path: '/',
+};
+
 const aRoute = ({
     routeId,
     pageModule,
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
+    includeRootLayout = true,
 }: {
     routeId: string;
     pageModule: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
-}): RouteInfo<RouteExtraInfo> => ({
-    path,
-    pathString,
-    pageModule,
-    pageExportName: 'default',
-    extraData: {
+    includeRootLayout?: boolean;
+}): RouteInfo<RouteExtraInfo> => {
+    const expectedParentLayouts = includeRootLayout ? [rootLayout, root] : [root];
+    return {
+        path,
+        pathString,
+        pageModule,
+        pageExportName: 'default',
+        extraData: {
+            parentLayouts: [...expectedParentLayouts, ...parentLayouts],
+            routeId,
+        },
         parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-        routeId,
-    },
-    parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-});
+    };
+};
 
 const urlSeg = (text: string) => ({
     kind: 'static' as const,

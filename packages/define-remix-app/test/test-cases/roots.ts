@@ -20,7 +20,20 @@ export const simpleRootWithLayout = {
     `,
     exports: new Set(['default', 'Layout']),
 };
-
+export const simpleRoot = {
+    contents: `
+       import {
+            Outlet,
+        } from '@remix-run/react';
+      
+        export default function App() {
+            return (
+                <Outlet />
+            );
+        }
+    `,
+    exports: new Set(['default']),
+};
 export const simpleLayout = {
     contents: `
         import {

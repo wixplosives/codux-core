@@ -38,7 +38,7 @@ export const routePartsToRoutePath = (routeParts: string[]) => {
                     name: p.slice(1, p.length),
                 };
             }
-            if (p === '_index') {
+            if (p.startsWith('_')) {
                 return null;
             }
             if (p.endsWith('_')) {

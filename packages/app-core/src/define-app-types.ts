@@ -191,6 +191,7 @@ export type DynamicImport = (
 };
 
 export interface IPrepareAppOptions {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onManifestUpdate: (appProps: IAppManifest<any>) => void;
     fsApi: FSApi;
 }

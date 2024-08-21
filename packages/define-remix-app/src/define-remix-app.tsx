@@ -147,7 +147,6 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                 string,
                 { exports: string[]; stop: () => void; pend?: Promise<string[]> }
             >();
-            // TODO: handle changes
             const watcher = fsApi.watchDirectory(routeDir, (fileList) => {
                 filePaths = fileList;
                 void compute(fileList, rootPathExports).then((manifest) => {
@@ -182,8 +181,13 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                 return await pend;
             };
 
-            const rootPathExportsWatcher = fsApi.watchFileExports(rootPath, () => {});
-            const rootPathExports = await rootPathExportsWatcher.exportNames;
+            const rootPathExportsWatcher = fsApi.watchFileExports(rootPath, (exportNames) => {
+                rootPathExports = exportNames;
+                void compute(filePaths, rootPathExports).then((manifest) => {
+                    onManifestUpdate(manifest);
+                });
+            });
+            let rootPathExports = await rootPathExportsWatcher.exportNames;
 
             // /product -> product.tsx product/route._index.tsx
             // /product/$ -> product/$.tsx product/$/route.tsx
