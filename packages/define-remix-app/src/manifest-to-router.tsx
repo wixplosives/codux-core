@@ -2,7 +2,7 @@ import { DynamicImport, IAppManifest, IResults } from '@wixc3/app-core';
 import { pathToRemixRouterUrl, RouteExtraInfo } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, useEffect, useState } from 'react';
-import { LoaderFunction } from '@remix-run/node';
+import type { LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { useLocation } from '@remix-run/react';
 
