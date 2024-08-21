@@ -1,5 +1,5 @@
 import { FSApi, IAppManifest, IReactApp } from '@wixc3/app-core';
-import path from 'path';
+import path from '@file-services/path';
 export interface AppDefDriverOptions<T> {
     app: IReactApp<T>;
     initialFiles: Record<

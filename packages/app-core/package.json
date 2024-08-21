@@ -20,6 +20,9 @@
   "dependencies": {
     "@wixc3/react-board": "^3.0.0"
   },
+  "devDependencies": {
+    "@file-services/path": "^9.4.1"
+  },
   "files": [
     "dist",
     "!dist/test",
