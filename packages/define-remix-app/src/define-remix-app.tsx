@@ -6,7 +6,7 @@ import {
     DynamicRoutePart,
     StaticRoutePart,
 } from '@wixc3/app-core';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
     aRoute,
     filePathToLayoutMatching,

@@ -112,7 +112,6 @@ function PageComp({
         return <div>default export not found at {filePath}</div>;
     }
     if (wrapWithLayout && moduleAsExpected.Layout) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (
             <moduleAsExpected.Layout>
                 <Page />
