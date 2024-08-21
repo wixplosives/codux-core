@@ -52,10 +52,13 @@ export class AppDefDriver<T> {
         return manifest;
     }
     addOrUpdateFile(filePath: string, contents: string, exports: Set<string>) {
+        const existingFile = !!this.files[filePath];
         this.files[filePath] = { contents, exports };
-        for (const listener of this.dirListeners) {
-            if (filePath.startsWith(listener.dirPath)) {
-                listener.cb(Object.keys(this.files).filter((filePath) => filePath.startsWith(listener.dirPath)));
+        if (!existingFile) {
+            for (const listener of this.dirListeners) {
+                if (filePath.startsWith(listener.dirPath)) {
+                    listener.cb(Object.keys(this.files).filter((filePath) => filePath.startsWith(listener.dirPath)));
+                }
             }
         }
         const fileListeners = this.fileListeners[filePath];

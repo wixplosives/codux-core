@@ -411,6 +411,26 @@ describe('define-remix', () => {
                 }),
             );
         });
+        it(`adding default export to a non layout path`, async () => {
+            const testedPath = '/app/routes/about.tsx';
+            const { manifest, driver } = await getInitialManifest({
+                [testedPath]: loaderOnly,
+            });
+            expect(manifest.routes.length).to.equal(0);
+            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            await waitFor(() =>
+                expectManifest(driver.getManifest()!, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/about',
+                            pageModule: testedPath,
+                            readableUri: 'about',
+                            path: [urlSeg('about')],
+                        }),
+                    ],
+                }),
+            );
+        });
     });
 });
 

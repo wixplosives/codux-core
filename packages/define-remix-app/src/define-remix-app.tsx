@@ -143,6 +143,47 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
             const appDir = fsApi.path.join(appDefDir, appPath);
             const rootPath = fsApi.path.join(appDir, 'root.tsx');
             const routeDir = fsApi.path.join(appDir, 'routes');
+            const loadedExportState = new Map<
+                string,
+                { exports: string[]; stop: () => void; pend?: Promise<string[]> }
+            >();
+            // TODO: handle changes
+            const watcher = fsApi.watchDirectory(routeDir, (fileList) => {
+                filePaths = fileList;
+                void compute(fileList, rootPathExports).then((manifest) => {
+                    onManifestUpdate(manifest);
+                });
+            });
+            let filePaths = await watcher.filePaths;
+            const loadExports = async (filePath: string) => {
+                const state = loadedExportState.get(filePath);
+
+                if (!state) {
+                    const watcher = fsApi.watchFileExports(filePath, (exports) => {
+                        const state = loadedExportState.get(filePath);
+                        if (state) {
+                            state.exports = exports;
+                            void compute(filePaths, rootPathExports).then((manifest) => {
+                                onManifestUpdate(manifest);
+                            });
+                        }
+                    });
+                    const exports = watcher.exportNames;
+                    loadedExportState.set(filePath, { exports: [], stop: watcher.stop, pend: exports });
+                    loadedExportState.get(filePath)!.exports = await exports;
+                    loadedExportState.get(filePath)!.pend = undefined;
+                    return loadedExportState.get(filePath)!.exports;
+                }
+                const pend = state?.pend;
+                if (!pend) {
+                    return state?.exports || [];
+                }
+
+                return await pend;
+            };
+
+            const rootPathExportsWatcher = fsApi.watchFileExports(rootPath, () => {});
+            const rootPathExports = await rootPathExportsWatcher.exportNames;
 
             // /product -> product.tsx product/route._index.tsx
             // /product/$ -> product/$.tsx product/$/route.tsx
@@ -261,8 +302,7 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                         // TODO add change handler
                         const routeFilesWithExports = await Promise.all(
                             routeFiles.map(async (file) => {
-                                const fileExportsWatcher = fsApi.watchFileExports(file, (exports) => exports);
-                                const exports = await fileExportsWatcher.exportNames;
+                                const exports = (await loadExports(file)) || [];
                                 return {
                                     file,
                                     exports,
@@ -326,21 +366,12 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
 
                 return initialManifest;
             };
-            // TODO: handle changes
-            const rootPathExportsWatcher = fsApi.watchFileExports(rootPath, () => {});
-            const rootPathExports = await rootPathExportsWatcher.exportNames;
-            const watcher = fsApi.watchDirectory(routeDir, (fileList) => {
-                void compute(fileList, rootPathExports).then((manifest) => {
-                    onManifestUpdate(manifest);
-                });
-            });
-            const initialFilePaths = await watcher.filePaths;
 
             return {
                 dispose() {
                     watcher.stop();
                 },
-                manifest: await compute(initialFilePaths, rootPathExports),
+                manifest: await compute(filePaths, rootPathExports),
             };
         },
     });
