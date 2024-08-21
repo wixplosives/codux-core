@@ -1,5 +1,4 @@
-import React from 'react';
-import { getPluginsWithHooks, baseRender, createRenderableBase } from '@wixc3/board-core';
+import { baseRender, createRenderableBase, getPluginsWithHooks } from '@wixc3/board-core';
 import { reactErrorHandledRendering } from './react-error-handled-render';
 import type { IReactBoard, OmitReactBoard } from './types';
 
