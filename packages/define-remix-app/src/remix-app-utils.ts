@@ -21,7 +21,7 @@ export const routePartsToRoutePath = (routeParts: string[]) => {
             if (p === '$') {
                 return {
                     kind: 'dynamic' as const,
-                    name: '*',
+                    name: '$',
                     isCatchAll: true,
                 };
             }

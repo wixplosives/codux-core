@@ -8,7 +8,7 @@ import { RouteExtraInfo } from '../src/remix-app-utils';
 describe('define-remix', () => {
     describe('flat routes', () => {
         const indexPath = '/app/routes/_index.tsx';
-        it('should return the manifest for a remix app with an home page at _index.tsx', async () => {
+        it(`manifest for: _index.tsx`, async () => {
             const { manifest } = await getInitialManifest({
                 [indexPath]: simpleLayout,
             });
@@ -17,7 +17,7 @@ describe('define-remix', () => {
             });
         });
 
-        it('should return the manifest for a remix app with a static page at about.tsx', async () => {
+        it('manifest for: about.tsx', async () => {
             const testedPath = '/app/routes/about.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -28,12 +28,12 @@ describe('define-remix', () => {
                         routeId: 'routes/about',
                         pageModule: testedPath,
                         readableUri: 'about',
-                        path: [{ kind: 'static', text: 'about' }],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
-        it('should return the manifest for a remix app with a static page at about._index.tsx', async () => {
+        it('manifest for: about._index.tsx', async () => {
             const testedPath = '/app/routes/about._index.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -44,13 +44,13 @@ describe('define-remix', () => {
                         routeId: 'routes/about/_index',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
 
-        it('should return  the manifest for a remix app with a static page at about._index.tsx and a layout at about.tsx', async () => {
+        it(`manifest for: about.tsx, about._index.tsx`, async () => {
             const testedPath = '/app/routes/about._index.tsx';
             const layoutPath = '/app/routes/about.tsx';
             const { manifest } = await getInitialManifest({
@@ -64,7 +64,7 @@ describe('define-remix', () => {
                         routeId: 'routes/about/_index',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                         parentLayouts: [
                             {
                                 id: 'routes/about',
@@ -79,7 +79,7 @@ describe('define-remix', () => {
         });
 
         describe('nested routes', () => {
-            it('should  return the manifest for a remix app with a page whose also a layout at about.tsx and a page at about.us.tsx', async () => {
+            it(`manifest for: about.tsx, about.us.tsx`, async () => {
                 const aboutPage = '/app/routes/about.tsx';
                 const aboutUsPage = '/app/routes/about.us.tsx';
                 const { manifest } = await getInitialManifest({
@@ -93,13 +93,13 @@ describe('define-remix', () => {
                             routeId: 'routes/about',
                             pageModule: aboutPage,
                             readableUri: 'about',
-                            path: [{ kind: 'static', text: 'about' }],
+                            path: [urlSeg('about')],
                         }),
                         aRoute({
                             routeId: 'routes/about/us',
                             pageModule: aboutUsPage,
                             readableUri: 'about/us',
-                            path: [chunk('about'), chunk('us')],
+                            path: [urlSeg('about'), urlSeg('us')],
                             parentLayouts: [
                                 {
                                     id: 'routes/about',
@@ -112,7 +112,7 @@ describe('define-remix', () => {
                     ],
                 });
             });
-            it('should return the manifest for a remix app with a page whose also a layout at about.tsx and a page at about_.us.tsx avoiding that layout', async () => {
+            it(`manifest for: about.tsx, about_.us.tsx`, async () => {
                 const aboutPage = '/app/routes/about.tsx';
                 const aboutUsPage = '/app/routes/about_.us.tsx';
                 const { manifest } = await getInitialManifest({
@@ -126,13 +126,135 @@ describe('define-remix', () => {
                             routeId: 'routes/about',
                             pageModule: aboutPage,
                             readableUri: 'about',
-                            path: [{ kind: 'static', text: 'about' }],
+                            path: [urlSeg('about')],
                         }),
                         aRoute({
                             routeId: 'routes/about_/us',
                             pageModule: aboutUsPage,
                             readableUri: 'about_/us',
-                            path: [chunk('about'), chunk('us')],
+                            path: [urlSeg('about'), urlSeg('us')],
+                        }),
+                    ],
+                });
+            });
+            it(`manifest for: about.tsx, about.us.tsx, about.us_.lang.tsx
+            `, async () => {
+                const aboutPage = '/app/routes/about.tsx';
+                const aboutUsPage = '/app/routes/about.us.tsx';
+                const aboutUsLangPage = '/app/routes/about.us_.lang.tsx';
+
+                const { manifest } = await getInitialManifest({
+                    [aboutPage]: simpleLayout,
+                    [aboutUsPage]: simpleLayout,
+                    [aboutUsLangPage]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/about',
+                            pageModule: aboutPage,
+                            readableUri: 'about',
+                            path: [urlSeg('about')],
+                        }),
+                        aRoute({
+                            routeId: 'routes/about/us',
+                            pageModule: aboutUsPage,
+                            readableUri: 'about/us',
+                            path: [urlSeg('about'), urlSeg('us')],
+                            parentLayouts: [
+                                {
+                                    id: 'routes/about',
+                                    layoutExportName: 'default',
+                                    layoutModule: aboutPage,
+                                    path: '/about',
+                                },
+                            ],
+                        }),
+                        aRoute({
+                            routeId: 'routes/about/us_/lang',
+                            pageModule: aboutUsLangPage,
+                            readableUri: 'about/us_/lang',
+                            path: [urlSeg('about'), urlSeg('us'), urlSeg('lang')],
+                            parentLayouts: [
+                                {
+                                    id: 'routes/about',
+                                    layoutExportName: 'default',
+                                    layoutModule: aboutPage,
+                                    path: '/about',
+                                },
+                            ],
+                        }),
+                    ],
+                });
+            });
+            it(`manifest for: product.$productId.tsx`, async () => {
+                const productPage = '/app/routes/product.$productId.tsx';
+
+                const { manifest } = await getInitialManifest({
+                    [productPage]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/product/$productId',
+                            pageModule: productPage,
+                            readableUri: 'product/$productId',
+                            path: [urlSeg('product'), { kind: 'dynamic', name: 'productId' }],
+                        }),
+                    ],
+                });
+            });
+            it(`manifest for: product.($productId).tsx`, async () => {
+                const productPage = '/app/routes/product.($productId).tsx';
+
+                const { manifest } = await getInitialManifest({
+                    [productPage]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/product/($productId)',
+                            pageModule: productPage,
+                            readableUri: 'product/($productId)',
+                            path: [urlSeg('product'), { kind: 'dynamic', name: 'productId', isOptional: true }],
+                        }),
+                    ],
+                });
+            });
+            it(`manifest for: product.$.tsx`, async () => {
+                const productPage = '/app/routes/product.$.tsx';
+
+                const { manifest } = await getInitialManifest({
+                    [productPage]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/product/$',
+                            pageModule: productPage,
+                            readableUri: 'product/$',
+                            path: [urlSeg('product'), { kind: 'dynamic', name: '$', isCatchAll: true }],
+                        }),
+                    ],
+                });
+            });
+            it.skip(`manifest for: _layout.about.tsx`, async () => {
+                const aboutPage = '/app/routes/_layout.about.tsx';
+                const { manifest } = await getInitialManifest({
+                    [aboutPage]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/_layout/about',
+                            pageModule: aboutPage,
+                            readableUri: '_layout/about',
+                            path: [urlSeg('about')],
                         }),
                     ],
                 });
@@ -140,7 +262,7 @@ describe('define-remix', () => {
         });
     });
     describe('directory routes', () => {
-        it('should return the manifest for a remix app with a static page at about/index.tsx', async () => {
+        it('manifest for: about/index.tsx', async () => {
             const testedPath = '/app/routes/about/index.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -151,12 +273,12 @@ describe('define-remix', () => {
                         routeId: 'routes/about/index',
                         pageModule: testedPath,
                         readableUri: 'about',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
-        it('should return the manifest for a remix app with a static page at about/route.tsx', async () => {
+        it('manifest for: about/route.tsx', async () => {
             const testedPath = '/app/routes/about/route.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -167,12 +289,12 @@ describe('define-remix', () => {
                         routeId: 'routes/about/route',
                         pageModule: testedPath,
                         readableUri: 'about',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
-        it('should return the manifest for a remix app with a static page at about._index/route.tsx', async () => {
+        it('manifest for: about._index/route.tsx', async () => {
             const testedPath = '/app/routes/about._index/route.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -183,12 +305,12 @@ describe('define-remix', () => {
                         routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
-        it('should return the manifest for a remix app with a static page at about._index/route.tsx', async () => {
+        it('manifest for: about._index/route.tsx', async () => {
             const testedPath = '/app/routes/about._index/route.tsx';
             const { manifest } = await getInitialManifest({
                 [testedPath]: simpleLayout,
@@ -199,12 +321,12 @@ describe('define-remix', () => {
                         routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                     }),
                 ],
             });
         });
-        it('should return the manifest for a remix app with a static page at about._index/route.tsx and a layout at about/route.tsx', async () => {
+        it('manifest for: about._index/route.tsx, about/route.tsx', async () => {
             const testedPath = '/app/routes/about._index/route.tsx';
             const layoutPath = '/app/routes/about/route.tsx';
             const { manifest } = await getInitialManifest({
@@ -217,7 +339,7 @@ describe('define-remix', () => {
                         routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
-                        path: [chunk('about')],
+                        path: [urlSeg('about')],
                         parentLayouts: [
                             {
                                 id: 'routes/about/route',
@@ -312,7 +434,7 @@ const aRoute = ({
     parentLayouts: [...expectedParentLayouts, ...parentLayouts],
 });
 
-const chunk = (text: string) => ({
+const urlSeg = (text: string) => ({
     kind: 'static' as const,
     text,
 });
