@@ -34,3 +34,12 @@ export const simpleLayout = {
     `,
     exports: new Set(['default']),
 };
+
+export const loaderOnly = {
+    contents: `
+        export async function loader() {
+            return { message: 'Hello World' };
+        }
+    `,
+    exports: new Set(['loader']),
+};

@@ -191,7 +191,7 @@ export type DynamicImport = (
 };
 
 export interface IPrepareAppOptions {
-    onManifestUpdate: (appProps: IAppManifest) => void;
+    onManifestUpdate: (appProps: IAppManifest<any>) => void;
     fsApi: FSApi;
 }
 export interface IGetNewPageInfoOptions<T> {

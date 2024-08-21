@@ -40,5 +40,8 @@
     "typescript-eslint": "^8.2.0"
   },
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "promise-assist": "^2.0.1"
+  }
 }

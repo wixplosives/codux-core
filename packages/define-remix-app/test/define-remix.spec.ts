@@ -1,13 +1,14 @@
 import defineRemixApp from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
-import { simpleLayout, simpleRootWithLayout } from './test-cases/roots';
+import { loaderOnly, simpleLayout, simpleRootWithLayout } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
 import { RouteExtraInfo } from '../src/remix-app-utils';
+import { waitFor } from 'promise-assist';
 
+const indexPath = '/app/routes/_index.tsx';
 describe('define-remix', () => {
     describe('flat routes', () => {
-        const indexPath = '/app/routes/_index.tsx';
         it(`manifest for: _index.tsx`, async () => {
             const { manifest } = await getInitialManifest({
                 [indexPath]: simpleLayout,
@@ -16,7 +17,6 @@ describe('define-remix', () => {
                 homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
             });
         });
-
         it('manifest for: about.tsx', async () => {
             const testedPath = '/app/routes/about.tsx';
             const { manifest } = await getInitialManifest({
@@ -31,6 +31,15 @@ describe('define-remix', () => {
                         path: [urlSeg('about')],
                     }),
                 ],
+            });
+        });
+        it('manifest for: about.tsx without default export', async () => {
+            const testedPath = '/app/routes/about.tsx';
+            const { manifest } = await getInitialManifest({
+                [testedPath]: loaderOnly,
+            });
+            expectManifest(manifest, {
+                routes: [],
             });
         });
         it('manifest for: about._index.tsx', async () => {
@@ -259,6 +268,33 @@ describe('define-remix', () => {
                     ],
                 });
             });
+            it.skip(`manifest for: _layout.tsx, _layout.about.tsx`, async () => {
+                const aboutPage = '/app/routes/_layout.about.tsx';
+                const layout = '/app/routes/_layout.tsx';
+                const { manifest } = await getInitialManifest({
+                    [aboutPage]: simpleLayout,
+                    [layout]: simpleLayout,
+                });
+
+                expectManifest(manifest, {
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/_layout/about',
+                            pageModule: aboutPage,
+                            readableUri: '_layout/about',
+                            path: [urlSeg('about')],
+                            parentLayouts: [
+                                {
+                                    id: 'routes/_layout',
+                                    layoutExportName: 'default',
+                                    layoutModule: layout,
+                                    path: '/',
+                                },
+                            ],
+                        }),
+                    ],
+                });
+            });
         });
     });
     describe('directory routes', () => {
@@ -351,6 +387,29 @@ describe('define-remix', () => {
                     }),
                 ],
             });
+        });
+    });
+    describe('manifest updates', () => {
+        it(`page edition`, async () => {
+            const testedPath = '/app/routes/about.tsx';
+            const { manifest, driver } = await getInitialManifest({
+                [indexPath]: simpleLayout,
+            });
+            expect(manifest.routes.length).to.equal(0);
+            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            await waitFor(() =>
+                expectManifest(driver.getManifest()!, {
+                    homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                    routes: [
+                        aRoute({
+                            routeId: 'routes/about',
+                            pageModule: testedPath,
+                            readableUri: 'about',
+                            path: [urlSeg('about')],
+                        }),
+                    ],
+                }),
+            );
         });
     });
 });
