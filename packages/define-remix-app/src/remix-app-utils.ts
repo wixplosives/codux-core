@@ -56,24 +56,11 @@ export const routePartsToRoutePath = (routeParts: string[]) => {
 };
 
 export function filePathToReadableUri(filePathInRouteDir: string, path: PathApi): string | null {
-    const dirStructure = filePathInRouteDir.split(path.sep);
-    const partsToReadableName = (parts: string[]) => {
-        if (parts.length === 1 && parts[0] === '_index') {
-            return '';
-        }
-        return parts.join('/');
-    };
-    if (dirStructure.length === 1) {
-        const baseName = path.basename(filePathInRouteDir);
-        const parts = baseName.split('.');
-        return partsToReadableName(parts.slice(0, parts.length - 1));
+    const parts = filePathToURLParts(filePathInRouteDir, path);
+    if (parts.length === 1 && parts[0] === '_index') {
+        return '';
     }
-    if (dirStructure.length === 2) {
-        if (dirStructure[1] === 'route.tsx' || dirStructure[1] === 'index.tsx') {
-            return partsToReadableName(dirStructure[0].split('.'));
-        }
-    }
-    return null;
+    return parts.join('/');
 }
 export const aRoute = (
     routeDirPath: string,

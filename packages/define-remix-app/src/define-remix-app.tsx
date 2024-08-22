@@ -12,6 +12,7 @@ import {
     filePathToLayoutMatching,
     filePathToReadableUri,
     filePathToRouteId,
+    filePathToURLParts,
     ParentLayoutWithExtra,
     pathToRemixRouterUrl,
     readableStringToRoutePath,
@@ -212,10 +213,9 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                 const filesByRoute = filesInDir.reduce((acc, fullPath) => {
                     const name = fsApi.path.basename(fullPath);
                     const pathInRoutesDir = fullPath.slice(routeDirLength);
-
-                    const dirParts = pathInRoutesDir.split(fsApi.path.sep);
-                    if (dirParts.length === 1 && name.endsWith('.tsx')) {
-                        if (name === '_index.tsx') {
+                    if (name.endsWith('.tsx')) {
+                        const parts = filePathToURLParts(pathInRoutesDir, fsApi.path);
+                        if (parts.length === 1 && parts[0] === '_index') {
                             if (!acc.has('/')) {
                                 acc.set('/', {
                                     files: [],
@@ -224,10 +224,14 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                                 });
                             }
                             acc.get('/')?.files.push(fullPath);
+                        } else if (parts.length === 1 && parts[0].startsWith('_')) {
+                            acc.set(parts[0], {
+                                files: [fullPath],
+                                path: [],
+                                readableName: parts[0],
+                            });
                         } else {
-                            const fileName = fsApi.path.basename(fullPath, '.tsx');
-                            const routeParts = fileName.split('.');
-                            const routePath = routePartsToRoutePath(routeParts);
+                            const routePath = routePartsToRoutePath(parts);
                             const routeUrlId = routePathId(routePath);
                             const routePathString = filePathToReadableUri(pathInRoutesDir, fsApi.path) || '';
                             if (!acc.has(routeUrlId)) {
@@ -239,26 +243,6 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                             }
                             acc.get(routeUrlId)?.files.push(fullPath);
                         }
-                    } else if (
-                        dirParts.length === 2 &&
-                        (fullPath.endsWith(fsApi.path.sep + 'route.tsx') ||
-                            fullPath.endsWith(fsApi.path.sep + 'index.tsx'))
-                    ) {
-                        const routeParts = dirParts[0].split('.');
-                        const routePath = routePartsToRoutePath(routeParts);
-                        const routeUrl = filePathToReadableUri(pathInRoutesDir, fsApi.path) || '';
-                        const routeUrlId = routePathId(routePath);
-
-                        if (!acc.has(routeUrlId)) {
-                            acc.set(routeUrlId, {
-                                files: [],
-                                path: routePath,
-                                readableName: routeUrl,
-                            });
-                        }
-                        acc.get(routeUrlId)?.files.push(fullPath);
-                    } else {
-                        // TODO: handle such cases if exist in remix
                     }
                     return acc;
                 }, new Map<string, { files: string[]; path: Array<StaticRoutePart | DynamicRoutePart>; readableName: string }>());
@@ -303,7 +287,6 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                     } else {
                         const routeFiles = value.files.sort((a, b) => a.length - b.length);
 
-                        // TODO add change handler
                         const routeFilesWithExports = await Promise.all(
                             routeFiles.map(async (file) => {
                                 const exports = (await loadExports(file)) || [];
