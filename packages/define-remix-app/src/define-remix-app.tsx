@@ -9,6 +9,7 @@ import {
 import { useMemo } from 'react';
 import {
     aRoute,
+    chooseOverridingPath,
     filePathToLayoutMatching,
     filePathToReadableUri,
     filePathToRouteId,
@@ -210,53 +211,95 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                         path: '/',
                     });
                 }
-                const filesByRoute = filesInDir.reduce((acc, fullPath) => {
-                    const name = fsApi.path.basename(fullPath);
-                    const pathInRoutesDir = fullPath.slice(routeDirLength);
-                    if (name.endsWith('.tsx')) {
-                        const parts = filePathToURLParts(pathInRoutesDir, fsApi.path);
-                        if (parts.length === 1 && parts[0] === '_index') {
-                            if (!acc.has('/')) {
-                                acc.set('/', {
-                                    files: [],
-                                    path: [],
-                                    readableName: '',
-                                });
+                const { layouts, routes } = filesInDir.reduce(
+                    (acc, fullPath) => {
+                        const name = fsApi.path.basename(fullPath);
+                        const pathInRoutesDir = fullPath.slice(routeDirLength);
+                        if (name.endsWith('.tsx')) {
+                            const parts = filePathToURLParts(pathInRoutesDir, fsApi.path);
+                            if (parts.length === 1 && parts[0] === '_index') {
+                                if (!acc.routes.has('/')) {
+                                    acc.routes.set('/', {
+                                        file: fullPath,
+                                        path: [],
+                                        readableName: '',
+                                        layoutMatching: [],
+                                    });
+                                } else {
+                                    acc.routes.get('/')!.file = chooseOverridingPath(
+                                        acc.routes.get('/')!.file,
+                                        fullPath,
+                                    );
+                                }
+                                return acc;
                             }
-                            acc.get('/')?.files.push(fullPath);
-                        } else if (parts.length === 1 && parts[0].startsWith('_')) {
-                            acc.set(parts[0], {
-                                files: [fullPath],
-                                path: [],
-                                readableName: parts[0],
-                            });
-                        } else {
                             const routePath = routePartsToRoutePath(parts);
+
+                            if (!parts.find((part) => !part.startsWith('_'))) {
+                                // file is a only layout
+                                const layoutId = filePathToRouteId(appDir, fullPath);
+                                acc.layouts.set(parts.join('/'), {
+                                    id: layoutId,
+                                    layoutExportName: 'default',
+                                    layoutModule: fullPath,
+                                    path: pathToRemixRouterUrl(routePath),
+                                });
+                                return acc;
+                            }
+
                             const routeUrlId = routePathId(routePath);
                             const routePathString = filePathToReadableUri(pathInRoutesDir, fsApi.path) || '';
-                            if (!acc.has(routeUrlId)) {
-                                acc.set(routeUrlId, {
-                                    files: [],
+                            if (!acc.routes.has(routeUrlId)) {
+                                acc.routes.set(routeUrlId, {
+                                    file: fullPath,
                                     path: routePath,
                                     readableName: routePathString,
+                                    layoutMatching: filePathToLayoutMatching(pathInRoutesDir, fsApi.path),
+                                });
+                            } else {
+                                acc.routes.get(routeUrlId)!.file = chooseOverridingPath(
+                                    acc.routes.get(routeUrlId)!.file,
+                                    fullPath,
+                                );
+                            }
+                            const canBeLayout =
+                                !fullPath.endsWith('._index.tsx') && !fsApi.path.dirname(fullPath).endsWith('_index');
+                            if (canBeLayout) {
+                                const layoutMatching = filePathToLayoutMatching(pathInRoutesDir, fsApi.path);
+                                const layoutId = filePathToRouteId(appDir, fullPath);
+                                acc.layouts.set(layoutMatching.join('/'), {
+                                    id: layoutId,
+                                    layoutExportName: 'default',
+                                    layoutModule: fullPath,
+                                    path: pathToRemixRouterUrl(routePath),
                                 });
                             }
-                            acc.get(routeUrlId)?.files.push(fullPath);
                         }
-                    }
-                    return acc;
-                }, new Map<string, { files: string[]; path: Array<StaticRoutePart | DynamicRoutePart>; readableName: string }>());
+                        return acc;
+                    },
+                    {
+                        routes: new Map<
+                            string,
+                            {
+                                file: string;
+                                path: Array<StaticRoutePart | DynamicRoutePart>;
+                                readableName: string;
+                                layoutMatching: string[];
+                            }
+                        >(),
+                        layouts: new Map<string, ParentLayoutWithExtra>(),
+                    },
+                );
 
                 const initialManifest: IAppManifest<RouteExtraInfo> = {
                     routes: [],
                     errorRoutes: [],
                 };
-                const sortedFilesByRoute = [...filesByRoute.entries()].sort(([, a], [, b]) =>
+                const sortedFilesByRoute = [...routes.entries()].sort(([, a], [, b]) =>
                     a.path.length === b.path.length
                         ? a.readableName.localeCompare(b.readableName)
                         : a.path.length - b.path.length,
                 );
-                const suspectedLayouts = new Map<string, ParentLayoutWithExtra>();
                 const suspectedErrorRoutes = new Map<string, RouteInfo<RouteExtraInfo>>();
                 if (rootExportNames.includes('ErrorBoundary')) {
                     const errorRoute = aRoute(
@@ -277,72 +320,34 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                         initialManifest.homeRoute = aRoute(
                             routeDir,
                             [],
-                            value.files[0],
+                            value.file,
                             {
                                 parentLayouts: rootLayouts,
-                                routeId: filePathToRouteId(appDir, value.files[0]),
+                                routeId: filePathToRouteId(appDir, value.file),
                             },
                             fsApi.path,
                         );
                     } else {
-                        const routeFiles = value.files.sort((a, b) => a.length - b.length);
+                        const exports = await loadExports(value.file);
 
-                        const routeFilesWithExports = await Promise.all(
-                            routeFiles.map(async (file) => {
-                                const exports = (await loadExports(file)) || [];
-                                return {
-                                    file,
-                                    exports,
-                                };
-                            }),
-                        );
-
-                        let page: { file: string; exports: string[] } | undefined = undefined;
                         const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
-                        const lastFile = routeFilesWithExports[routeFilesWithExports.length - 1].file;
-                        const routeLayouts = filePathToLayoutMatching(lastFile.slice(routeDirLength), fsApi.path);
+                        const routeLayouts = filePathToLayoutMatching(value.file.slice(routeDirLength), fsApi.path);
                         for (let i = 0; i < routeLayouts.length - 1; i++) {
                             const key = routeLayouts.slice(0, i + 1).join('/');
-                            const layout = suspectedLayouts.get(key);
+                            const layout = layouts.get(key);
                             if (layout) {
                                 parentLayouts.push(layout);
                             }
                         }
 
-                        for (const { file, exports } of routeFilesWithExports) {
-                            const routeId = filePathToRouteId(appDir, file);
-                            const layoutMatchingId = filePathToLayoutMatching(
-                                file.slice(routeDirLength),
-                                fsApi.path,
-                            ).join('/');
-                            if (exports.includes('default')) {
-                                const canBeLayout =
-                                    !file.endsWith('._index.tsx') && !fsApi.path.dirname(file).endsWith('_index');
-                                if (canBeLayout) {
-                                    const layout: ParentLayoutWithExtra = {
-                                        layoutModule: file,
-                                        layoutExportName: 'default',
-                                        id: routeId,
-                                        path: pathToRemixRouterUrl(value.path),
-                                    };
-                                    suspectedLayouts.set(layoutMatchingId, layout);
-                                    if (file !== lastFile) {
-                                        parentLayouts.push(layout);
-                                    }
-                                }
-                                page = { file, exports };
-                            }
-                        }
-
-                        if (page) {
-                            // TODO: collect parentlayouts and error routes
+                        if (exports.includes('default')) {
                             const route = aRoute(
                                 routeDir,
                                 value.path,
-                                page.file,
+                                value.file,
                                 {
                                     parentLayouts,
-                                    routeId: filePathToRouteId(appDir, page.file),
+                                    routeId: filePathToRouteId(appDir, value.file),
                                 },
                                 fsApi.path,
                             );

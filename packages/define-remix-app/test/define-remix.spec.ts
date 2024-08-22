@@ -268,7 +268,7 @@ describe('define-remix', () => {
                     ],
                 });
             });
-            it.skip(`manifest for: _layout.tsx, _layout.about.tsx`, async () => {
+            it(`manifest for: _layout.tsx, _layout.about.tsx`, async () => {
                 const aboutPage = '/app/routes/_layout.about.tsx';
                 const layout = '/app/routes/_layout.tsx';
                 const { manifest } = await getInitialManifest({

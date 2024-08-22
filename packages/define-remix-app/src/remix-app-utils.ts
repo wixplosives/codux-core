@@ -95,18 +95,24 @@ export function filePathToURLParts(filePathInRouteDir: string, path: PathApi): s
 
 export function filePathToLayoutMatching(filePathInRouteDir: string, path: PathApi): string[] {
     const parts = filePathToURLParts(filePathInRouteDir, path);
-    if (parts.length === 1 && parts[0] === '_index') {
+    return urlPartsToLayoutMatching(parts);
+}
+
+export function urlPartsToLayoutMatching(parts: string[]): string[] {
+    if (parts.length === 0 || (parts.length === 1 && parts[0] === '_index')) {
         return [];
     }
-    return parts.map((p) => {
-        if (p.startsWith('$') || p.startsWith('($')) {
-            return `***`;
+    if (parts[0].startsWith('_')) {
+        // file uses or is a named layout, wo we sould only return the first part and any adjacant parts the start with _
+        const layoutParts = [parts[0]];
+        let i = 1;
+        while (i < parts.length && parts[i].startsWith('_')) {
+            layoutParts.push(parts[i]);
+            i++;
         }
-        // if (p.endsWith('_')) {
-        //     return p.slice(0, p.length - 1);
-        // }
-        return p;
-    });
+    }
+    // file does not use a named layout, we should return all the parts
+    return parts;
 }
 /**
  * creates a routeId identical to remix routeIDs from a file path
@@ -164,4 +170,16 @@ export function toCamelCase(str: string): string {
         .split('.')
         .map((word, index) => (index > 0 ? capitalizeFirstLetter(word.toLowerCase()) : word.toLowerCase()));
     return words.join('');
+}
+
+/**
+ * remix allows many files to define the same route, this function chooses the file that should be used
+ * 1. prefers _index files over layout files i.e. product._index.tsx over product.tsx
+ * 2. prefers /index.tsx over normal files i.e. product/index.tsx over product.tsx
+ * 3. prefers /route.tsx over /index.tsx i.e. product/route.tsx over product/index.tsx
+ * 4. prefers name_ files over name files i.e. abc_.product.tsx over abc.product.tsx
+ * since in all cases it seems to return the longer file name, we can just return the longer file name
+ */
+export function chooseOverridingPath(fileA: string, fileB: string): string {
+    return fileA.length > fileB.length ? fileA : fileB;
 }
