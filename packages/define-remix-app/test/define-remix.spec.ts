@@ -390,7 +390,7 @@ describe('define-remix', () => {
         });
     });
     describe('manifest updates', () => {
-        it(`page edition`, async () => {
+        it(`page addition`, async () => {
             const testedPath = '/app/routes/about.tsx';
             const { manifest, driver } = await getInitialManifest({
                 [indexPath]: simpleLayout,
@@ -552,6 +552,36 @@ describe('define-remix', () => {
             );
             expect(newPageSourceCode).to.include(' export default');
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/us'));
+        });
+        it('should allow adding an index to a parent layout, and warn', async () => {
+            const aboutLayout = '/app/routes/about.tsx';
+            const aboutUsPage = '/app/routes/about._index.tsx';
+            const { driver } = await getInitialManifest({
+                [indexPath]: simpleLayout,
+                [aboutLayout]: simpleLayout,
+            });
+            const { isValid, pageModule, newPageRoute, newPageSourceCode, warningMessage } =
+                driver.getNewPageInfo('about/_index');
+            expect(isValid).to.eql(true);
+            expect(pageModule).to.eql(aboutUsPage);
+            expect(newPageRoute).to.eql(
+                aRoute({
+                    routeId: 'routes/about/_index',
+                    pageModule: aboutUsPage,
+                    readableUri: 'about/_index',
+                    path: [urlSeg('about')],
+                    parentLayouts: [
+                        {
+                            id: 'routes/about',
+                            layoutExportName: 'default',
+                            layoutModule: aboutLayout,
+                            path: '/about',
+                        },
+                    ],
+                }),
+            );
+            expect(newPageSourceCode).to.include(' export default');
+            expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
         });
     });
 });

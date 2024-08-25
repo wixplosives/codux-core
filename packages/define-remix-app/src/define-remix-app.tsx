@@ -17,7 +17,7 @@ import {
     filePathToURLParts,
     ParentLayoutWithExtra,
     pathToRemixRouterUrl,
-    readableStringToRoutePath,
+    readableUriToFilePath,
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
@@ -73,7 +73,9 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
             const routeDir = fsApi.path.join(appDir, 'routes');
             const varNames = new Set<string>();
-            const wantedPath = readableStringToRoutePath(requestedURI);
+            const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern || 'file');
+            const urlParts = filePathToURLParts(pageModule.slice(routeDir.length + 1), fsApi.path);
+            const wantedPath = routePartsToRoutePath(urlParts);
             if (requestedURI.length === 0 && manifest.homeRoute) {
                 return {
                     isValid: false,
@@ -85,15 +87,6 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             }
             const wantedPathId = routePathId(wantedPath);
             const existingRoute = manifest.routes.find((route) => routePathId(route.path) === wantedPathId);
-            if (existingRoute) {
-                return {
-                    isValid: false,
-                    errorMessage: 'Route already exists at file path: ' + existingRoute.pageModule,
-                    pageModule: existingRoute.pageModule,
-                    newPageSourceCode: '',
-                    newPageRoute: existingRoute,
-                };
-            }
 
             const pageFileName = wantedPath
                 .map((part) => {
@@ -105,12 +98,19 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                 })
                 .join('.');
             const pageName = toCamelCase(pageFileName);
-            const pageModule =
-                routingPattern === 'folder(route)'
-                    ? fsApi.path.join(routeDir, pageFileName, 'route.tsx')
-                    : routingPattern === 'folder(index)'
-                      ? fsApi.path.join(routeDir, pageFileName, 'index.tsx')
-                      : fsApi.path.join(routeDir, pageFileName + '.tsx');
+
+            if (existingRoute) {
+                if (!canFilePathBeLayout(existingRoute.pageModule, fsApi) || canFilePathBeLayout(pageModule, fsApi)) {
+                    return {
+                        isValid: false,
+                        errorMessage: 'Route already exists at file path: ' + existingRoute.pageModule,
+                        pageModule: existingRoute.pageModule,
+                        newPageSourceCode: '',
+                        newPageRoute: existingRoute,
+                    };
+                }
+            }
+
             const newPageSourceCode =
                 varNames.size === 0
                     ? `
@@ -303,8 +303,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                     fullPath,
                                 );
                             }
-                            const canBeLayout =
-                                !fullPath.endsWith('._index.tsx') && !fsApi.path.dirname(fullPath).endsWith('_index');
+                            const canBeLayout = canFilePathBeLayout(fullPath, fsApi);
                             if (canBeLayout) {
                                 const layoutMatching = filePathToLayoutMatching(pathInRoutesDir, fsApi.path);
                                 const layoutId = filePathToRouteId(appDir, fullPath);
@@ -401,3 +400,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         },
     });
 }
+
+const canFilePathBeLayout = (filePath: string, fsApi: FSApi) => {
+    return !filePath.endsWith('._index.tsx') && !fsApi.path.dirname(filePath).endsWith('_index');
+};

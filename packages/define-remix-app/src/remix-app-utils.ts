@@ -14,9 +14,6 @@ export interface RouteExtraInfo {
 
 export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
 
-export function readableStringToRoutePath(readableString: string): Array<StaticRoutePart | DynamicRoutePart> {
-    return routePartsToRoutePath(readableString.split('/'));
-}
 export const routePartsToRoutePath = (routeParts: string[]) => {
     return routeParts
         .map<DynamicRoutePart | StaticRoutePart | null>((p) => {
@@ -64,6 +61,22 @@ export function filePathToReadableUri(filePathInRouteDir: string, path: PathApi)
     }
     return parts.join('/');
 }
+
+export function readableUriToFilePath(
+    readableUri: string,
+    path: PathApi,
+    routeDir: string,
+    routingPattern: RoutingPattern,
+): string {
+    const pageFileName = readableUri.replace(/\//g, '.');
+
+    return routingPattern === 'folder(route)'
+        ? path.join(routeDir, pageFileName, 'route.tsx')
+        : routingPattern === 'folder(index)'
+          ? path.join(routeDir, pageFileName, 'index.tsx')
+          : path.join(routeDir, pageFileName + '.tsx');
+}
+
 export const aRoute = (
     routeDirPath: string,
     path: RouteInfo['path'],
