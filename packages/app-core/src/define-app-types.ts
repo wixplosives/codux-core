@@ -115,6 +115,18 @@ export interface IReactApp<T = unknown> {
         newPageRoute: RouteInfo<T>;
     };
 
+    /**
+     * Should be isomorphic, should return the same result on the server and in a web worker
+     *
+     * returns the information needed to move a page
+     */
+    getMovePageInfo?: (options: IMovePageInfoOptions<T>) => {
+        isValid: boolean;
+        errorMessage?: string;
+        warningMessage?: string;
+        pageModule: string;
+        newPageRoute: RouteInfo<T>;
+    };
     App: React.ComponentType<IReactAppProps<T>>;
     /**
      * Renders the App into an HTML element
@@ -200,7 +212,9 @@ export interface IGetNewPageInfoOptions<T> {
     requestedURI: string;
     manifest: IAppManifest<T>;
 }
-
+export interface IMovePageInfoOptions<T> extends IGetNewPageInfoOptions<T> {
+    movedFilePath: string;
+}
 export interface EditablePointOfInterest {
     title: string;
     exportName: string;

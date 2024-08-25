@@ -84,6 +84,14 @@ export class AppDefDriver<T> {
             requestedURI,
         });
     }
+    getMovePageInfo(movedFilePath: string, requestedURI: string) {
+        return this.options.app.getMovePageInfo!({
+            fsApi: this.fsApi,
+            manifest: this.lastManifest!,
+            requestedURI,
+            movedFilePath,
+        });
+    }
     dispose() {
         this.disposeApp?.();
     }

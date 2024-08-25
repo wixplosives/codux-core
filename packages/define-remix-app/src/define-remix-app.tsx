@@ -6,6 +6,7 @@ import {
     DynamicRoutePart,
     StaticRoutePart,
     FSApi,
+    IGetNewPageInfoOptions,
 } from '@wixc3/app-core';
 import { useMemo } from 'react';
 import {
@@ -26,6 +27,7 @@ import {
 } from './remix-app-utils';
 import { manifestToRouter } from './manifest-to-router';
 import { parentLayoutWarning } from './content';
+import { pageTemplate } from './page-template';
 
 export interface IDefineRemixAppProps {
     appPath: string;
@@ -36,17 +38,104 @@ export interface IDefineRemixAppProps {
 export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
-    const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi) => {
+    const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi, layouts = layoutMap) => {
         const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
         const routeLayouts = filePathToLayoutMatching(filePathInRouteDir, fsApi.path);
         for (let i = 0; i < routeLayouts.length - 1; i++) {
             const key = routeLayouts.slice(0, i + 1).join('/');
-            const layout = layoutMap.get(key);
+            const layout = layouts.get(key);
             if (layout) {
                 parentLayouts.push(layout);
             }
         }
         return { parentLayouts, routeLayouts };
+    };
+    const getNewOrMove = ({
+        fsApi,
+        requestedURI,
+        manifest,
+        layoutMap,
+    }: IGetNewPageInfoOptions<RouteExtraInfo> & { layoutMap: Map<string, ParentLayoutWithExtra> }) => {
+        const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
+        const routeDir = fsApi.path.join(appDir, 'routes');
+        const varNames = new Set<string>();
+        const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern || 'file');
+        const urlParts = filePathToURLParts(pageModule.slice(routeDir.length + 1), fsApi.path);
+        const wantedPath = routePartsToRoutePath(urlParts);
+        if (requestedURI.length === 0 && manifest.homeRoute) {
+            return {
+                isValid: false,
+                errorMessage: 'Home route already exists at ' + manifest.homeRoute.pageModule,
+                pageModule: manifest.homeRoute.pageModule,
+                newPageSourceCode: '',
+                newPageRoute: manifest.homeRoute,
+            };
+        }
+        const wantedPathId = routePathId(wantedPath);
+        const existingRoute = manifest.routes.find((route) => routePathId(route.path) === wantedPathId);
+
+        const pageFileName = wantedPath
+            .map((part) => {
+                if (part.kind === 'static') {
+                    return part.text;
+                }
+                varNames.add(part.name);
+                return `$${part.name}`;
+            })
+            .join('.');
+        const pageName = toCamelCase(pageFileName);
+
+        if (existingRoute) {
+            if (!canFilePathBeLayout(existingRoute.pageModule, fsApi) || canFilePathBeLayout(pageModule, fsApi)) {
+                return {
+                    isValid: false,
+                    errorMessage: 'Route already exists at file path: ' + existingRoute.pageModule,
+                    pageModule: existingRoute.pageModule,
+                    newPageSourceCode: '',
+                    newPageRoute: existingRoute,
+                };
+            }
+        }
+
+        const newPageSourceCode = pageTemplate(pageName, varNames);
+
+        const { parentLayouts } = getRouteLayouts(pageModule.slice(routeDir.length + 1), fsApi, layoutMap);
+        const warningMessage = parentLayouts.reduce(
+            (acc, layout) => {
+                if (layout.path && layout.path !== '/') {
+                    const parentLayoutPath = filePathToReadableUri(
+                        layout.layoutModule.slice(routeDir.length + 1),
+                        fsApi.path,
+                    );
+                    if (parentLayoutPath && requestedURI.startsWith(parentLayoutPath)) {
+                        const suggestedPath = requestedURI.replace(parentLayoutPath, parentLayoutPath + '_');
+                        acc = acc
+                            ? acc + '\n' + parentLayoutWarning(parentLayoutPath, suggestedPath)
+                            : parentLayoutWarning(parentLayoutPath, suggestedPath);
+                    }
+                }
+                return acc;
+            },
+            undefined as string | undefined,
+        );
+        return {
+            isValid: true,
+            error: '',
+            warningMessage,
+            newPageSourceCode,
+            pageModule,
+            newPageRoute: {
+                pageModule,
+                pageExportName: 'default',
+                extraData: {
+                    parentLayouts,
+                    routeId: filePathToRouteId(appDir, pageModule),
+                },
+                path: wantedPath,
+                pathString: requestedURI,
+                parentLayouts,
+            },
+        };
     };
     return defineApp<RouteExtraInfo>({
         App: ({ manifest, importModule, setUri, uri }: IReactAppProps<RouteExtraInfo>) => {
@@ -70,115 +159,17 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             );
         },
         getNewPageInfo({ fsApi, requestedURI, manifest }) {
-            const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
-            const routeDir = fsApi.path.join(appDir, 'routes');
-            const varNames = new Set<string>();
-            const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern || 'file');
-            const urlParts = filePathToURLParts(pageModule.slice(routeDir.length + 1), fsApi.path);
-            const wantedPath = routePartsToRoutePath(urlParts);
-            if (requestedURI.length === 0 && manifest.homeRoute) {
-                return {
-                    isValid: false,
-                    errorMessage: 'Home route already exists at ' + manifest.homeRoute.pageModule,
-                    pageModule: manifest.homeRoute.pageModule,
-                    newPageSourceCode: '',
-                    newPageRoute: manifest.homeRoute,
-                };
-            }
-            const wantedPathId = routePathId(wantedPath);
-            const existingRoute = manifest.routes.find((route) => routePathId(route.path) === wantedPathId);
-
-            const pageFileName = wantedPath
-                .map((part) => {
-                    if (part.kind === 'static') {
-                        return part.text;
-                    }
-                    varNames.add(part.name);
-                    return `$${part.name}`;
-                })
-                .join('.');
-            const pageName = toCamelCase(pageFileName);
-
-            if (existingRoute) {
-                if (!canFilePathBeLayout(existingRoute.pageModule, fsApi) || canFilePathBeLayout(pageModule, fsApi)) {
-                    return {
-                        isValid: false,
-                        errorMessage: 'Route already exists at file path: ' + existingRoute.pageModule,
-                        pageModule: existingRoute.pageModule,
-                        newPageSourceCode: '',
-                        newPageRoute: existingRoute,
-                    };
-                }
-            }
-
-            const newPageSourceCode =
-                varNames.size === 0
-                    ? `
-    import React from 'react';
-    export default function ${pageName}() {
-        return <div>${pageFileName}</div>;
-    }
-            `
-                    : `
-    import React from 'react';
-    import { useLoader } from '../router-example';
-    
-    export const loader = async (params: { 
-            ${[...varNames].map((name) => `${name}: string`).join(',\n')}
-         }) => {
-        return params;
-    };
-    
-    const ${pageName} = () => {
-        const params = useLoader<typeof loader>();
-        return <div>
-            ${[...varNames].map((name) => `<div>${name}: {params.${name}}</div>`).join('\n')}
-        </div>;
-    };
-    export default ${pageName};
-              
-                    
-                    `;
-
-            const { parentLayouts } = getRouteLayouts(pageModule.slice(routeDir.length + 1), fsApi);
-            const warningMessage = parentLayouts.reduce(
-                (acc, layout) => {
-                    if (layout.path && layout.path !== '/') {
-                        const parentLayoutPath = filePathToReadableUri(
-                            layout.layoutModule.slice(routeDir.length + 1),
-                            fsApi.path,
-                        );
-                        if (parentLayoutPath && requestedURI.startsWith(parentLayoutPath)) {
-                            const suggestedPath = requestedURI.replace(parentLayoutPath, parentLayoutPath + '_');
-                            acc = acc
-                                ? acc + '\n' + parentLayoutWarning(parentLayoutPath, suggestedPath)
-                                : parentLayoutWarning(parentLayoutPath, suggestedPath);
-                        }
-                    }
-                    return acc;
-                },
-                undefined as string | undefined,
-            );
-            return {
-                isValid: true,
-                error: '',
-                warningMessage,
-                newPageSourceCode,
-                pageModule,
-                newPageRoute: {
-                    pageModule,
-                    pageExportName: 'default',
-                    extraData: {
-                        parentLayouts,
-                        routeId: filePathToRouteId(appDir, pageModule),
-                    },
-                    path: wantedPath,
-                    pathString: requestedURI,
-                    parentLayouts,
-                },
-            };
+            return getNewOrMove({ fsApi, requestedURI, manifest, layoutMap });
         },
-
+        getMovePageInfo({ fsApi, requestedURI, manifest, movedFilePath }) {
+            const layoutsWithoutMoved = new Map(
+                [...layoutMap.entries()].filter(([_, { layoutModule }]) => {
+                    return layoutModule !== movedFilePath;
+                }),
+            );
+            layoutsWithoutMoved.delete(movedFilePath);
+            return getNewOrMove({ fsApi, requestedURI, manifest, layoutMap: layoutsWithoutMoved });
+        },
         async prepareApp({ fsApi, onManifestUpdate }) {
             /**
              * in remix about/route.tsx wins over about/index.tsx which in turn wins over about.tsx
