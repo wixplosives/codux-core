@@ -12,6 +12,8 @@ export interface RouteExtraInfo {
     routeId: string;
 }
 
+export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
+
 export function readableStringToRoutePath(readableString: string): Array<StaticRoutePart | DynamicRoutePart> {
     return routePartsToRoutePath(readableString.split('/'));
 }

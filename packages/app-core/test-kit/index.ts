@@ -77,6 +77,13 @@ export class AppDefDriver<T> {
     getManifest() {
         return this.lastManifest;
     }
+    getNewPageInfo(requestedURI: string) {
+        return this.options.app.getNewPageInfo!({
+            fsApi: this.fsApi,
+            manifest: this.lastManifest!,
+            requestedURI,
+        });
+    }
     dispose() {
         this.disposeApp?.();
     }

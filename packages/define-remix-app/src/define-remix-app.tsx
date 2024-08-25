@@ -5,6 +5,7 @@ import {
     IReactAppProps,
     DynamicRoutePart,
     StaticRoutePart,
+    FSApi,
 } from '@wixc3/app-core';
 import { useMemo } from 'react';
 import {
@@ -20,17 +21,33 @@ import {
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
+    RoutingPattern,
     toCamelCase,
 } from './remix-app-utils';
 import { manifestToRouter } from './manifest-to-router';
+import { parentLayoutWarning } from './content';
 
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
-    routingPattern?: 'file' | 'folder(route)' | 'folder(index)';
+    routingPattern?: RoutingPattern;
 }
 
-export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
+export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
+    let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
+    let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
+    const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi) => {
+        const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
+        const routeLayouts = filePathToLayoutMatching(filePathInRouteDir, fsApi.path);
+        for (let i = 0; i < routeLayouts.length - 1; i++) {
+            const key = routeLayouts.slice(0, i + 1).join('/');
+            const layout = layoutMap.get(key);
+            if (layout) {
+                parentLayouts.push(layout);
+            }
+        }
+        return { parentLayouts, routeLayouts };
+    };
     return defineApp<RouteExtraInfo>({
         App: ({ manifest, importModule, setUri, uri }: IReactAppProps<RouteExtraInfo>) => {
             const App = useMemo(
@@ -88,7 +105,12 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                 })
                 .join('.');
             const pageName = toCamelCase(pageFileName);
-            const pageModule = fsApi.path.join(routeDir, pageFileName, 'route.tsx');
+            const pageModule =
+                routingPattern === 'folder(route)'
+                    ? fsApi.path.join(routeDir, pageFileName, 'route.tsx')
+                    : routingPattern === 'folder(index)'
+                      ? fsApi.path.join(routeDir, pageFileName, 'index.tsx')
+                      : fsApi.path.join(routeDir, pageFileName + '.tsx');
             const newPageSourceCode =
                 varNames.size === 0
                     ? `
@@ -118,20 +140,41 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                     
                     `;
 
+            const { parentLayouts } = getRouteLayouts(pageModule.slice(routeDir.length + 1), fsApi);
+            const warningMessage = parentLayouts.reduce(
+                (acc, layout) => {
+                    if (layout.path && layout.path !== '/') {
+                        const parentLayoutPath = filePathToReadableUri(
+                            layout.layoutModule.slice(routeDir.length + 1),
+                            fsApi.path,
+                        );
+                        if (parentLayoutPath && requestedURI.startsWith(parentLayoutPath)) {
+                            const suggestedPath = requestedURI.replace(parentLayoutPath, parentLayoutPath + '_');
+                            acc = acc
+                                ? acc + '\n' + parentLayoutWarning(parentLayoutPath, suggestedPath)
+                                : parentLayoutWarning(parentLayoutPath, suggestedPath);
+                        }
+                    }
+                    return acc;
+                },
+                undefined as string | undefined,
+            );
             return {
                 isValid: true,
                 error: '',
+                warningMessage,
                 newPageSourceCode,
                 pageModule,
                 newPageRoute: {
                     pageModule,
                     pageExportName: 'default',
                     extraData: {
-                        parentLayouts: [],
+                        parentLayouts,
                         routeId: filePathToRouteId(appDir, pageModule),
                     },
                     path: wantedPath,
                     pathString: requestedURI,
+                    parentLayouts,
                 },
             };
         },
@@ -191,11 +234,9 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
             });
             let rootPathExports = await rootPathExportsWatcher.exportNames;
 
-            // /product -> product.tsx product/route._index.tsx
-            // /product/$ -> product/$.tsx product/$/route.tsx
             const compute = async (filesInDir: string[], rootExportNames: string[]) => {
                 const routeDirLength = routeDir.length + 1;
-                const rootLayouts: RouteExtraInfo['parentLayouts'] = [
+                rootLayouts = [
                     {
                         id: filePathToRouteId(appDir, rootPath),
                         layoutExportName: 'default',
@@ -290,7 +331,7 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                         layouts: new Map<string, ParentLayoutWithExtra>(),
                     },
                 );
-
+                layoutMap = layouts;
                 const initialManifest: IAppManifest<RouteExtraInfo> = {
                     routes: [],
                     errorRoutes: [],
@@ -330,15 +371,7 @@ export default function defineRemixApp({ appPath }: IDefineRemixAppProps) {
                     } else {
                         const exports = await loadExports(value.file);
 
-                        const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
-                        const routeLayouts = filePathToLayoutMatching(value.file.slice(routeDirLength), fsApi.path);
-                        for (let i = 0; i < routeLayouts.length - 1; i++) {
-                            const key = routeLayouts.slice(0, i + 1).join('/');
-                            const layout = layouts.get(key);
-                            if (layout) {
-                                parentLayouts.push(layout);
-                            }
-                        }
+                        const { parentLayouts } = getRouteLayouts(value.file.slice(routeDirLength), fsApi);
 
                         if (exports.includes('default')) {
                             const route = aRoute(

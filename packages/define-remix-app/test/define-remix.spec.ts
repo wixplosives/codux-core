@@ -1,9 +1,9 @@
-import defineRemixApp from '@wixc3/define-remix-app';
+import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
 import { loaderOnly, simpleLayout, simpleRoot, simpleRootWithLayout } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
-import { RouteExtraInfo } from '../src/remix-app-utils';
+import { RouteExtraInfo, RoutingPattern } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 
 const indexPath = '/app/routes/_index.tsx';
@@ -465,31 +465,130 @@ describe('define-remix', () => {
             );
         });
     });
+    describe('getNewPageInfo', () => {
+        it('should return the correct path for a simple route (file pattern)', async () => {
+            const { driver } = await getInitialManifest({
+                [indexPath]: simpleLayout,
+            });
+            const { isValid, pageModule, newPageRoute, newPageSourceCode } = driver.getNewPageInfo('about');
+            expect(isValid).to.eql(true);
+            expect(pageModule).to.eql('/app/routes/about.tsx');
+            expect(newPageRoute).to.eql(
+                aRoute({
+                    routeId: 'routes/about',
+                    pageModule: '/app/routes/about.tsx',
+                    readableUri: 'about',
+                    path: [urlSeg('about')],
+                }),
+            );
+            expect(newPageSourceCode).to.include(' export default');
+        });
+        it('should return the correct path for a simple route (dir+route pattern)', async () => {
+            const { driver } = await getInitialManifest(
+                {
+                    [indexPath]: simpleLayout,
+                },
+                'folder(route)',
+            );
+            const { isValid, pageModule, newPageRoute, newPageSourceCode } = driver.getNewPageInfo('about');
+            expect(isValid).to.eql(true);
+            expect(pageModule).to.eql('/app/routes/about/route.tsx');
+            expect(newPageRoute).to.eql(
+                aRoute({
+                    routeId: 'routes/about/route',
+                    pageModule: '/app/routes/about/route.tsx',
+                    readableUri: 'about',
+                    path: [urlSeg('about')],
+                }),
+            );
+            expect(newPageSourceCode).to.include(' export default');
+        });
+        it('should return the correct path for a simple route (dir+index pattern)', async () => {
+            const { driver } = await getInitialManifest(
+                {
+                    [indexPath]: simpleLayout,
+                },
+                'folder(index)',
+            );
+            const { isValid, pageModule, newPageRoute, newPageSourceCode } = driver.getNewPageInfo('about');
+            expect(isValid).to.eql(true);
+            expect(pageModule).to.eql('/app/routes/about/index.tsx');
+            expect(newPageRoute).to.eql(
+                aRoute({
+                    routeId: 'routes/about/index',
+                    pageModule: '/app/routes/about/index.tsx',
+                    readableUri: 'about',
+                    path: [urlSeg('about')],
+                }),
+            );
+            expect(newPageSourceCode).to.include(' export default');
+        });
+        it('should include parent layouts added because of subpaths, and warn', async () => {
+            const aboutLayout = '/app/routes/about.tsx';
+            const aboutUsPage = '/app/routes/about.us.tsx';
+            const { driver } = await getInitialManifest({
+                [indexPath]: simpleLayout,
+                [aboutLayout]: simpleLayout,
+            });
+            const { isValid, pageModule, newPageRoute, newPageSourceCode, warningMessage } =
+                driver.getNewPageInfo('about/us');
+            expect(isValid).to.eql(true);
+            expect(pageModule).to.eql(aboutUsPage);
+            expect(newPageRoute).to.eql(
+                aRoute({
+                    routeId: 'routes/about/us',
+                    pageModule: aboutUsPage,
+                    readableUri: 'about/us',
+                    path: [urlSeg('about'), urlSeg('us')],
+                    parentLayouts: [
+                        {
+                            id: 'routes/about',
+                            layoutExportName: 'default',
+                            layoutModule: aboutLayout,
+                            path: '/about',
+                        },
+                    ],
+                }),
+            );
+            expect(newPageSourceCode).to.include(' export default');
+            expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/us'));
+        });
+    });
 });
 
 const rootPath = '/app/root.tsx';
 
-const getInitialManifest = async (files: Record<string, { contents: string; exports: Set<string> }>) => {
-    const { manifest, app, driver } = await createAppAndDriver({
-        [rootPath]: simpleRootWithLayout,
+const getInitialManifest = async (
+    files: Record<string, { contents: string; exports: Set<string> }>,
+    routingPattern?: RoutingPattern,
+    appPath = './app',
+) => {
+    const { manifest, app, driver } = await createAppAndDriver(
+        {
+            [rootPath]: simpleRootWithLayout,
 
-        ...Object.entries(files || {}).reduce(
-            (acc, [filePath, contents]) => {
-                acc[filePath] = contents;
-                return acc;
-            },
-            {} as Record<string, { contents: string; exports: Set<string> }>,
-        ),
-    });
+            ...Object.entries(files || {}).reduce(
+                (acc, [filePath, contents]) => {
+                    acc[filePath] = contents;
+                    return acc;
+                },
+                {} as Record<string, { contents: string; exports: Set<string> }>,
+            ),
+        },
+        appPath,
+        routingPattern,
+    );
 
     return { manifest, app, driver };
 };
 const createAppAndDriver = async (
     initialFiles: Record<string, { contents: string; exports: Set<string> }>,
     appPath: string = './app',
+    routingPattern: 'file' | 'folder(route)' | 'folder(index)' = 'file',
 ) => {
     const app = defineRemixApp({
         appPath,
+        routingPattern,
     });
     const driver = new AppDefDriver<RouteExtraInfo>({
         app,
