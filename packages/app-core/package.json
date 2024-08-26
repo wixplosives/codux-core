@@ -3,6 +3,16 @@
   "description": "Common types and helpers for building applications",
   "version": "4.0.0",
   "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./test-kit": {
+      "import": "./dist/test-kit/index.js",
+      "require": "./dist/test-kit/index.js"
+    }
+  },
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
