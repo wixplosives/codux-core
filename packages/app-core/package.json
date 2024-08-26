@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/app-core",
   "description": "Common types and helpers for building applications",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": ">=18.0.0",
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@file-services/types": "^9.4.1",
-    "@wixc3/react-board": "^3.0.1"
+    "@wixc3/react-board": "^4.0.0"
   },
   "files": [
     "dist",
