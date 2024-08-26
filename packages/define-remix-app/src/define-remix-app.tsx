@@ -145,17 +145,15 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             );
 
             return (
-                <>
-                    <App
-                        initialEntries={[
-                            {
-                                pathname: '/' + uri,
-                                search: '',
-                                hash: '',
-                            },
-                        ]}
-                    />
-                </>
+                <App
+                    initialEntries={[
+                        {
+                            pathname: '/' + uri,
+                            search: '',
+                            hash: '',
+                        },
+                    ]}
+                />
             );
         },
         getNewPageInfo({ fsApi, requestedURI, manifest }) {
@@ -163,9 +161,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         },
         getMovePageInfo({ fsApi, requestedURI, manifest, movedFilePath }) {
             const layoutsWithoutMoved = new Map(
-                [...layoutMap.entries()].filter(([_, { layoutModule }]) => {
-                    return layoutModule !== movedFilePath;
-                }),
+                [...layoutMap.entries()].filter(([_, { layoutModule }]) => layoutModule !== movedFilePath),
             );
             layoutsWithoutMoved.delete(movedFilePath);
             return getNewOrMove({ fsApi, requestedURI, manifest, layoutMap: layoutsWithoutMoved });
