@@ -22,6 +22,7 @@
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
     "@wixc3/create-disposables": "^2.2.0",
+    "@file-services/path": "^9.4.1",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
     "esbuild": "^0.23.1",
