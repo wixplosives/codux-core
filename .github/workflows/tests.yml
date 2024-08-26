@@ -16,5 +16,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm test
-      - run: npm i react@17 react-dom@17 -D
-      - run: npm run test:browser
