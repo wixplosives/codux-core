@@ -152,6 +152,9 @@ export interface RouteInfo<T = unknown> {
         layoutExportName?: string;
         editablePoints?: EditablePointOfInterest[];
     }>;
+    /**
+     * the parent error boundary that should be editable in codux above this page
+     */
     parentErrorBoundary?: {
         errorBoundaryModule: string;
         errorBoundaryExportName?: string;
