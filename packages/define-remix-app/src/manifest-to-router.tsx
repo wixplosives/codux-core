@@ -4,9 +4,10 @@ import { createRemixStub } from '@remix-run/testing';
 import { lazy, useEffect, useState } from 'react';
 import type { LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { useLocation } from '@remix-run/react';
+import { NavigateFunction, useLocation, useNavigate } from '@remix-run/react';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
+let lastNavigate: NavigateFunction | undefined;
 
 export const manifestToRouter = (
     manifest: IAppManifest<RouteExtraInfo>,
@@ -15,7 +16,12 @@ export const manifestToRouter = (
 ) => {
     const rootFilePath = (manifest.homeRoute || manifest.routes[0])?.parentLayouts?.[0]?.layoutModule;
     if (!rootFilePath) {
-        return createRemixStub([]);
+        return {
+            Router: createRemixStub([]),
+            navigate(path: string) {
+                lastNavigate?.(path);
+            },
+        };
     }
     const rootRoute: RouteObject = fileToRoute(rootFilePath, requireModule, setUri, '/', true);
     const layoutMap = new Map<string, RouteObject>();
@@ -46,7 +52,12 @@ export const manifestToRouter = (
 
     const Router = createRemixStub([rootRoute]);
 
-    return Router;
+    return {
+        Router,
+        navigate(path: string) {
+            lastNavigate?.(path);
+        },
+    };
 };
 const fileToRoute = (
     filePath: string,
@@ -95,6 +106,8 @@ function PageComp({
     const currentModule = useDispatcher(module);
 
     const uri = useLocation().pathname;
+    const navigate = useNavigate();
+    lastNavigate = navigate;
     useEffect(() => {
         setUri(uri.slice(1));
     }, [setUri, uri]);
