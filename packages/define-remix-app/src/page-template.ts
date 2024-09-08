@@ -27,7 +27,3 @@ export default ${pageName};
         
         `;
 };
-
-export const loader = (params: { a: string; b: string }) => {
-    return params;
-};
