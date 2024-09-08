@@ -4,10 +4,10 @@ import { createRemixStub } from '@remix-run/testing';
 import { lazy, useEffect, useState } from 'react';
 import type { LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { NavigateFunction, useLocation, useNavigate } from '@remix-run/react';
+import { useLocation, useNavigate } from '@remix-run/react';
+import { navigation } from './navigation';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
-let lastNavigate: NavigateFunction | undefined;
 
 export const manifestToRouter = (
     manifest: IAppManifest<RouteExtraInfo>,
@@ -19,7 +19,7 @@ export const manifestToRouter = (
         return {
             Router: createRemixStub([]),
             navigate(path: string) {
-                lastNavigate?.(path);
+                navigation.navigate(path);
             },
         };
     }
@@ -55,7 +55,7 @@ export const manifestToRouter = (
     return {
         Router,
         navigate(path: string) {
-            lastNavigate?.(path);
+            navigation.navigate(path);
         },
     };
 };
@@ -106,8 +106,9 @@ function PageComp({
     const currentModule = useDispatcher(module);
 
     const uri = useLocation().pathname;
-    const navigate = useNavigate();
-    lastNavigate = navigate;
+
+    navigation.setNavigateFunction(useNavigate());
+
     useEffect(() => {
         setUri(uri.slice(1));
     }, [setUri, uri]);
