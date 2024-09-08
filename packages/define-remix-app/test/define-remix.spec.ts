@@ -1,6 +1,12 @@
 import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
-import { loaderOnly, simpleLayout, simpleRoot, simpleRootWithLayout } from './test-cases/roots';
+import {
+    loaderOnly,
+    simpleLayout,
+    simpleRoot,
+    rootWithLayout,
+    rootWithLayoutAndErrorBoundary,
+} from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
 import { RouteExtraInfo, RoutingPattern } from '../src/remix-app-utils';
@@ -389,6 +395,18 @@ describe('define-remix', () => {
             });
         });
     });
+    describe('error routes', () => {
+        it(`manifest with root error boundry`, async () => {
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayoutAndErrorBoundary,
+                [indexPath]: simpleLayout,
+            });
+            expectManifest(manifest, {
+                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                errorRoutes: [anErrorRoute({ routeId: 'error', pageModule: rootPath, readableUri: '', path: [] })],
+            });
+        });
+    });
     describe('manifest updates', () => {
         it(`page addition`, async () => {
             const testedPath = '/app/routes/about.tsx';
@@ -450,7 +468,7 @@ describe('define-remix', () => {
                 ],
             });
 
-            driver.addOrUpdateFile(rootPath, simpleRootWithLayout.contents, simpleRootWithLayout.exports);
+            driver.addOrUpdateFile(rootPath, rootWithLayout.contents, rootWithLayout.exports);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -465,6 +483,7 @@ describe('define-remix', () => {
             );
         });
     });
+
     describe('getNewPageInfo', () => {
         it('should return the correct path for a simple route (file pattern)', async () => {
             const { driver } = await getInitialManifest({
@@ -608,8 +627,7 @@ const getInitialManifest = async (
 ) => {
     const { manifest, app, driver } = await createAppAndDriver(
         {
-            [rootPath]: simpleRootWithLayout,
-
+            [rootPath]: rootWithLayout,
             ...Object.entries(files || {}).reduce(
                 (acc, [filePath, contents]) => {
                     acc[filePath] = contents;
@@ -690,6 +708,26 @@ const aRoute = ({
         },
         parentLayouts: [...expectedParentLayouts, ...parentLayouts],
     };
+};
+
+const anErrorRoute = ({
+    routeId,
+    pageModule,
+    readableUri: pathString = '',
+    path = [],
+    parentLayouts = [],
+    includeRootLayout = true,
+}: {
+    routeId: string;
+    pageModule: string;
+    readableUri?: string;
+    path?: RouteInfo['path'];
+    parentLayouts?: RouteExtraInfo['parentLayouts'];
+    includeRootLayout?: boolean;
+}) => {
+    const res = aRoute({ routeId, pageModule, readableUri: pathString, path, parentLayouts, includeRootLayout });
+    res.pageExportName = 'ErrorBoundary';
+    return res;
 };
 
 const urlSeg = (text: string) => ({

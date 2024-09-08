@@ -91,7 +91,20 @@ export const aRoute = (
     pathString: filePathToReadableUri(pageModule.slice(routeDirPath.length + 1), pathApi) || '',
     extraData,
 });
-
+export const anErrorRoute = (
+    routeDirPath: string,
+    path: RouteInfo['path'],
+    pageModule: string,
+    extraData: RouteExtraInfo,
+    pathApi: PathApi,
+): RouteInfo<RouteExtraInfo> => ({
+    path,
+    pageModule,
+    pageExportName: 'ErrorBoundary',
+    parentLayouts: extraData.parentLayouts,
+    pathString: filePathToReadableUri(pageModule.slice(routeDirPath.length + 1), pathApi) || '',
+    extraData,
+});
 export function filePathToURLParts(filePathInRouteDir: string, path: PathApi): string[] {
     const dirStructure = filePathInRouteDir.split(path.sep);
 

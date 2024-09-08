@@ -195,7 +195,10 @@ export interface IReactAppProps<T = unknown> {
     importModule: DynamicImport;
     uri: string;
     setUri: (uri: string) => void;
+    onCaughtError: ErrorReporter;
 }
+
+export type ErrorReporter = (errorBoundry: { filePath: string; exportName: string }) => void;
 
 export type DynamicImport = (
     filePath: string,
