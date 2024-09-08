@@ -8,7 +8,7 @@ import {
     FSApi,
     IGetNewPageInfoOptions,
 } from '@wixc3/app-core';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import {
     anErrorRoute,
     aRoute,
@@ -142,18 +142,21 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         App: ({ manifest, importModule, setUri, uri, onCaughtError }: IReactAppProps<RouteExtraInfo>) => {
             const uriRef = useRef(uri);
             uriRef.current = uri;
-            const App = useMemo(
+            const { Router, navigate } = useMemo(
                 () => manifestToRouter(manifest, importModule, setUri, onCaughtError, uriRef),
                 [manifest, importModule, setUri, onCaughtError],
             );
 
+            useEffect(() => {
+                navigate('/' + uri);
+            }, [uri, navigate]);
+
             return (
-                <App
+                <Router
                     initialEntries={[
                         {
                             pathname: '/' + uri,
                             search: '',
-                            hash: '',
                         },
                     ]}
                 />
