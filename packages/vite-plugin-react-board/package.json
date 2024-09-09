@@ -6,7 +6,8 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0",
-    "vite": "^5"
+    "vite": "^5",
+    "@wixc3/react-board": "^4.0.0"
   },
   "type": "module",
   "dependencies": {},

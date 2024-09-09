@@ -2,8 +2,9 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../dist",
-    "moduleResolution": "bundler",
-    "module": "esnext"
+    "skipLibCheck": true,
+    "module": "ESNext"
   },
-  "references": []
+
+  "references": [{ "path": "../../react-board/src" }]
 }

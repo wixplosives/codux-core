@@ -1,10 +1,10 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import type { PluginOption } from 'vite';
+import type { PluginOption, ResolvedConfig } from 'vite';
 import { readBoardSetupFromCoduxConfig } from './utils/utils';
 
-const coduxBoardSetupId = 'virtual:codux/board-setup.js';
-const coduxClientModuleId = 'virtual:codux/client.js';
+const coduxBoardSetupId = 'virtual:codux/board-setup';
+const coduxClientModuleId = 'virtual:codux/client';
 const coduxClientModule = readFileSync(path.join(import.meta.dirname, 'client.js'), 'utf-8');
 const coduxHtmlModuleId = '_codux-board-render';
 const coduxEntryHtml = `<!DOCTYPE html>
@@ -23,28 +23,35 @@ const coduxEntryHtml = `<!DOCTYPE html>
 `;
 
 export default function coduxBoardPlugin(): PluginOption {
+    let resolvedConfig: ResolvedConfig | undefined = undefined;
     return {
         name: 'vite-codux-board',
         enforce: 'pre',
+        configResolved(_resolvedConfig) {
+            resolvedConfig = _resolvedConfig;
+        },
         resolveId(requestedId) {
             if (requestedId === `/${coduxClientModuleId}`) {
-                return coduxClientModuleId;
+                return coduxClientModuleId + '.js';
             }
 
             if (requestedId === coduxBoardSetupId) {
-                return requestedId;
+                return requestedId + '.js';
             }
 
             return;
         },
         load(resolvedId) {
-            if (resolvedId === coduxClientModuleId) {
+            if (resolvedId === coduxClientModuleId + '.js') {
                 return coduxClientModule;
             }
 
-            if (resolvedId === coduxBoardSetupId) {
+            if (resolvedId === coduxBoardSetupId + '.js') {
                 return `export default ${JSON.stringify(
-                    readBoardSetupFromCoduxConfig(path.join(process.cwd(), 'codux.config.json')),
+                    readBoardSetupFromCoduxConfig(
+                        path.join(process.cwd(), 'codux.config.json'),
+                        resolvedConfig?.logger,
+                    ),
                 )}`;
             }
 
@@ -54,27 +61,29 @@ export default function coduxBoardPlugin(): PluginOption {
         configureServer: (server) => {
             const { config, middlewares, transformIndexHtml } = server;
 
-            middlewares.use(async (req, res, next) => {
+            middlewares.use((req, res, next) => {
                 if (res.writableEnded) {
                     return next();
                 }
 
-                const url = (req as any).url as string;
+                const url = (req as { url: string }).url;
                 const parsedUrl = new URL(url, 'http://localhost');
                 if (parsedUrl.pathname === '/' + coduxHtmlModuleId) {
-                    try {
-                        Object.entries(config?.server?.headers || {}).forEach(([key, value]) => {
-                            res.setHeader(key, value!);
+                    Object.entries(config?.server?.headers || {}).forEach(([key, value]) => {
+                        res.setHeader(key, value!);
+                    });
+                    res.setHeader('Content-Type', 'text/html');
+                    transformIndexHtml(url, coduxEntryHtml, req.originalUrl)
+                        .then((output) => {
+                            res.statusCode = 200;
+                            res.end(output);
+                        })
+                        .catch((error: Error) => {
+                            next(error);
                         });
-                        res.setHeader('Content-Type', 'text/html');
-                        res.statusCode = 200;
-
-                        return res.end(await transformIndexHtml(url, coduxEntryHtml, req.originalUrl));
-                    } catch (e) {
-                        return next(e);
-                    }
+                } else {
+                    next();
                 }
-                return next();
             });
         },
     };

@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
+import { Logger } from 'vite';
 
 type GlobalSetupConfig =
     | string
@@ -18,14 +19,16 @@ export type FlatBoardSetup = {
     setupAfter: string | undefined;
 };
 
-export function readBoardSetupFromCoduxConfig(coduxConfigPath: string): FlatBoardSetup {
+export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: Logger): FlatBoardSetup {
     const configContent = readFileSync(coduxConfigPath, {
         encoding: 'utf-8',
     });
     let config: KnownCoduxConfig | undefined = undefined;
     try {
-        config = JSON.parse(configContent);
+        config = JSON.parse(configContent) as KnownCoduxConfig;
     } catch (error) {
+        logger?.error(`Error while parsing ${coduxConfigPath} with: ${String(error)}`);
+
         return {
             setupBefore: undefined,
             setupAfter: undefined,
