@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/vite-plugin-react-board",
   "description": "Plugin for rendering component boards with vite",
-  "version": "4.1.0-next.0",
+  "version": "4.0.1",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": ">=18.0.0",
