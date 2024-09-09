@@ -1,6 +1,6 @@
+import type { IReactBoard } from '@wixc3/react-board';
 import React from 'react';
-//@ts-ignore
-import boardSetup from 'virtual:codux/board-setup.js';
+import boardSetup from 'virtual:codux/board-setup';
 
 export default function BoardRenderer() {
     const { boardPath } = getParamsFromSearch(window.location.search);
@@ -10,7 +10,7 @@ export default function BoardRenderer() {
               return Promise.resolve()
                   .then(() => (setupBefore ? import(/* @vite-ignore */ setupBefore) : undefined))
                   .then(() =>
-                      import(/* @vite-ignore */ boardPath).then((boardExport) => ({
+                      import(/* @vite-ignore */ boardPath).then((boardExport: { default: IReactBoard }) => ({
                           default: boardExport.default.Board,
                       })),
                   )
