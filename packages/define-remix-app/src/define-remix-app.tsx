@@ -1,7 +1,6 @@
 import {
     defineApp,
     type IAppManifest,
-    type RouteInfo,
     IReactAppProps,
     DynamicRoutePart,
     StaticRoutePart,
@@ -345,22 +344,22 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                         ? a.readableName.localeCompare(b.readableName)
                         : a.path.length - b.path.length,
                 );
-                const suspectedErrorRoutes = new Map<string, RouteInfo<RouteExtraInfo>>();
                 if (rootExportNames.includes('ErrorBoundary')) {
                     const errorRoute = anErrorRoute(
                         routeDir,
                         [],
                         rootPath,
                         {
-                            parentLayouts: rootLayouts,
+                            parentLayouts: [],
                             routeId: 'error',
                         },
                         fsApi.path,
                     );
-                    suspectedErrorRoutes.set('', errorRoute);
                     initialManifest.errorRoutes!.push(errorRoute);
                 }
+
                 for (const [, value] of sortedFilesByRoute) {
+                    const exports = await loadExports(value.file);
                     if (value.path.length === 0) {
                         initialManifest.homeRoute = aRoute(
                             routeDir,
@@ -372,9 +371,20 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                             },
                             fsApi.path,
                         );
+                        if (exports.includes('ErrorBoundary')) {
+                            const errorRoute = anErrorRoute(
+                                routeDir,
+                                value.path,
+                                value.file,
+                                {
+                                    parentLayouts: rootLayouts,
+                                    routeId: filePathToRouteId(appDir, value.file),
+                                },
+                                fsApi.path,
+                            );
+                            initialManifest.errorRoutes!.push(errorRoute);
+                        }
                     } else {
-                        const exports = await loadExports(value.file);
-
                         const { parentLayouts } = getRouteLayouts(value.file.slice(routeDirLength), fsApi);
 
                         if (exports.includes('default')) {
@@ -389,6 +399,19 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                 fsApi.path,
                             );
                             initialManifest.routes.push(route);
+                            if (exports.includes('ErrorBoundary')) {
+                                const errorRoute = anErrorRoute(
+                                    routeDir,
+                                    value.path,
+                                    value.file,
+                                    {
+                                        parentLayouts,
+                                        routeId: filePathToRouteId(appDir, value.file),
+                                    },
+                                    fsApi.path,
+                                );
+                                initialManifest.errorRoutes!.push(errorRoute);
+                            }
                         }
                     }
                 }

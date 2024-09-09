@@ -6,6 +6,7 @@ import {
     simpleRoot,
     rootWithLayout,
     rootWithLayoutAndErrorBoundary,
+    layoutWithErrorBoundary,
 } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
@@ -406,6 +407,51 @@ describe('define-remix', () => {
                 errorRoutes: [anErrorRoute({ routeId: 'error', pageModule: rootPath, readableUri: '', path: [] })],
             });
         });
+        it(`manifest with home page error boundry`, async () => {
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayout,
+                [indexPath]: layoutWithErrorBoundary,
+            });
+            expectManifest(manifest, {
+                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                errorRoutes: [
+                    anErrorRoute({
+                        routeId: 'routes/_index',
+                        pageModule: indexPath,
+                        readableUri: '',
+                        path: [],
+                        parentLayouts: [rootLayout, root],
+                    }),
+                ],
+            });
+        });
+
+        it(`manifest with page error boundry`, async () => {
+            const aboutPage = '/app/routes/about.tsx';
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayout,
+                [aboutPage]: layoutWithErrorBoundary,
+            });
+            expectManifest(manifest, {
+                routes: [
+                    aRoute({
+                        routeId: 'routes/about',
+                        pageModule: aboutPage,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                    }),
+                ],
+                errorRoutes: [
+                    anErrorRoute({
+                        routeId: 'routes/about',
+                        pageModule: aboutPage,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                        parentLayouts: [rootLayout, root],
+                    }),
+                ],
+            });
+        });
     });
     describe('manifest updates', () => {
         it(`page addition`, async () => {
@@ -681,6 +727,33 @@ const root = {
     path: '/',
 };
 
+const anyRoute = ({
+    routeId,
+    pageModule,
+    pageExportName = 'default',
+    readableUri: pathString = '',
+    path = [],
+    parentLayouts = [],
+}: {
+    routeId: string;
+    pageModule: string;
+    pageExportName?: string;
+    readableUri?: string;
+    path?: RouteInfo['path'];
+    parentLayouts?: RouteExtraInfo['parentLayouts'];
+}): RouteInfo<RouteExtraInfo> => {
+    return {
+        path,
+        pathString,
+        pageModule,
+        pageExportName,
+        extraData: {
+            parentLayouts,
+            routeId,
+        },
+        parentLayouts,
+    };
+};
 const aRoute = ({
     routeId,
     pageModule,
@@ -696,18 +769,8 @@ const aRoute = ({
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     includeRootLayout?: boolean;
 }): RouteInfo<RouteExtraInfo> => {
-    const expectedParentLayouts = includeRootLayout ? [rootLayout, root] : [root];
-    return {
-        path,
-        pathString,
-        pageModule,
-        pageExportName: 'default',
-        extraData: {
-            parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-            routeId,
-        },
-        parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-    };
+    const expectedParentLayouts = includeRootLayout ? [rootLayout, root, ...parentLayouts] : [root, ...parentLayouts];
+    return anyRoute({ routeId, pageModule, readableUri: pathString, path, parentLayouts: expectedParentLayouts });
 };
 
 const anErrorRoute = ({
@@ -716,18 +779,21 @@ const anErrorRoute = ({
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
-    includeRootLayout = true,
 }: {
     routeId: string;
     pageModule: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
-    includeRootLayout?: boolean;
 }) => {
-    const res = aRoute({ routeId, pageModule, readableUri: pathString, path, parentLayouts, includeRootLayout });
-    res.pageExportName = 'ErrorBoundary';
-    return res;
+    return anyRoute({
+        routeId,
+        pageModule,
+        readableUri: pathString,
+        path,
+        parentLayouts,
+        pageExportName: 'ErrorBoundary',
+    });
 };
 
 const urlSeg = (text: string) => ({

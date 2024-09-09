@@ -240,7 +240,7 @@ function lazyCompAndLoader(
             default: () => {
                 if (moduleWithComp.ErrorBoundary) {
                     onCaughtError({ filePath, exportName: 'ErrorBoundary' });
-                    <moduleWithComp.ErrorBoundary />;
+                    return <moduleWithComp.ErrorBoundary />;
                 }
                 if (!isRootFile) {
                     throw new Error(`ErrorBoundary not found at ${filePath}`);
