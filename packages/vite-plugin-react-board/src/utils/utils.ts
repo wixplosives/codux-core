@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-import path from 'path';
 import { Logger } from 'vite';
 
 type GlobalSetupConfig =
@@ -37,7 +36,7 @@ export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: 
     if (config && 'boardGlobalSetup' in config) {
         if (typeof config.boardGlobalSetup === 'string') {
             return {
-                setupBefore: path.resolve(config.boardGlobalSetup),
+                setupBefore: config.boardGlobalSetup,
                 setupAfter: undefined,
             };
         }
@@ -47,8 +46,8 @@ export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: 
             ('before' in config.boardGlobalSetup || 'after' in config.boardGlobalSetup)
         ) {
             return {
-                setupBefore: config.boardGlobalSetup.before ? path.resolve(config.boardGlobalSetup.before) : undefined,
-                setupAfter: config.boardGlobalSetup.after ? path.resolve(config.boardGlobalSetup.after) : undefined,
+                setupBefore: config.boardGlobalSetup.before,
+                setupAfter: config.boardGlobalSetup.after,
             };
         }
     }
