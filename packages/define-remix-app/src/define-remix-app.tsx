@@ -246,10 +246,6 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                 }
 
                 const relevantFiles = filesInDir.filter((file) => file.endsWith('.tsx'));
-                // const relevantFilesExports = await Promise.all(relevantFiles.map(loadExports));
-                // // const relevantFilesExportsMap = new Map(
-                // //     relevantFiles.map((file, index) => [file, relevantFilesExports[index]]),
-                // // );
                 const { layouts, routes } = relevantFiles.reduce(
                     (acc, fullPath) => {
                         const pathInRoutesDir = fullPath.slice(routeDirLength);
@@ -264,7 +260,8 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                     layoutMatching: [],
                                 });
                             } else {
-                                acc.routes.get('/')!.file = chooseOverridingPath(acc.routes.get('/')!.file, fullPath);
+                                const rootRoute = acc.routes.get('/')!;
+                                rootRoute.file = chooseOverridingPath(rootRoute.file, fullPath);
                             }
                             return acc;
                         }
