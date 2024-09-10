@@ -1,6 +1,13 @@
 import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
-import { loaderOnly, simpleLayout, simpleRoot, simpleRootWithLayout } from './test-cases/roots';
+import {
+    loaderOnly,
+    simpleLayout,
+    simpleRoot,
+    rootWithLayout,
+    rootWithLayoutAndErrorBoundary,
+    layoutWithErrorBoundary,
+} from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo } from '@wixc3/app-core';
 import { RouteExtraInfo, RoutingPattern } from '../src/remix-app-utils';
@@ -389,6 +396,63 @@ describe('define-remix', () => {
             });
         });
     });
+    describe('error routes', () => {
+        it(`manifest with root error boundry`, async () => {
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayoutAndErrorBoundary,
+                [indexPath]: simpleLayout,
+            });
+            expectManifest(manifest, {
+                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                errorRoutes: [anErrorRoute({ routeId: 'error', pageModule: rootPath, readableUri: '', path: [] })],
+            });
+        });
+        it(`manifest with home page error boundry`, async () => {
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayout,
+                [indexPath]: layoutWithErrorBoundary,
+            });
+            expectManifest(manifest, {
+                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                errorRoutes: [
+                    anErrorRoute({
+                        routeId: 'routes/_index',
+                        pageModule: indexPath,
+                        readableUri: '',
+                        path: [],
+                        parentLayouts: [rootLayout, root],
+                    }),
+                ],
+            });
+        });
+
+        it(`manifest with page error boundry`, async () => {
+            const aboutPage = '/app/routes/about.tsx';
+            const { manifest } = await getInitialManifest({
+                [rootPath]: rootWithLayout,
+                [aboutPage]: layoutWithErrorBoundary,
+            });
+            expectManifest(manifest, {
+                routes: [
+                    aRoute({
+                        routeId: 'routes/about',
+                        pageModule: aboutPage,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                    }),
+                ],
+                errorRoutes: [
+                    anErrorRoute({
+                        routeId: 'routes/about',
+                        pageModule: aboutPage,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                        parentLayouts: [rootLayout, root],
+                    }),
+                ],
+            });
+        });
+    });
     describe('manifest updates', () => {
         it(`page addition`, async () => {
             const testedPath = '/app/routes/about.tsx';
@@ -450,7 +514,7 @@ describe('define-remix', () => {
                 ],
             });
 
-            driver.addOrUpdateFile(rootPath, simpleRootWithLayout.contents, simpleRootWithLayout.exports);
+            driver.addOrUpdateFile(rootPath, rootWithLayout.contents, rootWithLayout.exports);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -465,6 +529,7 @@ describe('define-remix', () => {
             );
         });
     });
+
     describe('getNewPageInfo', () => {
         it('should return the correct path for a simple route (file pattern)', async () => {
             const { driver } = await getInitialManifest({
@@ -608,8 +673,7 @@ const getInitialManifest = async (
 ) => {
     const { manifest, app, driver } = await createAppAndDriver(
         {
-            [rootPath]: simpleRootWithLayout,
-
+            [rootPath]: rootWithLayout,
             ...Object.entries(files || {}).reduce(
                 (acc, [filePath, contents]) => {
                     acc[filePath] = contents;
@@ -663,6 +727,33 @@ const root = {
     path: '/',
 };
 
+const anyRoute = ({
+    routeId,
+    pageModule,
+    pageExportName = 'default',
+    readableUri: pathString = '',
+    path = [],
+    parentLayouts = [],
+}: {
+    routeId: string;
+    pageModule: string;
+    pageExportName?: string;
+    readableUri?: string;
+    path?: RouteInfo['path'];
+    parentLayouts?: RouteExtraInfo['parentLayouts'];
+}): RouteInfo<RouteExtraInfo> => {
+    return {
+        path,
+        pathString,
+        pageModule,
+        pageExportName,
+        extraData: {
+            parentLayouts,
+            routeId,
+        },
+        parentLayouts,
+    };
+};
 const aRoute = ({
     routeId,
     pageModule,
@@ -678,18 +769,31 @@ const aRoute = ({
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     includeRootLayout?: boolean;
 }): RouteInfo<RouteExtraInfo> => {
-    const expectedParentLayouts = includeRootLayout ? [rootLayout, root] : [root];
-    return {
-        path,
-        pathString,
+    const expectedParentLayouts = includeRootLayout ? [rootLayout, root, ...parentLayouts] : [root, ...parentLayouts];
+    return anyRoute({ routeId, pageModule, readableUri: pathString, path, parentLayouts: expectedParentLayouts });
+};
+
+const anErrorRoute = ({
+    routeId,
+    pageModule,
+    readableUri: pathString = '',
+    path = [],
+    parentLayouts = [],
+}: {
+    routeId: string;
+    pageModule: string;
+    readableUri?: string;
+    path?: RouteInfo['path'];
+    parentLayouts?: RouteExtraInfo['parentLayouts'];
+}) => {
+    return anyRoute({
+        routeId,
         pageModule,
-        pageExportName: 'default',
-        extraData: {
-            parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-            routeId,
-        },
-        parentLayouts: [...expectedParentLayouts, ...parentLayouts],
-    };
+        readableUri: pathString,
+        path,
+        parentLayouts,
+        pageExportName: 'ErrorBoundary',
+    });
 };
 
 const urlSeg = (text: string) => ({

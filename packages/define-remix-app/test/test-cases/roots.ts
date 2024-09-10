@@ -1,4 +1,4 @@
-export const simpleRootWithLayout = {
+export const rootWithLayout = {
     contents: `
        import {
             Outlet,
@@ -19,6 +19,31 @@ export const simpleRootWithLayout = {
         }
     `,
     exports: new Set(['default', 'Layout']),
+};
+export const rootWithLayoutAndErrorBoundary = {
+    contents: `
+       import {
+            Outlet,
+        } from '@remix-run/react';
+        export function Layout({ children }: { children: React.ReactNode }) {
+            return (
+                <html lang="en">
+                    <body>
+                        {children}
+                    </body>
+                </html>
+            );
+        }
+        export function ErrorBoundary({ error }: { error: Error }) {
+            return <div>{error.message}</div>;
+        }
+        export default function App() {
+            return (
+                <Outlet />
+            );
+        }
+    `,
+    exports: new Set(['default', 'Layout', 'ErrorBoundary']),
 };
 export const simpleRoot = {
     contents: `
@@ -46,6 +71,23 @@ export const simpleLayout = {
         }
     `,
     exports: new Set(['default']),
+};
+
+export const layoutWithErrorBoundary = {
+    contents: `
+        import {
+            Outlet,
+        } from '@remix-run/react';
+        export function ErrorBoundary({ error }: { error: Error }) {
+            return <div>{error.message}</div>;
+        }
+        export default function Layout() {
+            return (
+                <Outlet />
+            );
+        }
+    `,
+    exports: new Set(['default', 'ErrorBoundary']),
 };
 
 export const loaderOnly = {

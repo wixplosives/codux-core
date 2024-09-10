@@ -1,4 +1,4 @@
-import { DynamicImport, IAppManifest, IResults } from '@wixc3/app-core';
+import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app-core';
 import { pathToRemixRouterUrl, RouteExtraInfo } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, useEffect, useState } from 'react';
@@ -13,6 +13,8 @@ export const manifestToRouter = (
     manifest: IAppManifest<RouteExtraInfo>,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
+    onCaughtError: ErrorReporter,
+    prevUri: { current: string },
 ) => {
     const rootFilePath = (manifest.homeRoute || manifest.routes[0])?.parentLayouts?.[0]?.layoutModule;
     if (!rootFilePath) {
@@ -23,13 +25,23 @@ export const manifestToRouter = (
             },
         };
     }
-    const rootRoute: RouteObject = fileToRoute(rootFilePath, requireModule, setUri, '/', true);
+    const rootRoute: RouteObject = fileToRoute(rootFilePath, requireModule, setUri, onCaughtError, '/', true, prevUri);
     const layoutMap = new Map<string, RouteObject>();
     if (manifest.homeRoute) {
-        rootRoute.children = [fileToRoute(manifest.homeRoute.pageModule, requireModule, setUri, '/')];
+        rootRoute.children = [
+            fileToRoute(manifest.homeRoute.pageModule, requireModule, setUri, onCaughtError, '/', false, prevUri),
+        ];
     }
     for (const route of manifest.routes) {
-        const routeObject = fileToRoute(route.pageModule, requireModule, setUri, pathToRemixRouterUrl(route.path));
+        const routeObject = fileToRoute(
+            route.pageModule,
+            requireModule,
+            setUri,
+            onCaughtError,
+            pathToRemixRouterUrl(route.path),
+            false,
+            prevUri,
+        );
         let parentRoute: RouteObject = rootRoute;
         for (const parentLayout of route.extraData.parentLayouts) {
             if (parentLayout.layoutModule === rootFilePath) {
@@ -38,7 +50,15 @@ export const manifestToRouter = (
             if (!layoutMap.has(parentLayout.layoutModule)) {
                 layoutMap.set(
                     parentLayout.layoutModule,
-                    fileToRoute(parentLayout.layoutModule, requireModule, setUri, parentLayout.path),
+                    fileToRoute(
+                        parentLayout.layoutModule,
+                        requireModule,
+                        setUri,
+                        onCaughtError,
+                        parentLayout.path,
+                        false,
+                        prevUri,
+                    ),
                 );
                 parentRoute.children = parentRoute.children || [];
                 parentRoute.children.push(layoutMap.get(parentLayout.layoutModule)!);
@@ -63,15 +83,25 @@ const fileToRoute = (
     filePath: string,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
+    onCaughtError: ErrorReporter,
     path: string,
     isRootPath: boolean = false,
+    prevUri: { current: string },
 ) => {
-    const { Component, loader } = getLazyCompAndLoader(filePath, requireModule, setUri, isRootPath);
+    const { Component, loader, ErrorBoundary } = getLazyCompAndLoader(
+        filePath,
+        requireModule,
+        setUri,
+        onCaughtError,
+        isRootPath,
+        prevUri,
+    );
 
     const routeObject: RouteObject = {
         path,
         Component,
         loader,
+        ErrorBoundary,
     };
 
     return routeObject;
@@ -81,27 +111,29 @@ export const getLazyCompAndLoader = (
     filePath: string,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
-    wrapWithLayout = false,
+    onCaughtError: ErrorReporter,
+    isRootFile = false,
+    prevUri: { current: string },
 ) => {
     const key = filePath;
     let module = loadedModules.get(key);
     if (!module) {
-        module = lazyCompAndLoader(filePath, requireModule, setUri, wrapWithLayout);
+        module = lazyCompAndLoader(filePath, requireModule, setUri, onCaughtError, isRootFile, prevUri);
         loadedModules.set(key, module);
     }
     return module;
 };
 
-function PageComp({
+function RootComp({
     module,
     filePath,
-    wrapWithLayout,
     setUri,
+    prevUri,
 }: {
     module: Dispatcher<IResults<unknown>>;
     filePath: string;
-    wrapWithLayout: boolean;
     setUri: (uri: string) => void;
+    prevUri: { current: string };
 }) {
     const currentModule = useDispatcher(module);
 
@@ -110,8 +142,10 @@ function PageComp({
     navigation.setNavigateFunction(useNavigate());
 
     useEffect(() => {
-        setUri(uri.slice(1));
-    }, [setUri, uri]);
+        if (uri.slice(1) !== prevUri.current) {
+            setUri(uri.slice(1));
+        }
+    }, [setUri, prevUri, uri]);
 
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
@@ -125,7 +159,7 @@ function PageComp({
     if (!Page) {
         return <div>default export not found at {filePath}</div>;
     }
-    if (wrapWithLayout && moduleAsExpected.Layout) {
+    if (moduleAsExpected.Layout) {
         return (
             <moduleAsExpected.Layout>
                 <Page />
@@ -134,11 +168,31 @@ function PageComp({
     }
     return <Page />;
 }
+
+function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
+    const currentModule = useDispatcher(module);
+
+    if (currentModule.errorMessage) {
+        return <div>{currentModule.errorMessage}</div>;
+    }
+    const moduleAsExpected = currentModule.results as {
+        default?: React.ComponentType;
+    };
+    const Page = moduleAsExpected.default;
+
+    if (!Page) {
+        return <div>default export not found at {filePath}</div>;
+    }
+
+    return <Page />;
+}
 function lazyCompAndLoader(
     filePath: string,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
-    wrapWithLayout = false,
+    onCaughtError: ErrorReporter,
+    isRootFile = false,
+    prevUri: { current: string },
 ) {
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
@@ -148,11 +202,16 @@ function lazyCompAndLoader(
         const initialyLoadedModule = await moduleResults;
         const dispatcher = createDispatcher(initialyLoadedModule);
         updateModule = (newModule) => dispatcher.setState(newModule);
+        if (isRootFile) {
+            return {
+                default: () => {
+                    return <RootComp module={dispatcher} filePath={filePath} setUri={setUri} prevUri={prevUri} />;
+                },
+            };
+        }
         return {
             default: () => {
-                return (
-                    <PageComp module={dispatcher} filePath={filePath} wrapWithLayout={wrapWithLayout} setUri={setUri} />
-                );
+                return <PageComp module={dispatcher} filePath={filePath} />;
             },
         };
     });
@@ -170,7 +229,28 @@ function lazyCompAndLoader(
         return {};
     };
 
-    return { Component, loader };
+    const ErrorBoundary = lazy(async () => {
+        const { moduleResults } = requireModule(filePath);
+        const { results } = await moduleResults;
+
+        const moduleWithComp = results as {
+            ErrorBoundary?: React.ComponentType;
+        };
+        return {
+            default: () => {
+                if (moduleWithComp.ErrorBoundary) {
+                    onCaughtError({ filePath, exportName: 'ErrorBoundary' });
+                    return <moduleWithComp.ErrorBoundary />;
+                }
+                if (!isRootFile) {
+                    throw new Error(`ErrorBoundary not found at ${filePath}`);
+                }
+                return <div>error boundary not found at {filePath}</div>;
+            },
+        };
+    });
+
+    return { Component, loader, ErrorBoundary };
 }
 
 interface Dispatcher<T> {
