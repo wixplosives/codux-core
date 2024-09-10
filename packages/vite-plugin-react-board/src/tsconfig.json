@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "../dist",
     "skipLibCheck": true,
-    "module": "ESNext"
+    "module": "ESNext",
+    "noEmit": true
   },
 
   "references": [{ "path": "../../react-board/src" }]
