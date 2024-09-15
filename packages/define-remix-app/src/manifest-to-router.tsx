@@ -1,8 +1,14 @@
 import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app-core';
-import { pathToRemixRouterUrl, RouteExtraInfo } from './remix-app-utils';
+import {
+    deserializeResponse,
+    pathToRemixRouterUrl,
+    RouteExtraInfo,
+    SerializedResponse,
+    serializeRequest,
+} from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, useEffect, useState } from 'react';
-import type { LoaderFunction } from '@remix-run/node';
+import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { useLocation, useNavigate } from '@remix-run/react';
 import { navigation } from './navigation';
@@ -15,9 +21,12 @@ export const manifestToRouter = (
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     prevUri: { current: string },
+    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
-    const rootFilePath = (manifest.homeRoute || manifest.routes[0])?.parentLayouts?.[0]?.layoutModule;
-    if (!rootFilePath) {
+    const rootRouteInfo = manifest.homeRoute || manifest.routes[0];
+    const rootFilePath = rootRouteInfo?.parentLayouts?.[0]?.layoutModule;
+    const rootExports = rootRouteInfo?.extraData.parentLayouts?.[0]?.exportNames;
+    if (!rootFilePath || !rootExports) {
         return {
             Router: createRemixStub([]),
             navigate(path: string) {
@@ -25,22 +34,44 @@ export const manifestToRouter = (
             },
         };
     }
-    const rootRoute: RouteObject = fileToRoute(rootFilePath, requireModule, setUri, onCaughtError, '/', true, prevUri);
+    const rootRoute: RouteObject = fileToRoute(
+        rootFilePath,
+        rootExports,
+        requireModule,
+        setUri,
+        onCaughtError,
+        '/',
+        true,
+        prevUri,
+        callServerMethod,
+    );
     const layoutMap = new Map<string, RouteObject>();
     if (manifest.homeRoute) {
         rootRoute.children = [
-            fileToRoute(manifest.homeRoute.pageModule, requireModule, setUri, onCaughtError, '/', false, prevUri),
+            fileToRoute(
+                manifest.homeRoute.pageModule,
+                manifest.homeRoute.extraData.exportNames,
+                requireModule,
+                setUri,
+                onCaughtError,
+                '/',
+                false,
+                prevUri,
+                callServerMethod,
+            ),
         ];
     }
     for (const route of manifest.routes) {
         const routeObject = fileToRoute(
             route.pageModule,
+            route.extraData.exportNames,
             requireModule,
             setUri,
             onCaughtError,
             pathToRemixRouterUrl(route.path),
             false,
             prevUri,
+            callServerMethod,
         );
         let parentRoute: RouteObject = rootRoute;
         for (const parentLayout of route.extraData.parentLayouts) {
@@ -52,12 +83,14 @@ export const manifestToRouter = (
                     parentLayout.layoutModule,
                     fileToRoute(
                         parentLayout.layoutModule,
+                        route.extraData.exportNames,
                         requireModule,
                         setUri,
                         onCaughtError,
                         parentLayout.path,
                         false,
                         prevUri,
+                        callServerMethod,
                     ),
                 );
                 parentRoute.children = parentRoute.children || [];
@@ -81,20 +114,24 @@ export const manifestToRouter = (
 };
 const fileToRoute = (
     filePath: string,
+    exportNames: string[],
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     path: string,
     isRootPath: boolean = false,
     prevUri: { current: string },
+    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
-    const { Component, loader, ErrorBoundary } = getLazyCompAndLoader(
+    const { Component, loader, ErrorBoundary, action } = getLazyCompAndLoader(
         filePath,
+        exportNames,
         requireModule,
         setUri,
         onCaughtError,
         isRootPath,
         prevUri,
+        callServerMethod,
     );
 
     const routeObject: RouteObject = {
@@ -102,6 +139,7 @@ const fileToRoute = (
         Component,
         loader,
         ErrorBoundary,
+        action,
     };
 
     return routeObject;
@@ -109,16 +147,27 @@ const fileToRoute = (
 const loadedModules = new Map<string, ReturnType<typeof lazyCompAndLoader>>();
 export const getLazyCompAndLoader = (
     filePath: string,
+    exportNames: string[],
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     isRootFile = false,
     prevUri: { current: string },
+    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
     const key = filePath;
     let module = loadedModules.get(key);
     if (!module) {
-        module = lazyCompAndLoader(filePath, requireModule, setUri, onCaughtError, isRootFile, prevUri);
+        module = lazyCompAndLoader(
+            filePath,
+            exportNames,
+            requireModule,
+            setUri,
+            onCaughtError,
+            isRootFile,
+            prevUri,
+            callServerMethod,
+        );
         loadedModules.set(key, module);
     }
     return module;
@@ -188,11 +237,13 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
 }
 function lazyCompAndLoader(
     filePath: string,
+    exportNames: string[],
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     isRootFile = false,
     prevUri: { current: string },
+    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) {
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
@@ -216,41 +267,47 @@ function lazyCompAndLoader(
         };
     });
 
-    const loader: LoaderFunction = async (...args) => {
-        const { moduleResults } = requireModule(filePath);
-        const { results } = await moduleResults;
-        const moduleWithComp = results as {
-            loader?: LoaderFunction;
-        };
-        const loader = moduleWithComp.loader;
-        if (loader) {
-            return await loader(...args);
-        }
-        return {};
-    };
+    const loader: LoaderFunction | undefined = exportNames.includes('loader')
+        ? async ({ params, request }) => {
+              const res = await callServerMethod(filePath, 'loader', [
+                  { params, request: await serializeRequest(request) },
+              ]);
+              return res;
+          }
+        : undefined;
 
-    const ErrorBoundary = lazy(async () => {
-        const { moduleResults } = requireModule(filePath);
-        const { results } = await moduleResults;
+    const ErrorBoundary = exportNames.includes('ErrorBoundary')
+        ? lazy(async () => {
+              const { moduleResults } = requireModule(filePath);
+              const { results } = await moduleResults;
 
-        const moduleWithComp = results as {
-            ErrorBoundary?: React.ComponentType;
-        };
-        return {
-            default: () => {
-                if (moduleWithComp.ErrorBoundary) {
-                    onCaughtError({ filePath, exportName: 'ErrorBoundary' });
-                    return <moduleWithComp.ErrorBoundary />;
-                }
-                if (!isRootFile) {
-                    throw new Error(`ErrorBoundary not found at ${filePath}`);
-                }
-                return <div>error boundary not found at {filePath}</div>;
-            },
-        };
-    });
+              const moduleWithComp = results as {
+                  ErrorBoundary?: React.ComponentType;
+              };
+              return {
+                  default: () => {
+                      if (moduleWithComp.ErrorBoundary) {
+                          onCaughtError({ filePath, exportName: 'ErrorBoundary' });
+                          return <moduleWithComp.ErrorBoundary />;
+                      }
+                      if (!isRootFile) {
+                          throw new Error(`ErrorBoundary not found at ${filePath}`);
+                      }
+                      return <div>error boundary not found at {filePath}</div>;
+                  },
+              };
+          })
+        : undefined;
 
-    return { Component, loader, ErrorBoundary };
+    const action = exportNames.includes('action')
+        ? async ({ params, request }: ActionFunctionArgs) => {
+              const res = await callServerMethod(filePath, 'action', [
+                  { params, request: await serializeRequest(request) },
+              ]);
+              return deserializeResponse(res as SerializedResponse);
+          }
+        : undefined;
+    return { Component, loader, ErrorBoundary, action };
 }
 
 interface Dispatcher<T> {

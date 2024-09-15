@@ -3,6 +3,7 @@ import { DynamicRoutePart, PathApi, RouteInfo, StaticRoutePart } from '@wixc3/ap
 export interface ParentLayoutWithExtra {
     layoutModule: string;
     layoutExportName: string;
+    exportNames: string[];
     path: string;
     id: string;
 }
@@ -10,6 +11,7 @@ export interface ParentLayoutWithExtra {
 export interface RouteExtraInfo {
     parentLayouts: Array<ParentLayoutWithExtra>;
     routeId: string;
+    exportNames: string[];
 }
 
 export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
@@ -210,4 +212,96 @@ export function toCamelCase(str: string): string {
  */
 export function chooseOverridingPath(fileA: string, fileB: string): string {
     return fileA.length > fileB.length ? fileA : fileB;
+}
+
+export async function serializeRequest(request: Request) {
+    const formData = request.method === 'POST' ? getFormData(await request.formData()) : {};
+
+    return {
+        url: request.url,
+        method: request.method,
+        headers: getHeaders(request),
+        formData,
+    };
+}
+
+export function deserializeRequest(request: {
+    url: string;
+    method: string;
+    headers: { key: string; value: string }[];
+    formData: { key: string; value: unknown }[];
+}) {
+    const headers = new Headers();
+    request.headers.forEach(({ key, value }) => {
+        headers.set(key, value);
+    });
+    const r = new Request(request.url, { method: request.method, headers });
+    r.formData = () => {
+        const formData = new FormData();
+        request.formData.forEach(({ key, value }) => {
+            formData.append(key, value as string);
+        });
+        return Promise.resolve(formData);
+    };
+    return r;
+}
+
+export interface SerializedRequest {
+    url: string;
+    method: string;
+    headers: { key: string; value: string }[];
+    formData: { key: string; value: unknown }[];
+}
+export interface DeserializedLoaderArgs {
+    params: Record<string, string>;
+    request: SerializedRequest;
+}
+
+function getHeaders(from: Request | Response) {
+    const headers: { key: string; value: string }[] = [];
+    from.headers.forEach((value, key) => {
+        headers.push({ key, value });
+    });
+    return headers;
+}
+
+function getFormData(formData: FormData) {
+    const entries: { key: string; value: unknown }[] = [];
+    formData.forEach((value, key) => {
+        entries.push({ key, value });
+    });
+    return entries;
+}
+export async function serizalizeResponse(response: Response): Promise<SerializedResponse> {
+    const reader = response.body?.getReader();
+    let body: string | null = null;
+    if (reader) {
+        const streamRes = await reader.read();
+        body = new TextDecoder().decode(streamRes.value);
+    }
+    return {
+        status: response.status,
+        statusText: response.statusText,
+        headers: getHeaders(response),
+        body,
+    };
+}
+
+export interface SerializedResponse {
+    status: number;
+    statusText: string;
+    headers: { key: string; value: string }[];
+    body: string | null;
+}
+
+export function deserializeResponse(response: SerializedResponse) {
+    const headers = new Headers();
+    response.headers.forEach(({ key, value }) => {
+        headers.set(key, value);
+    });
+    return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+    });
 }
