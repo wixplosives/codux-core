@@ -651,6 +651,14 @@ describe('define-remix', () => {
 
                 expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
             });
+            it('should remove invalid ident chars from the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('Abou#t');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
             it('should cleanup initial JSX content', async () => {
                 const { driver } = await getInitialManifest({
                     [indexPath]: simpleLayout,
