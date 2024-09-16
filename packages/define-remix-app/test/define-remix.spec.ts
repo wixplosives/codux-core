@@ -1,4 +1,4 @@
-import defineRemixApp, { INVALID_MSGS, parentLayoutWarning } from '@wixc3/define-remix-app';
+import defineRemixApp, { INVALID_MSGS, parentLayoutWarning, pageTemplate } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
 import {
     loaderOnly,
@@ -641,6 +641,31 @@ describe('define-remix', () => {
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
+        });
+        describe('normalize generate page injected code', () => {
+            it('should normalize the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
+            it('should cleanup initial JSX content', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about{}');
+
+                expect(newPageSourceCode, 'curly braces').to.include('return <div>about</div>;');
+
+                // This test also directly targets the template function since
+                // angle braces would fail route validation and never reach the
+                // template function in normal execution.
+                const pageSource = pageTemplate('ab<>{}out', new Set());
+
+                expect(pageSource).to.include('return <div>about</div>;');
+            });
         });
         describe('invalid input', () => {
             it('should not allow new page to override home route', async () => {
