@@ -705,7 +705,7 @@ describe('define-remix', () => {
                 expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
                 expect(newPageRoute, 'newPageRoute').to.eql(undefined);
             });
-            it('should not allow page the start without an english first letter', async () => {
+            it('should not allow the page to start without an english first letter', async () => {
                 const { driver } = await getInitialManifest({
                     [indexPath]: simpleLayout,
                 });
