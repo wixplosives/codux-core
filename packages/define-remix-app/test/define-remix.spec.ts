@@ -1,4 +1,4 @@
-import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
+import defineRemixApp, { INVALID_MSGS, parentLayoutWarning } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
 import {
     loaderOnly,
@@ -641,6 +641,51 @@ describe('define-remix', () => {
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
+        });
+        describe('invalid input', () => {
+            it('should not allow new page to override home route', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.homeRouteExists('/app/routes/_index.tsx'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow empty page name (with no home route)', async () => {
+                const { driver, manifest } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                delete manifest.homeRoute;
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.emptyName);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow page the start without an english first letter', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('1st-page');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.initialPageLetter);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
         });
     });
     describe('getMovePageInfo', () => {

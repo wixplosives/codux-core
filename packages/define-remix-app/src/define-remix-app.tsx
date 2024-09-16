@@ -35,6 +35,12 @@ export interface IDefineRemixAppProps {
     routingPattern?: RoutingPattern;
 }
 
+export const INVALID_MSGS = {
+    homeRouteExists: (routePath: string) => 'Home route already exists at ' + routePath,
+    emptyName: 'page name cannot be empty',
+    initialPageLetter: 'page name must start with an a letter between a-z',
+};
+
 export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
@@ -65,10 +71,9 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         if (requestedURI.length === 0 && manifest.homeRoute) {
             return {
                 isValid: false,
-                errorMessage: 'Home route already exists at ' + manifest.homeRoute.pageModule,
-                pageModule: manifest.homeRoute.pageModule,
+                errorMessage: INVALID_MSGS.homeRouteExists(manifest.homeRoute.pageModule),
+                pageModule: '',
                 newPageSourceCode: '',
-                newPageRoute: manifest.homeRoute,
             };
         }
         const wantedPathId = routePathId(wantedPath);
@@ -84,6 +89,21 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             })
             .join('.');
         const pageName = toCamelCase(pageFileName);
+        if (!pageName) {
+            return {
+                isValid: false,
+                errorMessage: INVALID_MSGS.emptyName,
+                pageModule: '',
+                newPageSourceCode: '',
+            };
+        } else if (!pageName[0].match(/[A-Za-z]/)) {
+            return {
+                isValid: false,
+                errorMessage: 'page name must start with an a letter between a-z',
+                pageModule: '',
+                newPageSourceCode: '',
+            };
+        }
 
         if (existingRoute) {
             if (!canFilePathBeLayout(existingRoute.pageModule, fsApi) || canFilePathBeLayout(pageModule, fsApi)) {
