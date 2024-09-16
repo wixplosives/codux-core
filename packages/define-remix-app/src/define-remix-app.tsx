@@ -41,6 +41,7 @@ export const INVALID_MSGS = {
     initialPageLetter: 'page name must start with an a letter between a-z',
     invalidVar: (varName: string) =>
         `invalid variable name: "${varName}", page params must start with a letter or underscore and contain only letters, numbers and underscores`,
+    invalidRouteChar: (param: string, char: string) => `invalid character "${char}" in page route ${param}`,
 };
 
 export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
@@ -129,6 +130,20 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                 pageModule: '',
                 newPageSourceCode: '',
             };
+        }
+
+        for (const part of wantedPath) {
+            if (part.kind === 'static') {
+                const matchedInvalidChars = part.text.match(/[/\\:*?"'`<>|]/g);
+                if (matchedInvalidChars) {
+                    return {
+                        isValid: false,
+                        errorMessage: INVALID_MSGS.invalidRouteChar(part.text, matchedInvalidChars.join('')),
+                        pageModule: '',
+                        newPageSourceCode: '',
+                    };
+                }
+            }
         }
 
         const newPageSourceCode = pageTemplate(pageName, varNames);

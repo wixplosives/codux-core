@@ -700,6 +700,24 @@ describe('define-remix', () => {
                 expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
                 expect(newPageRoute, 'newPageRoute').to.eql(undefined);
             });
+            it('should not allow route value that is not valid in fs', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const invalidFsChars = ['\\', ':', '*', '?', '"', "'", '`', '<', '>', '|'];
+                for (const invalidChar of invalidFsChars) {
+                    const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                        driver.getNewPageInfo('about/$param/invalid-' + invalidChar);
+
+                    expect(isValid, `isValid ${invalidChar}`).to.eql(false);
+                    expect(errorMessage, `error message ${invalidChar}`).to.eql(
+                        INVALID_MSGS.invalidRouteChar('invalid-' + invalidChar, invalidChar),
+                    );
+                    expect(pageModule, `page module ${invalidChar}`).to.eql('');
+                    expect(newPageSourceCode, `newPageSourceCode ${invalidChar}`).to.eql('');
+                    expect(newPageRoute, `newPageRoute ${invalidChar}`).to.eql(undefined);
+                }
+            });
         });
     });
     describe('getMovePageInfo', () => {
