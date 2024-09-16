@@ -1,4 +1,4 @@
-import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
+import defineRemixApp, { INVALID_MSGS, parentLayoutWarning, pageTemplate } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
 import {
     loaderOnly,
@@ -641,6 +641,116 @@ describe('define-remix', () => {
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
+        });
+        describe('normalize generate page injected code', () => {
+            it('should normalize the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
+            it('should remove invalid ident chars from the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('Abou#t');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
+            it('should cleanup initial JSX content', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about{}');
+
+                expect(newPageSourceCode, 'curly braces').to.include('return <div>about</div>;');
+
+                // This test also directly targets the template function since
+                // angle braces would fail route validation and never reach the
+                // template function in normal execution.
+                const pageSource = pageTemplate('ab<>{}out', new Set());
+
+                expect(pageSource).to.include('return <div>about</div>;');
+            });
+        });
+        describe('invalid input', () => {
+            it('should not allow new page to override home route', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.homeRouteExists('/app/routes/_index.tsx'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow empty page name (with no home route)', async () => {
+                const { driver, manifest } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                delete manifest.homeRoute;
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.emptyName);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow the page to start without an english first letter', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('1st-page');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.initialPageLetter);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should limit route param key', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('about/$a+b');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.invalidVar('a+b'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow route value that is not valid in fs', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const invalidFsChars = ['\\', ':', '*', '?', '"', "'", '`', '<', '>', '|'];
+                for (const invalidChar of invalidFsChars) {
+                    const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                        driver.getNewPageInfo('about/$param/invalid-' + invalidChar);
+
+                    expect(isValid, `isValid ${invalidChar}`).to.eql(false);
+                    expect(errorMessage, `error message ${invalidChar}`).to.eql(
+                        INVALID_MSGS.invalidRouteChar('invalid-' + invalidChar, invalidChar),
+                    );
+                    expect(pageModule, `page module ${invalidChar}`).to.eql('');
+                    expect(newPageSourceCode, `newPageSourceCode ${invalidChar}`).to.eql('');
+                    expect(newPageRoute, `newPageRoute ${invalidChar}`).to.eql(undefined);
+                }
+            });
         });
     });
     describe('getMovePageInfo', () => {
