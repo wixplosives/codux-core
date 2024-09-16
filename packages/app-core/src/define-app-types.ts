@@ -112,7 +112,7 @@ export interface IReactApp<T = unknown> {
         warningMessage?: string;
         pageModule: string;
         newPageSourceCode: string;
-        newPageRoute: RouteInfo<T>;
+        newPageRoute?: RouteInfo<T>;
     };
 
     /**
@@ -125,7 +125,7 @@ export interface IReactApp<T = unknown> {
         errorMessage?: string;
         warningMessage?: string;
         pageModule: string;
-        newPageRoute: RouteInfo<T>;
+        newPageRoute?: RouteInfo<T>;
     };
     App: React.ComponentType<IReactAppProps<T>>;
     /**
