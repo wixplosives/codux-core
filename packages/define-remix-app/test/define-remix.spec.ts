@@ -686,6 +686,20 @@ describe('define-remix', () => {
                 expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
                 expect(newPageRoute, 'newPageRoute').to.eql(undefined);
             });
+            it('should limit route param key', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('about/$a+b');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.invalidVar('a+b'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
         });
     });
     describe('getMovePageInfo', () => {

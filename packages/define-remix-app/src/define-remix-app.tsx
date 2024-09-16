@@ -39,6 +39,8 @@ export const INVALID_MSGS = {
     homeRouteExists: (routePath: string) => 'Home route already exists at ' + routePath,
     emptyName: 'page name cannot be empty',
     initialPageLetter: 'page name must start with an a letter between a-z',
+    invalidVar: (varName: string) =>
+        `invalid variable name: "${varName}", page params must start with a letter or underscore and contain only letters, numbers and underscores`,
 };
 
 export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
@@ -115,6 +117,18 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                     newPageRoute: existingRoute,
                 };
             }
+        }
+
+        const invalidVar = [...varNames].find(
+            (varName) => !varName || !varName[0].match(/[A-Za-z_]/) || !varName.match(/^[A-Za-z_0-9]+$/),
+        );
+        if (invalidVar) {
+            return {
+                isValid: false,
+                errorMessage: INVALID_MSGS.invalidVar(invalidVar),
+                pageModule: '',
+                newPageSourceCode: '',
+            };
         }
 
         const newPageSourceCode = pageTemplate(pageName, varNames);
