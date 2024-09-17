@@ -112,7 +112,8 @@ export interface IReactApp<T = unknown> {
         warningMessage?: string;
         pageModule: string;
         newPageSourceCode: string;
-        newPageRoute: RouteInfo<T>;
+        newPageRoute?: RouteInfo<T>;
+        routingPattern?: RoutingPattern;
     };
 
     /**
@@ -125,7 +126,8 @@ export interface IReactApp<T = unknown> {
         errorMessage?: string;
         warningMessage?: string;
         pageModule: string;
-        newPageRoute: RouteInfo<T>;
+        newPageRoute?: RouteInfo<T>;
+        routingPattern?: RoutingPattern;
     };
     /**
      * can be called on the server or in a web worker
@@ -234,6 +236,9 @@ export interface IGetNewPageInfoOptions<T> {
     requestedURI: string;
     manifest: IAppManifest<T>;
 }
+
+export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
+
 export interface IMovePageInfoOptions<T> extends IGetNewPageInfoOptions<T> {
     movedFilePath: string;
 }

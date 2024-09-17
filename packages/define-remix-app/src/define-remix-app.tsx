@@ -7,6 +7,7 @@ import {
     FSApi,
     IGetNewPageInfoOptions,
     IResults,
+    RoutingPattern,
 } from '@wixc3/app-core';
 import { useMemo, useRef, useEffect } from 'react';
 import {
@@ -25,7 +26,6 @@ import {
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
-    RoutingPattern,
     serizalizeResponse,
     toCamelCase,
 } from './remix-app-utils';
@@ -39,7 +39,16 @@ export interface IDefineRemixAppProps {
     routingPattern?: RoutingPattern;
 }
 
-export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
+export const INVALID_MSGS = {
+    homeRouteExists: (routePath: string) => 'Home route already exists at ' + routePath,
+    emptyName: 'page name cannot be empty',
+    initialPageLetter: 'page name must start with an a letter between a-z',
+    invalidVar: (varName: string) =>
+        `invalid variable name: "${varName}", page params must start with a letter or underscore and contain only letters, numbers and underscores`,
+    invalidRouteChar: (param: string, char: string) => `invalid character "${char}" in page route ${param}`,
+};
+
+export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
     const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi, layouts = layoutMap) => {
@@ -63,16 +72,15 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
         const routeDir = fsApi.path.join(appDir, 'routes');
         const varNames = new Set<string>();
-        const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern || 'file');
+        const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern);
         const urlParts = filePathToURLParts(pageModule.slice(routeDir.length + 1), fsApi.path);
         const wantedPath = routePartsToRoutePath(urlParts);
         if (requestedURI.length === 0 && manifest.homeRoute) {
             return {
                 isValid: false,
-                errorMessage: 'Home route already exists at ' + manifest.homeRoute.pageModule,
-                pageModule: manifest.homeRoute.pageModule,
+                errorMessage: INVALID_MSGS.homeRouteExists(manifest.homeRoute.pageModule),
+                pageModule: '',
                 newPageSourceCode: '',
-                newPageRoute: manifest.homeRoute,
             };
         }
         const wantedPathId = routePathId(wantedPath);
@@ -88,6 +96,21 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             })
             .join('.');
         const pageName = toCamelCase(pageFileName);
+        if (!pageName) {
+            return {
+                isValid: false,
+                errorMessage: INVALID_MSGS.emptyName,
+                pageModule: '',
+                newPageSourceCode: '',
+            };
+        } else if (!pageName[0].match(/[A-Za-z]/)) {
+            return {
+                isValid: false,
+                errorMessage: 'page name must start with an a letter between a-z',
+                pageModule: '',
+                newPageSourceCode: '',
+            };
+        }
 
         if (existingRoute) {
             if (!canFilePathBeLayout(existingRoute.pageModule, fsApi) || canFilePathBeLayout(pageModule, fsApi)) {
@@ -98,6 +121,32 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                     newPageSourceCode: '',
                     newPageRoute: existingRoute,
                 };
+            }
+        }
+
+        const invalidVar = [...varNames].find(
+            (varName) => !varName || !varName[0].match(/[A-Za-z_]/) || !varName.match(/^[A-Za-z_0-9]+$/),
+        );
+        if (invalidVar) {
+            return {
+                isValid: false,
+                errorMessage: INVALID_MSGS.invalidVar(invalidVar),
+                pageModule: '',
+                newPageSourceCode: '',
+            };
+        }
+
+        for (const part of wantedPath) {
+            if (part.kind === 'static') {
+                const matchedInvalidChars = part.text.match(/[/\\:*?"'`<>|]/g);
+                if (matchedInvalidChars) {
+                    return {
+                        isValid: false,
+                        errorMessage: INVALID_MSGS.invalidRouteChar(part.text, matchedInvalidChars.join('')),
+                        pageModule: '',
+                        newPageSourceCode: '',
+                    };
+                }
             }
         }
 
@@ -128,6 +177,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             warningMessage,
             newPageSourceCode,
             pageModule,
+            routingPattern,
             newPageRoute: {
                 pageModule,
                 pageExportName: 'default',
@@ -159,7 +209,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             );
 
             useEffect(() => {
-                navigate('/' + uri);
+                navigate(uri.startsWith('/') ? uri : `/${uri}`);
             }, [uri, navigate]);
 
             return (

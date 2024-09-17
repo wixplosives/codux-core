@@ -1,4 +1,4 @@
-import defineRemixApp, { parentLayoutWarning } from '@wixc3/define-remix-app';
+import defineRemixApp, { INVALID_MSGS, parentLayoutWarning, pageTemplate } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
 import {
     loaderOnly,
@@ -9,8 +9,8 @@ import {
     layoutWithErrorBoundary,
 } from './test-cases/roots';
 import { expect } from 'chai';
-import { IAppManifest, RouteInfo } from '@wixc3/app-core';
-import { ParentLayoutWithExtra, RouteExtraInfo, RoutingPattern } from '../src/remix-app-utils';
+import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
+import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 
 const indexPath = '/app/routes/_index.tsx';
@@ -592,7 +592,8 @@ describe('define-remix', () => {
             const { driver } = await getInitialManifest({
                 [indexPath]: simpleLayout,
             });
-            const { isValid, pageModule, newPageRoute, newPageSourceCode } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, newPageSourceCode, routingPattern } =
+                driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about.tsx');
             expect(newPageRoute).to.eql(
@@ -605,6 +606,7 @@ describe('define-remix', () => {
                 }),
             );
             expect(newPageSourceCode).to.include('export default');
+            expect(routingPattern).to.eql('file');
         });
         it('should return the correct path for a simple route (dir+route pattern)', async () => {
             const { driver } = await getInitialManifest(
@@ -613,7 +615,7 @@ describe('define-remix', () => {
                 },
                 'folder(route)',
             );
-            const { isValid, pageModule, newPageRoute } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about/route.tsx');
             expect(newPageRoute).to.eql(
@@ -625,6 +627,7 @@ describe('define-remix', () => {
                     exportNames: ['meta', 'default'],
                 }),
             );
+            expect(routingPattern).to.eql('folder(route)');
         });
         it('should return the correct path for a simple route (dir+index pattern)', async () => {
             const { driver } = await getInitialManifest(
@@ -633,7 +636,7 @@ describe('define-remix', () => {
                 },
                 'folder(index)',
             );
-            const { isValid, pageModule, newPageRoute } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about/index.tsx');
             expect(newPageRoute).to.eql(
@@ -645,6 +648,7 @@ describe('define-remix', () => {
                     exportNames: ['meta', 'default'],
                 }),
             );
+            expect(routingPattern).to.eql('folder(index)');
         });
         it('should include parent layouts added because of subpaths, and warn', async () => {
             const aboutLayout = '/app/routes/about.tsx';
@@ -706,6 +710,116 @@ describe('define-remix', () => {
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
         });
+        describe('normalize generate page injected code', () => {
+            it('should normalize the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
+            it('should remove invalid ident chars from the component identifier', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('Abou#t');
+
+                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+            });
+            it('should cleanup initial JSX content', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const { newPageSourceCode } = driver.getNewPageInfo('about{}');
+
+                expect(newPageSourceCode, 'curly braces').to.include('return <div>about</div>;');
+
+                // This test also directly targets the template function since
+                // angle braces would fail route validation and never reach the
+                // template function in normal execution.
+                const pageSource = pageTemplate('ab<>{}out', new Set());
+
+                expect(pageSource).to.include('return <div>about</div>;');
+            });
+        });
+        describe('invalid input', () => {
+            it('should not allow new page to override home route', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.homeRouteExists('/app/routes/_index.tsx'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow empty page name (with no home route)', async () => {
+                const { driver, manifest } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                delete manifest.homeRoute;
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.emptyName);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow the page to start without an english first letter', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('1st-page');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.initialPageLetter);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should limit route param key', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('about/$a+b');
+
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.invalidVar('a+b'));
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
+            });
+            it('should not allow route value that is not valid in fs', async () => {
+                const { driver } = await getInitialManifest({
+                    [indexPath]: simpleLayout,
+                });
+                const invalidFsChars = ['\\', ':', '*', '?', '"', "'", '`', '<', '>', '|'];
+                for (const invalidChar of invalidFsChars) {
+                    const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                        driver.getNewPageInfo('about/$param/invalid-' + invalidChar);
+
+                    expect(isValid, `isValid ${invalidChar}`).to.eql(false);
+                    expect(errorMessage, `error message ${invalidChar}`).to.eql(
+                        INVALID_MSGS.invalidRouteChar('invalid-' + invalidChar, invalidChar),
+                    );
+                    expect(pageModule, `page module ${invalidChar}`).to.eql('');
+                    expect(newPageSourceCode, `newPageSourceCode ${invalidChar}`).to.eql('');
+                    expect(newPageRoute, `newPageRoute ${invalidChar}`).to.eql(undefined);
+                }
+            });
+        });
     });
     describe('getMovePageInfo', () => {
         it('should return the correct path for a simple route (file pattern)', async () => {
@@ -713,7 +827,7 @@ describe('define-remix', () => {
             const { driver } = await getInitialManifest({
                 [aboutPage]: simpleLayout,
             });
-            const { isValid, pageModule, newPageRoute } = driver.getMovePageInfo(aboutPage, 'about2');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getMovePageInfo(aboutPage, 'about2');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about2.tsx');
             expect(newPageRoute).to.eql(
@@ -725,6 +839,7 @@ describe('define-remix', () => {
                     exportNames: ['meta', 'default'],
                 }),
             );
+            expect(routingPattern).to.eql('file');
         });
     });
 });

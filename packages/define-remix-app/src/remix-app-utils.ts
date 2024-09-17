@@ -1,4 +1,4 @@
-import { DynamicRoutePart, PathApi, RouteInfo, StaticRoutePart } from '@wixc3/app-core';
+import { DynamicRoutePart, PathApi, RouteInfo, RoutingPattern, StaticRoutePart } from '@wixc3/app-core';
 
 export interface ParentLayoutWithExtra {
     layoutModule: string;
@@ -14,7 +14,7 @@ export interface RouteExtraInfo {
     exportNames: string[];
 }
 
-export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
+
 
 export const routePartsToRoutePath = (routeParts: string[]) => {
     return routeParts
