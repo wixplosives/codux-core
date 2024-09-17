@@ -196,7 +196,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             );
 
             useEffect(() => {
-                navigate('/' + uri);
+                navigate(uri.startsWith('/') ? uri : `/${uri}`);
             }, [uri, navigate]);
 
             return (
