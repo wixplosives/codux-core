@@ -26,7 +26,7 @@ import {
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
-    serizalizeResponse,
+    serializeResponse,
     toCamelCase,
 } from './remix-app-utils';
 import { manifestToRouter } from './manifest-to-router';
@@ -233,18 +233,18 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 ];
             }
             const loader = importModule(filePath);
-            const moduleExports = (await loader.moduleResults) as IResults<{
+            const moduleRequest = (await loader.moduleResults) as IResults<{
                 [key: string]: (...args: unknown[]) => unknown;
             }>;
-            if (moduleExports.status !== 'ready') {
-                throw new Error(`Module ${filePath}: ${moduleExports.errorMessage}`);
+            if (moduleRequest.status !== 'ready') {
+                throw new Error(`Module ${filePath}: ${moduleRequest.errorMessage}`);
             }
-            if (!moduleExports.results![methodName]) {
+            if (!moduleRequest.results?.[methodName]) {
                 throw new Error(`Method ${methodName} not found in ${filePath}`);
             }
-            const res = await moduleExports.results![methodName](...args);
+            const res = await moduleRequest.results[methodName](...args);
             if (methodName === 'action' && res instanceof Response) {
-                return serizalizeResponse(res);
+                return serializeResponse(res);
             }
             if (isDeferredData(res)) {
                 await res.resolveData(new AbortController().signal);

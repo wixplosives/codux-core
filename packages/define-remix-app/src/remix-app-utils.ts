@@ -14,8 +14,6 @@ export interface RouteExtraInfo {
     exportNames: string[];
 }
 
-
-
 export const routePartsToRoutePath = (routeParts: string[]) => {
     return routeParts
         .map<DynamicRoutePart | StaticRoutePart | null>((p) => {
@@ -272,7 +270,7 @@ function getFormData(formData: FormData) {
     });
     return entries;
 }
-export async function serizalizeResponse(response: Response): Promise<SerializedResponse> {
+export async function serializeResponse(response: Response): Promise<SerializedResponse> {
     const reader = response.body?.getReader();
     let body: string | null = null;
     if (reader) {
