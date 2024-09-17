@@ -113,6 +113,7 @@ export interface IReactApp<T = unknown> {
         pageModule: string;
         newPageSourceCode: string;
         newPageRoute?: RouteInfo<T>;
+        routingPattern?: RoutingPattern;
     };
 
     /**
@@ -126,6 +127,7 @@ export interface IReactApp<T = unknown> {
         warningMessage?: string;
         pageModule: string;
         newPageRoute?: RouteInfo<T>;
+        routingPattern?: RoutingPattern;
     };
     App: React.ComponentType<IReactAppProps<T>>;
     /**
@@ -212,6 +214,9 @@ export interface IGetNewPageInfoOptions<T> {
     requestedURI: string;
     manifest: IAppManifest<T>;
 }
+
+export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
+
 export interface IMovePageInfoOptions<T> extends IGetNewPageInfoOptions<T> {
     movedFilePath: string;
 }

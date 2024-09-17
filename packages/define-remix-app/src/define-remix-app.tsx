@@ -6,6 +6,7 @@ import {
     StaticRoutePart,
     FSApi,
     IGetNewPageInfoOptions,
+    RoutingPattern,
 } from '@wixc3/app-core';
 import { useMemo, useRef, useEffect } from 'react';
 import {
@@ -22,7 +23,6 @@ import {
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
-    RoutingPattern,
     toCamelCase,
 } from './remix-app-utils';
 import { manifestToRouter } from './manifest-to-router';
@@ -173,6 +173,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
             warningMessage,
             newPageSourceCode,
             pageModule,
+            routingPattern,
             newPageRoute: {
                 pageModule,
                 pageExportName: 'default',

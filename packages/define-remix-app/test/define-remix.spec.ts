@@ -9,8 +9,8 @@ import {
     layoutWithErrorBoundary,
 } from './test-cases/roots';
 import { expect } from 'chai';
-import { IAppManifest, RouteInfo } from '@wixc3/app-core';
-import { RouteExtraInfo, RoutingPattern } from '../src/remix-app-utils';
+import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
+import { RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 
 const indexPath = '/app/routes/_index.tsx';
@@ -535,7 +535,8 @@ describe('define-remix', () => {
             const { driver } = await getInitialManifest({
                 [indexPath]: simpleLayout,
             });
-            const { isValid, pageModule, newPageRoute, newPageSourceCode } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, newPageSourceCode, routingPattern } =
+                driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about.tsx');
             expect(newPageRoute).to.eql(
@@ -547,6 +548,7 @@ describe('define-remix', () => {
                 }),
             );
             expect(newPageSourceCode).to.include('export default');
+            expect(routingPattern).to.eql('file');
         });
         it('should return the correct path for a simple route (dir+route pattern)', async () => {
             const { driver } = await getInitialManifest(
@@ -555,7 +557,7 @@ describe('define-remix', () => {
                 },
                 'folder(route)',
             );
-            const { isValid, pageModule, newPageRoute } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about/route.tsx');
             expect(newPageRoute).to.eql(
@@ -566,6 +568,7 @@ describe('define-remix', () => {
                     path: [urlSeg('about')],
                 }),
             );
+            expect(routingPattern).to.eql('folder(route)');
         });
         it('should return the correct path for a simple route (dir+index pattern)', async () => {
             const { driver } = await getInitialManifest(
@@ -574,7 +577,7 @@ describe('define-remix', () => {
                 },
                 'folder(index)',
             );
-            const { isValid, pageModule, newPageRoute } = driver.getNewPageInfo('about');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getNewPageInfo('about');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about/index.tsx');
             expect(newPageRoute).to.eql(
@@ -585,6 +588,7 @@ describe('define-remix', () => {
                     path: [urlSeg('about')],
                 }),
             );
+            expect(routingPattern).to.eql('folder(index)');
         });
         it('should include parent layouts added because of subpaths, and warn', async () => {
             const aboutLayout = '/app/routes/about.tsx';
@@ -759,7 +763,7 @@ describe('define-remix', () => {
             const { driver } = await getInitialManifest({
                 [aboutPage]: simpleLayout,
             });
-            const { isValid, pageModule, newPageRoute } = driver.getMovePageInfo(aboutPage, 'about2');
+            const { isValid, pageModule, newPageRoute, routingPattern } = driver.getMovePageInfo(aboutPage, 'about2');
             expect(isValid).to.eql(true);
             expect(pageModule).to.eql('/app/routes/about2.tsx');
             expect(newPageRoute).to.eql(
@@ -770,6 +774,7 @@ describe('define-remix', () => {
                     path: [urlSeg('about2')],
                 }),
             );
+            expect(routingPattern).to.eql('file');
         });
     });
 });
