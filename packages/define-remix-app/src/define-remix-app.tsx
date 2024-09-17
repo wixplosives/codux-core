@@ -234,15 +234,20 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             }
             const loader = importModule(filePath);
             const moduleRequest = (await loader.moduleResults) as IResults<{
-                [key: string]: (...args: unknown[]) => unknown;
+                [key: string]: unknown;
             }>;
+
+            const requestedMethod = moduleRequest.results?.[methodName];
+
             if (moduleRequest.status !== 'ready') {
                 throw new Error(`Module ${filePath}: ${moduleRequest.errorMessage}`);
             }
-            if (!moduleRequest.results?.[methodName]) {
+            if (!isMethod(requestedMethod)) {
                 throw new Error(`Method ${methodName} not found in ${filePath}`);
             }
-            const res = await moduleRequest.results[methodName](...args);
+
+            const res = await requestedMethod(...args);
+
             if (methodName === 'action' && res instanceof Response) {
                 return serializeResponse(res);
             }
@@ -545,3 +550,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
 const canFilePathBeLayout = (filePath: string, fsApi: FSApi) => {
     return !filePath.endsWith('._index.tsx') && !fsApi.path.dirname(filePath).endsWith('_index');
 };
+
+function isMethod(requestedMethod: unknown): requestedMethod is (...args: unknown[]) => unknown {
+    return typeof requestedMethod === 'function';
+}
