@@ -129,6 +129,23 @@ export interface IReactApp<T = unknown> {
         newPageRoute?: RouteInfo<T>;
         routingPattern?: RoutingPattern;
     };
+    /**
+     * can be called on the server or in a web worker
+     * allows the app to call server methods
+     */
+    callServerMethod?: (
+        options: ICallServerMethodOptions,
+        filePath: string,
+        methodName: string,
+        args: unknown[],
+    ) => Promise<unknown>;
+
+    /**
+     * can be called on the server or in a web worker
+     * allows codux to get the static routes for a given file path ( needed to allow navigation to a dynamic page )
+     */
+    getStaticRoutes?: (options: ICallServerMethodOptions, forRouteAtFilePath: string) => Promise<unknown>;
+
     App: React.ComponentType<IReactAppProps<T>>;
     /**
      * Renders the App into an HTML element
@@ -192,6 +209,7 @@ export interface IReactAppProps<T = unknown> {
     uri: string;
     setUri: (uri: string) => void;
     onCaughtError: ErrorReporter;
+    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>;
 }
 
 export type ErrorReporter = (errorBoundry: { filePath: string; exportName: string }) => void;
@@ -208,6 +226,10 @@ export interface IPrepareAppOptions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onManifestUpdate: (appProps: IAppManifest<any>) => void;
     fsApi: FSApi;
+}
+export interface ICallServerMethodOptions {
+    fsApi: FSApi;
+    importModule: DynamicImport;
 }
 export interface IGetNewPageInfoOptions<T> {
     fsApi: FSApi;

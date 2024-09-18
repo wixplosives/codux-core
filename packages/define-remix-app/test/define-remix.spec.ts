@@ -10,10 +10,27 @@ import {
 } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
-import { RouteExtraInfo } from '../src/remix-app-utils';
+import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 
 const indexPath = '/app/routes/_index.tsx';
+const rootPath = '/app/root.tsx';
+
+const rootLayout: ParentLayoutWithExtra = {
+    id: 'rootLayout',
+    layoutExportName: 'Layout',
+    layoutModule: rootPath,
+    path: '/',
+    exportNames: ['default', 'Layout'],
+};
+const root: ParentLayoutWithExtra = {
+    id: 'root',
+    layoutExportName: 'default',
+    layoutModule: rootPath,
+    path: '/',
+    exportNames: ['default', 'Layout'],
+};
+
 describe('define-remix', () => {
     describe('flat routes', () => {
         it(`manifest for: _index.tsx`, async () => {
@@ -87,6 +104,7 @@ describe('define-remix', () => {
                                 layoutExportName: 'default',
                                 layoutModule: layoutPath,
                                 path: '/about',
+                                exportNames: ['default'],
                             },
                         ],
                     }),
@@ -122,6 +140,7 @@ describe('define-remix', () => {
                                     layoutExportName: 'default',
                                     layoutModule: aboutPage,
                                     path: '/about',
+                                    exportNames: ['default'],
                                 },
                             ],
                         }),
@@ -184,6 +203,7 @@ describe('define-remix', () => {
                                     layoutExportName: 'default',
                                     layoutModule: aboutPage,
                                     path: '/about',
+                                    exportNames: ['default'],
                                 },
                             ],
                         }),
@@ -198,6 +218,7 @@ describe('define-remix', () => {
                                     layoutExportName: 'default',
                                     layoutModule: aboutPage,
                                     path: '/about',
+                                    exportNames: ['default'],
                                 },
                             ],
                         }),
@@ -296,6 +317,7 @@ describe('define-remix', () => {
                                     layoutExportName: 'default',
                                     layoutModule: layout,
                                     path: '/',
+                                    exportNames: ['default'],
                                 },
                             ],
                         }),
@@ -389,6 +411,7 @@ describe('define-remix', () => {
                                 layoutExportName: 'default',
                                 layoutModule: layoutPath,
                                 path: '/about',
+                                exportNames: ['default'],
                             },
                         ],
                     }),
@@ -397,14 +420,36 @@ describe('define-remix', () => {
         });
     });
     describe('error routes', () => {
+        const rootLayoutWithError: ParentLayoutWithExtra = {
+            ...rootLayout,
+            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+        };
+        const rootWithError: ParentLayoutWithExtra = {
+            ...root,
+            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+        };
         it(`manifest with root error boundry`, async () => {
             const { manifest } = await getInitialManifest({
                 [rootPath]: rootWithLayoutAndErrorBoundary,
                 [indexPath]: simpleLayout,
             });
             expectManifest(manifest, {
-                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
-                errorRoutes: [anErrorRoute({ routeId: 'error', pageModule: rootPath, readableUri: '', path: [] })],
+                homeRoute: anyRoute({
+                    routeId: 'routes/_index',
+                    pageModule: indexPath,
+                    readableUri: '',
+                    path: [],
+                    parentLayouts: [rootLayoutWithError, rootWithError],
+                }),
+                errorRoutes: [
+                    anErrorRoute({
+                        routeId: 'error',
+                        pageModule: rootPath,
+                        readableUri: '',
+                        path: [],
+                        exportNames: ['default', 'Layout', 'ErrorBoundary'],
+                    }),
+                ],
             });
         });
         it(`manifest with home page error boundry`, async () => {
@@ -413,7 +458,13 @@ describe('define-remix', () => {
                 [indexPath]: layoutWithErrorBoundary,
             });
             expectManifest(manifest, {
-                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                homeRoute: aRoute({
+                    routeId: 'routes/_index',
+                    pageModule: indexPath,
+                    readableUri: '',
+                    path: [],
+                    exportNames: ['default', 'ErrorBoundary'],
+                }),
                 errorRoutes: [
                     anErrorRoute({
                         routeId: 'routes/_index',
@@ -421,6 +472,7 @@ describe('define-remix', () => {
                         readableUri: '',
                         path: [],
                         parentLayouts: [rootLayout, root],
+                        exportNames: ['default', 'ErrorBoundary'],
                     }),
                 ],
             });
@@ -439,6 +491,7 @@ describe('define-remix', () => {
                         pageModule: aboutPage,
                         readableUri: 'about',
                         path: [urlSeg('about')],
+                        exportNames: ['default', 'ErrorBoundary'],
                     }),
                 ],
                 errorRoutes: [
@@ -448,6 +501,7 @@ describe('define-remix', () => {
                         readableUri: 'about',
                         path: [urlSeg('about')],
                         parentLayouts: [rootLayout, root],
+                        exportNames: ['default', 'ErrorBoundary'],
                     }),
                 ],
             });
@@ -501,15 +555,18 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
                 [rootPath]: simpleRoot,
             });
-
+            const rootWithOutLayout: ParentLayoutWithExtra = {
+                ...root,
+                exportNames: ['default'],
+            };
             expectManifest(manifest, {
                 routes: [
-                    aRoute({
+                    anyRoute({
                         routeId: 'routes/about',
                         pageModule: testedPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
-                        includeRootLayout: false,
+                        parentLayouts: [rootWithOutLayout],
                     }),
                 ],
             });
@@ -545,6 +602,7 @@ describe('define-remix', () => {
                     pageModule: '/app/routes/about.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(newPageSourceCode).to.include('export default');
@@ -566,6 +624,7 @@ describe('define-remix', () => {
                     pageModule: '/app/routes/about/route.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('folder(route)');
@@ -586,6 +645,7 @@ describe('define-remix', () => {
                     pageModule: '/app/routes/about/index.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('folder(index)');
@@ -612,8 +672,10 @@ describe('define-remix', () => {
                             layoutExportName: 'default',
                             layoutModule: aboutLayout,
                             path: '/about',
+                            exportNames: ['default'],
                         },
                     ],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/us'));
@@ -640,8 +702,10 @@ describe('define-remix', () => {
                             layoutExportName: 'default',
                             layoutModule: aboutLayout,
                             path: '/about',
+                            exportNames: ['default'],
                         },
                     ],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
@@ -772,14 +836,13 @@ describe('define-remix', () => {
                     pageModule: '/app/routes/about2.tsx',
                     readableUri: 'about2',
                     path: [urlSeg('about2')],
+                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('file');
         });
     });
 });
-
-const rootPath = '/app/root.tsx';
 
 const getInitialManifest = async (
     files: Record<string, { contents: string; exports: Set<string> }>,
@@ -829,19 +892,6 @@ const expectManifest = (manifest: IAppManifest<RouteExtraInfo>, expected: Partia
     expect(manifest).eql(fullExpected);
 };
 
-const rootLayout = {
-    id: 'rootLayout',
-    layoutExportName: 'Layout',
-    layoutModule: rootPath,
-    path: '/',
-};
-const root = {
-    id: 'root',
-    layoutExportName: 'default',
-    layoutModule: rootPath,
-    path: '/',
-};
-
 const anyRoute = ({
     routeId,
     pageModule,
@@ -849,6 +899,7 @@ const anyRoute = ({
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
+    exportNames = ['default'],
 }: {
     routeId: string;
     pageModule: string;
@@ -856,6 +907,7 @@ const anyRoute = ({
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
+    exportNames?: string[];
 }): RouteInfo<RouteExtraInfo> => {
     return {
         path,
@@ -865,6 +917,7 @@ const anyRoute = ({
         extraData: {
             parentLayouts,
             routeId,
+            exportNames,
         },
         parentLayouts,
     };
@@ -876,6 +929,7 @@ const aRoute = ({
     path = [],
     parentLayouts = [],
     includeRootLayout = true,
+    exportNames,
 }: {
     routeId: string;
     pageModule: string;
@@ -883,9 +937,17 @@ const aRoute = ({
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     includeRootLayout?: boolean;
+    exportNames?: string[];
 }): RouteInfo<RouteExtraInfo> => {
     const expectedParentLayouts = includeRootLayout ? [rootLayout, root, ...parentLayouts] : [root, ...parentLayouts];
-    return anyRoute({ routeId, pageModule, readableUri: pathString, path, parentLayouts: expectedParentLayouts });
+    return anyRoute({
+        routeId,
+        pageModule,
+        readableUri: pathString,
+        path,
+        parentLayouts: expectedParentLayouts,
+        exportNames,
+    });
 };
 
 const anErrorRoute = ({
@@ -894,12 +956,14 @@ const anErrorRoute = ({
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
+    exportNames,
 }: {
     routeId: string;
     pageModule: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
+    exportNames?: string[];
 }) => {
     return anyRoute({
         routeId,
@@ -908,6 +972,7 @@ const anErrorRoute = ({
         path,
         parentLayouts,
         pageExportName: 'ErrorBoundary',
+        exportNames,
     });
 };
 

@@ -6,6 +6,7 @@ import {
     StaticRoutePart,
     FSApi,
     IGetNewPageInfoOptions,
+    IResults,
     RoutingPattern,
 } from '@wixc3/app-core';
 import { useMemo, useRef, useEffect } from 'react';
@@ -13,6 +14,8 @@ import {
     anErrorRoute,
     aRoute,
     chooseOverridingPath,
+    DeserializedLoaderArgs,
+    deserializeRequest,
     filePathToLayoutMatching,
     filePathToReadableUri,
     filePathToRouteId,
@@ -23,12 +26,13 @@ import {
     RouteExtraInfo,
     routePartsToRoutePath,
     routePathId,
+    serializeResponse,
     toCamelCase,
 } from './remix-app-utils';
 import { manifestToRouter } from './manifest-to-router';
 import { parentLayoutWarning } from './content';
 import { pageTemplate } from './page-template';
-
+import { isDeferredData } from '@remix-run/router';
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
@@ -44,7 +48,7 @@ export const INVALID_MSGS = {
     invalidRouteChar: (param: string, char: string) => `invalid character "${char}" in page route ${param}`,
 };
 
-export default function defineRemixApp({ appPath, routingPattern }: IDefineRemixAppProps) {
+export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
     const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi, layouts = layoutMap) => {
@@ -68,7 +72,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
         const routeDir = fsApi.path.join(appDir, 'routes');
         const varNames = new Set<string>();
-        const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern || 'file');
+        const pageModule = readableUriToFilePath(requestedURI, fsApi.path, routeDir, routingPattern);
         const urlParts = filePathToURLParts(pageModule.slice(routeDir.length + 1), fsApi.path);
         const wantedPath = routePartsToRoutePath(urlParts);
         if (requestedURI.length === 0 && manifest.homeRoute) {
@@ -180,6 +184,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                 extraData: {
                     parentLayouts,
                     routeId: filePathToRouteId(appDir, pageModule),
+                    exportNames: varNames.size ? ['loader', 'meta', 'default'] : ['meta', 'default'],
                 },
                 path: wantedPath,
                 pathString: requestedURI,
@@ -188,12 +193,19 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
         };
     };
     return defineApp<RouteExtraInfo>({
-        App: ({ manifest, importModule, setUri, uri, onCaughtError }: IReactAppProps<RouteExtraInfo>) => {
+        App: ({
+            manifest,
+            importModule,
+            setUri,
+            uri,
+            onCaughtError,
+            callServerMethod,
+        }: IReactAppProps<RouteExtraInfo>) => {
             const uriRef = useRef(uri);
             uriRef.current = uri;
             const { Router, navigate } = useMemo(
-                () => manifestToRouter(manifest, importModule, setUri, onCaughtError, uriRef),
-                [manifest, importModule, setUri, onCaughtError],
+                () => manifestToRouter(manifest, importModule, setUri, onCaughtError, uriRef, callServerMethod),
+                [manifest, importModule, setUri, onCaughtError, callServerMethod],
             );
 
             useEffect(() => {
@@ -210,6 +222,50 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                     ]}
                 />
             );
+        },
+        callServerMethod: async ({ importModule }, filePath, methodName, args) => {
+            if (methodName === 'loader' || methodName === 'action') {
+                args = [
+                    {
+                        params: (args as [DeserializedLoaderArgs])[0].params,
+                        request: deserializeRequest((args as [DeserializedLoaderArgs])[0].request),
+                    },
+                ];
+            }
+            const loader = importModule(filePath);
+            const moduleRequest = (await loader.moduleResults) as IResults<{
+                [key: string]: unknown;
+            }>;
+
+            const requestedMethod = moduleRequest.results?.[methodName];
+
+            if (moduleRequest.status !== 'ready') {
+                throw new Error(`Module ${filePath}: ${moduleRequest.errorMessage}`);
+            }
+            if (!isMethod(requestedMethod)) {
+                throw new Error(`Method ${methodName} not found in ${filePath}`);
+            }
+
+            const res = await requestedMethod(...args);
+
+            if (methodName === 'action' && res instanceof Response) {
+                return serializeResponse(res);
+            }
+            if (isDeferredData(res)) {
+                await res.resolveData(new AbortController().signal);
+                return res.unwrappedData;
+            }
+            return res;
+        },
+        async getStaticRoutes(options, forRouteAtFilePath) {
+            const results = await this.callServerMethod!(options, forRouteAtFilePath, 'getStaticRoutes', []);
+            if (!Array.isArray(results)) {
+                throw new Error('getStaticRoutes must return an array');
+            }
+            if (results.some((route: unknown) => typeof route !== 'string')) {
+                throw new Error('getStaticRoutes must return an array of strings');
+            }
+            return results as string[];
         },
         getNewPageInfo({ fsApi, requestedURI, manifest }) {
             return getNewOrMove({ fsApi, requestedURI, manifest, layoutMap });
@@ -284,6 +340,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                         layoutExportName: 'default',
                         layoutModule: rootPath,
                         path: '/',
+                        exportNames: rootExportNames,
                     },
                 ];
                 if (rootExportNames.includes('Layout')) {
@@ -292,10 +349,16 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                         layoutExportName: 'Layout',
                         layoutModule: rootPath,
                         path: '/',
+                        exportNames: rootExportNames,
                     });
                 }
 
                 const relevantFiles = filesInDir.filter((file) => file.endsWith('.tsx'));
+                const exportNames = new Map<string, string[]>();
+                for (const file of relevantFiles) {
+                    const exports = await loadExports(file);
+                    exportNames.set(file, exports);
+                }
                 const { layouts, routes } = relevantFiles.reduce(
                     (acc, fullPath) => {
                         const pathInRoutesDir = fullPath.slice(routeDirLength);
@@ -325,6 +388,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                 layoutExportName: 'default',
                                 layoutModule: fullPath,
                                 path: pathToRemixRouterUrl(routePath),
+                                exportNames: exportNames.get(fullPath) || [],
                             });
                             return acc;
                         }
@@ -353,6 +417,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                 layoutExportName: 'default',
                                 layoutModule: fullPath,
                                 path: pathToRemixRouterUrl(routePath),
+                                exportNames: exportNames.get(fullPath) || [],
                             });
                         }
 
@@ -378,6 +443,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                             }
                         >(),
                         layouts: new Map<string, ParentLayoutWithExtra>(),
+                        moduleExports: new Map<string, string[]>(),
                     },
                 );
                 layoutMap = layouts;
@@ -399,6 +465,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                         {
                             parentLayouts: [],
                             routeId: 'error',
+                            exportNames: rootExportNames,
                         },
                         fsApi.path,
                     );
@@ -406,7 +473,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                 }
 
                 for (const [, value] of sortedFilesByRoute) {
-                    const exports = await loadExports(value.file);
+                    const exports = exportNames.get(value.file) || [];
                     if (value.path.length === 0) {
                         initialManifest.homeRoute = aRoute(
                             routeDir,
@@ -415,6 +482,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                             {
                                 parentLayouts: rootLayouts,
                                 routeId: filePathToRouteId(appDir, value.file),
+                                exportNames: exports,
                             },
                             fsApi.path,
                         );
@@ -426,6 +494,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                 {
                                     parentLayouts: rootLayouts,
                                     routeId: filePathToRouteId(appDir, value.file),
+                                    exportNames: exports,
                                 },
                                 fsApi.path,
                             );
@@ -442,6 +511,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                 {
                                     parentLayouts,
                                     routeId: filePathToRouteId(appDir, value.file),
+                                    exportNames: exports,
                                 },
                                 fsApi.path,
                             );
@@ -454,6 +524,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
                                     {
                                         parentLayouts,
                                         routeId: filePathToRouteId(appDir, value.file),
+                                        exportNames: exports,
                                     },
                                     fsApi.path,
                                 );
@@ -479,3 +550,7 @@ export default function defineRemixApp({ appPath, routingPattern }: IDefineRemix
 const canFilePathBeLayout = (filePath: string, fsApi: FSApi) => {
     return !filePath.endsWith('._index.tsx') && !fsApi.path.dirname(filePath).endsWith('_index');
 };
+
+function isMethod(requestedMethod: unknown): requestedMethod is (...args: unknown[]) => unknown {
+    return typeof requestedMethod === 'function';
+}
