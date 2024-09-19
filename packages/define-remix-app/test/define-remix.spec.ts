@@ -111,6 +111,47 @@ describe('define-remix', () => {
                 ],
             });
         });
+        it('sorts routes by abc', async () => {
+            const aboutPath = '/app/routes/about.tsx';
+            const middlePath = '/app/routes/middle.tsx';
+            const aboutUsPath = '/app/routes/about.us.tsx';
+            const { manifest } = await getInitialManifest({
+                [aboutPath]: simpleLayout,
+                [middlePath]: simpleLayout,
+                [aboutUsPath]: simpleLayout,
+            });
+            expectManifest(manifest, {
+                routes: [
+                    aRoute({
+                        routeId: 'routes/about',
+                        pageModule: aboutPath,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                    }),
+                    aRoute({
+                        routeId: 'routes/about/us',
+                        pageModule: aboutUsPath,
+                        readableUri: 'about/us',
+                        path: [urlSeg('about'), urlSeg('us')],
+                        parentLayouts: [
+                            {
+                                id: 'routes/about',
+                                layoutExportName: 'default',
+                                layoutModule: aboutPath,
+                                path: '/about',
+                                exportNames: ['default'],
+                            },
+                        ],
+                    }),
+                    aRoute({
+                        routeId: 'routes/middle',
+                        pageModule: middlePath,
+                        readableUri: 'middle',
+                        path: [urlSeg('middle')],
+                    }),
+                ],
+            });
+        });
 
         describe('nested routes', () => {
             it(`manifest for: about.tsx, about.us.tsx`, async () => {
@@ -414,6 +455,47 @@ describe('define-remix', () => {
                                 exportNames: ['default'],
                             },
                         ],
+                    }),
+                ],
+            });
+        });
+        it('sorts routes by abc', async () => {
+            const aboutPath = '/app/routes/about/route.tsx';
+            const middlePath = '/app/routes/middle/route.tsx';
+            const aboutUsPath = '/app/routes/about.us/route.tsx';
+            const { manifest } = await getInitialManifest({
+                [aboutPath]: simpleLayout,
+                [middlePath]: simpleLayout,
+                [aboutUsPath]: simpleLayout,
+            });
+            expectManifest(manifest, {
+                routes: [
+                    aRoute({
+                        routeId: 'routes/about/route',
+                        pageModule: aboutPath,
+                        readableUri: 'about',
+                        path: [urlSeg('about')],
+                    }),
+                    aRoute({
+                        routeId: 'routes/about/us/route',
+                        pageModule: aboutUsPath,
+                        readableUri: 'about/us',
+                        path: [urlSeg('about'), urlSeg('us')],
+                        parentLayouts: [
+                            {
+                                id: 'routes/about/route',
+                                layoutExportName: 'default',
+                                layoutModule: aboutPath,
+                                path: '/about',
+                                exportNames: ['default'],
+                            },
+                        ],
+                    }),
+                    aRoute({
+                        routeId: 'routes/middle/route',
+                        pageModule: middlePath,
+                        readableUri: 'middle',
+                        path: [urlSeg('middle')],
                     }),
                 ],
             });

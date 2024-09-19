@@ -453,9 +453,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 };
 
                 const sortedFilesByRoute = [...routes.entries()].sort(([, a], [, b]) =>
-                    a.path.length === b.path.length
-                        ? a.readableName.localeCompare(b.readableName)
-                        : a.path.length - b.path.length,
+                    a.readableName.localeCompare(b.readableName),
                 );
                 if (rootExportNames.includes('ErrorBoundary')) {
                     const errorRoute = anErrorRoute(
