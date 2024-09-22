@@ -278,7 +278,6 @@ export async function serializeResponse(response: Response): Promise<SerializedR
         body = new TextDecoder().decode(streamRes.value);
     }
     return {
-        ...response,
         status: response.status,
         statusText: response.statusText,
         headers: getHeaders(response),
@@ -299,7 +298,6 @@ export function deserializeResponse(response: SerializedResponse) {
         headers.set(key, value);
     });
     return new Response(response.body, {
-        ...response,
         status: response.status,
         statusText: response.statusText,
         headers,

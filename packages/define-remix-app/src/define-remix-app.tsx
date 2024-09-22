@@ -248,7 +248,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
 
             const res = await requestedMethod(...args);
 
-            if ((methodName === 'action' || methodName === 'loader') && res instanceof Response) {
+            if (methodName === 'action' && res instanceof Response) {
                 return serializeResponse(res);
             }
             if (isDeferredData(res)) {

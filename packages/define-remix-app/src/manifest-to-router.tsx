@@ -272,7 +272,7 @@ function lazyCompAndLoader(
               const res = await callServerMethod(filePath, 'loader', [
                   { params, request: await serializeRequest(request) },
               ]);
-              return deserializeResponse(res as SerializedResponse);
+              return res;
           }
         : undefined;
 
