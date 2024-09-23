@@ -20,7 +20,7 @@ return params;
 const ${compIdentifier} = () => {
 const params = useLoaderData<typeof loader>();
 return <div>
-${[...varNames].map((name) => `<div>${clearJsxSpecialCharactersFromText(name)}: {params["${name}}"]</div>`).join('\n')}
+${[...varNames].map((name) => `<div>${clearJsxSpecialCharactersFromText(name)}: {params["${name}"]}</div>`).join('\n')}
 </div>;
 };
 export default ${compIdentifier};
