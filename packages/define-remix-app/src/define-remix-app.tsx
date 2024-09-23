@@ -224,7 +224,8 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             );
         },
         callServerMethod: async ({ importModule }, filePath, methodName, args) => {
-            if (methodName === 'loader' || methodName === 'action') {
+            const isRequestType = methodName === 'loader' || methodName === 'action';
+            if (isRequestType) {
                 args = [
                     {
                         params: (args as [DeserializedLoaderArgs])[0].params,
@@ -248,7 +249,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
 
             const res = await requestedMethod(...args);
 
-            if (methodName === 'action' && res instanceof Response) {
+            if (isRequestType && res instanceof Response) {
                 return serializeResponse(res);
             }
             if (isDeferredData(res)) {
