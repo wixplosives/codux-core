@@ -934,6 +934,7 @@ const getInitialManifest = async (
     const { manifest, app, driver } = await createAppAndDriver(
         {
             [rootPath]: rootWithLayout,
+            'package.json': {contents: JSON.stringify({}), exports: new Set()},
             ...Object.entries(files || {}).reduce(
                 (acc, [filePath, contents]) => {
                     acc[filePath] = contents;
