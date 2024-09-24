@@ -13,6 +13,7 @@ export interface AppDefDriverOptions<T> {
             exports: Set<string>;
         }
     >;
+    evaluatedNodeModules: Record<string, unknown>
     /**
      * @default false
      */
@@ -60,6 +61,14 @@ export class AppDefDriver<T> {
             },
             globals: {},
         });
+        for (const [packageSpecifier, module] of Object.entries(options.evaluatedNodeModules)) {
+            this.moduleSystem.moduleCache.set(packageSpecifier, {
+                id: '',
+                filename: this.fs.join(packageSpecifier, 'pre-evaluated.js'),
+                exports: module,
+                children: [],
+            });
+        }
     }
 
     async init() {
@@ -190,7 +199,7 @@ export class AppDefDriver<T> {
             }
         }
         return nestedPaths;
-}
+    }
 
 }
 

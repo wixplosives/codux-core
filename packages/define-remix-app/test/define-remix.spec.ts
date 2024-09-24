@@ -12,6 +12,8 @@ import { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
+import * as React from 'react';
+import * as remixRunReact from '@remix-run/react';
 
 const indexPath = '/app/routes/_index.tsx';
 const rootPath = '/app/root.tsx';
@@ -961,6 +963,10 @@ const createAppAndDriver = async (
     const driver = new AppDefDriver<RouteExtraInfo>({
         app,
         initialFiles,
+        evaluatedNodeModules: {
+            'react': React,
+            '@remix-run/react': remixRunReact,
+        },
     });
     const manifest = await driver.init();
 
