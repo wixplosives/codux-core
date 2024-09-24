@@ -596,7 +596,7 @@ describe('define-remix', () => {
                 [indexPath]: simpleLayout,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            driver.addOrUpdateFile(testedPath, simpleLayout.contents);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
@@ -617,7 +617,7 @@ describe('define-remix', () => {
                 [testedPath]: loaderOnly,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            driver.addOrUpdateFile(testedPath, simpleLayout.contents);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -653,7 +653,7 @@ describe('define-remix', () => {
                 ],
             });
 
-            driver.addOrUpdateFile(rootPath, rootWithLayout.contents, rootWithLayout.exports);
+            driver.addOrUpdateFile(rootPath, rootWithLayout.contents);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
