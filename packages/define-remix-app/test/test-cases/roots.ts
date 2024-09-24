@@ -1,6 +1,20 @@
+import ts from'typescript';
+
+function transformTsx(source: string) {
+    const { outputText } = ts.transpileModule(source, {
+        compilerOptions: {
+            module: ts.ModuleKind.CommonJS,
+            target: ts.ScriptTarget.ES2020,
+            jsx: ts.JsxEmit.React,
+        }
+    });
+    return outputText;
+}
+
 export const rootWithLayout = {
-    contents: `
-       import {
+    contents: transformTsx(`
+        import React from 'react';
+        import {
             Outlet,
         } from '@remix-run/react';
         export function Layout({ children }: { children: React.ReactNode }) {
@@ -17,12 +31,13 @@ export const rootWithLayout = {
                 <Outlet />
             );
         }
-    `,
-    exports: new Set(['default', 'Layout']),
+    `),
+    exports: new Set(['Layout', 'default']),
 };
 export const rootWithLayoutAndErrorBoundary = {
-    contents: `
-       import {
+    contents: transformTsx(`
+        import React from 'react';
+        import {
             Outlet,
         } from '@remix-run/react';
         export function Layout({ children }: { children: React.ReactNode }) {
@@ -42,12 +57,13 @@ export const rootWithLayoutAndErrorBoundary = {
                 <Outlet />
             );
         }
-    `,
-    exports: new Set(['default', 'Layout', 'ErrorBoundary']),
+    `),
+    exports: new Set(['Layout', 'ErrorBoundary', 'default']),
 };
 export const simpleRoot = {
-    contents: `
-       import {
+    contents: transformTsx(`
+        import React from 'react';
+        import {
             Outlet,
         } from '@remix-run/react';
       
@@ -56,11 +72,12 @@ export const simpleRoot = {
                 <Outlet />
             );
         }
-    `,
+    `),
     exports: new Set(['default']),
 };
 export const simpleLayout = {
-    contents: `
+    contents: transformTsx(`
+        import React from 'react';
         import {
             Outlet,
         } from '@remix-run/react';
@@ -69,12 +86,13 @@ export const simpleLayout = {
                 <Outlet />
             );
         }
-    `,
+    `),
     exports: new Set(['default']),
 };
 
 export const layoutWithErrorBoundary = {
-    contents: `
+    contents: transformTsx(`
+        import React from 'react';
         import {
             Outlet,
         } from '@remix-run/react';
@@ -86,15 +104,15 @@ export const layoutWithErrorBoundary = {
                 <Outlet />
             );
         }
-    `,
+    `),
     exports: new Set(['default', 'ErrorBoundary']),
 };
 
 export const loaderOnly = {
-    contents: `
+    contents: transformTsx(`
         export async function loader() {
             return { message: 'Hello World' };
         }
-    `,
+    `),
     exports: new Set(['loader']),
 };

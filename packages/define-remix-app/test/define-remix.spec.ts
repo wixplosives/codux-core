@@ -23,14 +23,14 @@ const rootLayout: ParentLayoutWithExtra = {
     layoutExportName: 'Layout',
     layoutModule: rootPath,
     path: '/',
-    exportNames: ['default', 'Layout'],
+    exportNames: ['Layout', 'default'],
 };
 const root: ParentLayoutWithExtra = {
     id: 'root',
     layoutExportName: 'default',
     layoutModule: rootPath,
     path: '/',
-    exportNames: ['default', 'Layout'],
+    exportNames: ['Layout', 'default'],
 };
 
 describe('define-remix', () => {
@@ -506,11 +506,11 @@ describe('define-remix', () => {
     describe('error routes', () => {
         const rootLayoutWithError: ParentLayoutWithExtra = {
             ...rootLayout,
-            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+            exportNames: ['Layout', 'ErrorBoundary', 'default'],
         };
         const rootWithError: ParentLayoutWithExtra = {
             ...root,
-            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+            exportNames: ['Layout', 'ErrorBoundary', 'default'],
         };
         it(`manifest with root error boundry`, async () => {
             const { manifest } = await getInitialManifest({
@@ -531,7 +531,7 @@ describe('define-remix', () => {
                         pageModule: rootPath,
                         readableUri: '',
                         path: [],
-                        exportNames: ['default', 'Layout', 'ErrorBoundary'],
+                        exportNames: ['Layout', 'ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -547,7 +547,7 @@ describe('define-remix', () => {
                     pageModule: indexPath,
                     readableUri: '',
                     path: [],
-                    exportNames: ['default', 'ErrorBoundary'],
+                    exportNames: ['ErrorBoundary', 'default'],
                 }),
                 errorRoutes: [
                     anErrorRoute({
@@ -556,7 +556,7 @@ describe('define-remix', () => {
                         readableUri: '',
                         path: [],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -575,7 +575,7 @@ describe('define-remix', () => {
                         pageModule: aboutPage,
                         readableUri: 'about',
                         path: [urlSeg('about')],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
                 errorRoutes: [
@@ -585,7 +585,7 @@ describe('define-remix', () => {
                         readableUri: 'about',
                         path: [urlSeg('about')],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
