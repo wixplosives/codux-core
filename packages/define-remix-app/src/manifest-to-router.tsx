@@ -1,6 +1,7 @@
 import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app-core';
 import {
     deserializeResponse,
+    isSerializedResponse,
     pathToRemixRouterUrl,
     RouteExtraInfo,
     SerializedResponse,
@@ -272,7 +273,7 @@ function lazyCompAndLoader(
               const res = await callServerMethod(filePath, 'loader', [
                   { params, request: await serializeRequest(request) },
               ]);
-              return res;
+              return isSerializedResponse(res) ? deserializeResponse(res) : res;
           }
         : undefined;
 

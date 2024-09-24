@@ -278,6 +278,7 @@ export async function serializeResponse(response: Response): Promise<SerializedR
         body = new TextDecoder().decode(streamRes.value);
     }
     return {
+        _serializedResponse: true,
         status: response.status,
         statusText: response.statusText,
         headers: getHeaders(response),
@@ -286,15 +287,20 @@ export async function serializeResponse(response: Response): Promise<SerializedR
 }
 
 export interface SerializedResponse {
+    _serializedResponse: true;
     status: number;
     statusText: string;
     headers: { key: string; value: string }[];
     body: string | null;
 }
 
+export function isSerializedResponse(response: unknown): response is SerializedResponse {
+    return (response as SerializedResponse)?._serializedResponse === true;
+}
+
 export function deserializeResponse(response: SerializedResponse) {
     const headers = new Headers();
-    response.headers.forEach(({ key, value }) => {
+    response.headers?.forEach(({ key, value }) => {
         headers.set(key, value);
     });
     return new Response(response.body, {
