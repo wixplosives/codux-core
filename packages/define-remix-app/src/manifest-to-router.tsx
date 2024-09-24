@@ -8,7 +8,7 @@ import {
     serializeRequest,
 } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
-import { lazy, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { useLocation, useNavigate } from '@remix-run/react';
@@ -257,7 +257,11 @@ function lazyCompAndLoader(
         if (isRootFile) {
             return {
                 default: () => {
-                    return <RootComp module={dispatcher} filePath={filePath} setUri={setUri} prevUri={prevUri} />;
+                    return (
+                        <Suspense>
+                            <RootComp module={dispatcher} filePath={filePath} setUri={setUri} prevUri={prevUri} />
+                        </Suspense>
+                    );
                 },
             };
         }
