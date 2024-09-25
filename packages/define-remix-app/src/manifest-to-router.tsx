@@ -290,16 +290,9 @@ function lazyCompAndLoader(
                   ErrorBoundary?: React.ComponentType;
               };
               return {
-                  default: () => {
-                      if (moduleWithComp.ErrorBoundary) {
-                          onCaughtError({ filePath, exportName: 'ErrorBoundary' });
-                          return <moduleWithComp.ErrorBoundary />;
-                      }
-                      if (!isRootFile) {
-                          throw new Error(`ErrorBoundary not found at ${filePath}`);
-                      }
-                      return <div>error boundary not found at {filePath}</div>;
-                  },
+                  default: () => (
+                      <ErrorPage filePath={filePath} moduleWithComp={moduleWithComp} onCaughtError={onCaughtError} />
+                  ),
               };
           })
         : undefined;
@@ -342,4 +335,25 @@ function useDispatcher<T>(dispatcher: Dispatcher<T>) {
         return dispatcher.subscribe(setState);
     }, [dispatcher]);
     return state;
+}
+
+function ErrorPage({
+    moduleWithComp,
+    filePath,
+    onCaughtError,
+}: {
+    moduleWithComp: {
+        ErrorBoundary?: React.ComponentType;
+    };
+    onCaughtError: ErrorReporter;
+    filePath: string;
+}) {
+    navigation.setNavigateFunction(useNavigate());
+
+    if (moduleWithComp.ErrorBoundary) {
+        onCaughtError({ filePath, exportName: 'ErrorBoundary' });
+        return <moduleWithComp.ErrorBoundary />;
+    }
+
+    return <div>error boundary not found at {filePath}</div>;
 }
