@@ -286,12 +286,7 @@ function lazyCompAndLoader(
               };
               return {
                   default: () => (
-                      <ErrorPage
-                          filePath={filePath}
-                          isRootFile={isRootFile}
-                          moduleWithComp={moduleWithComp}
-                          onCaughtError={onCaughtError}
-                      />
+                      <ErrorPage filePath={filePath} moduleWithComp={moduleWithComp} onCaughtError={onCaughtError} />
                   ),
               };
           })
@@ -340,7 +335,6 @@ function useDispatcher<T>(dispatcher: Dispatcher<T>) {
 function ErrorPage({
     moduleWithComp,
     filePath,
-    isRootFile,
     onCaughtError,
 }: {
     moduleWithComp: {
@@ -348,7 +342,6 @@ function ErrorPage({
     };
     onCaughtError: ErrorReporter;
     filePath: string;
-    isRootFile: boolean;
 }) {
     navigation.setNavigateFunction(useNavigate());
 
@@ -357,8 +350,5 @@ function ErrorPage({
         return <moduleWithComp.ErrorBoundary />;
     }
 
-    if (!isRootFile) {
-        throw new Error(`ErrorBoundary not found at ${filePath}`);
-    }
     return <div>error boundary not found at {filePath}</div>;
 }
