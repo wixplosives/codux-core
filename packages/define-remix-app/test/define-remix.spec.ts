@@ -7,6 +7,7 @@ import {
     rootWithLayout,
     rootWithLayoutAndErrorBoundary,
     layoutWithErrorBoundary,
+    rootWithLayout2,
 } from './test-cases/roots';
 import { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -925,6 +926,19 @@ describe('define-remix', () => {
                 }),
             );
             expect(routingPattern).to.eql('file');
+        });
+    });
+    describe('render', () => {
+        it('should output page according to route to dom', async () => {
+            const { driver } = await getInitialManifest({
+                [indexPath]: rootWithLayout2,
+            });
+
+            const {dispose} = await driver.render({uri: '/'});
+
+           debugger;
+
+           dispose();
         });
     });
 });
