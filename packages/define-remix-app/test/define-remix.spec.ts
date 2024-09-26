@@ -807,7 +807,7 @@ describe('define-remix', () => {
                 });
                 const { newPageSourceCode } = driver.getNewPageInfo('Abou#$t');
 
-                expect(newPageSourceCode, 'Capital letter').to.include('export default function About() {');
+                expect(newPageSourceCode).to.include('export default function About() {');
             });
             it('should cleanup initial JSX content', async () => {
                 const { driver } = await getInitialManifest({
