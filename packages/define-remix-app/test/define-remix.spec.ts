@@ -12,6 +12,9 @@ import { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
+import { IDirectoryContents } from '@file-services/types';
+import * as React from 'react';
+import * as remixRunReact from '@remix-run/react';
 
 const indexPath = '/app/routes/_index.tsx';
 const rootPath = '/app/root.tsx';
@@ -21,14 +24,14 @@ const rootLayout: ParentLayoutWithExtra = {
     layoutExportName: 'Layout',
     layoutModule: rootPath,
     path: '/',
-    exportNames: ['default', 'Layout'],
+    exportNames: ['Layout', 'default'],
 };
 const root: ParentLayoutWithExtra = {
     id: 'root',
     layoutExportName: 'default',
     layoutModule: rootPath,
     path: '/',
-    exportNames: ['default', 'Layout'],
+    exportNames: ['Layout', 'default'],
 };
 
 describe('define-remix', () => {
@@ -504,11 +507,11 @@ describe('define-remix', () => {
     describe('error routes', () => {
         const rootLayoutWithError: ParentLayoutWithExtra = {
             ...rootLayout,
-            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+            exportNames: ['Layout', 'ErrorBoundary', 'default'],
         };
         const rootWithError: ParentLayoutWithExtra = {
             ...root,
-            exportNames: ['default', 'Layout', 'ErrorBoundary'],
+            exportNames: ['Layout', 'ErrorBoundary', 'default'],
         };
         it(`manifest with root error boundry`, async () => {
             const { manifest } = await getInitialManifest({
@@ -529,7 +532,7 @@ describe('define-remix', () => {
                         pageModule: rootPath,
                         readableUri: '',
                         path: [],
-                        exportNames: ['default', 'Layout', 'ErrorBoundary'],
+                        exportNames: ['Layout', 'ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -545,7 +548,7 @@ describe('define-remix', () => {
                     pageModule: indexPath,
                     readableUri: '',
                     path: [],
-                    exportNames: ['default', 'ErrorBoundary'],
+                    exportNames: ['ErrorBoundary', 'default'],
                 }),
                 errorRoutes: [
                     anErrorRoute({
@@ -554,7 +557,7 @@ describe('define-remix', () => {
                         readableUri: '',
                         path: [],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -573,7 +576,7 @@ describe('define-remix', () => {
                         pageModule: aboutPage,
                         readableUri: 'about',
                         path: [urlSeg('about')],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
                 errorRoutes: [
@@ -583,7 +586,7 @@ describe('define-remix', () => {
                         readableUri: 'about',
                         path: [urlSeg('about')],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['default', 'ErrorBoundary'],
+                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -596,7 +599,7 @@ describe('define-remix', () => {
                 [indexPath]: simpleLayout,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
@@ -617,7 +620,7 @@ describe('define-remix', () => {
                 [testedPath]: loaderOnly,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents, simpleLayout.exports);
+            driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -653,7 +656,7 @@ describe('define-remix', () => {
                 ],
             });
 
-            driver.addOrUpdateFile(rootPath, rootWithLayout.contents, rootWithLayout.exports);
+            driver.addOrUpdateFile(rootPath, rootWithLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -927,20 +930,15 @@ describe('define-remix', () => {
 });
 
 const getInitialManifest = async (
-    files: Record<string, { contents: string; exports: Set<string> }>,
+    files: IDirectoryContents,
     routingPattern?: RoutingPattern,
     appPath = './app',
 ) => {
     const { manifest, app, driver } = await createAppAndDriver(
         {
             [rootPath]: rootWithLayout,
-            ...Object.entries(files || {}).reduce(
-                (acc, [filePath, contents]) => {
-                    acc[filePath] = contents;
-                    return acc;
-                },
-                {} as Record<string, { contents: string; exports: Set<string> }>,
-            ),
+            'package.json': JSON.stringify({}),
+            ...files,
         },
         appPath,
         routingPattern,
@@ -949,7 +947,7 @@ const getInitialManifest = async (
     return { manifest, app, driver };
 };
 const createAppAndDriver = async (
-    initialFiles: Record<string, { contents: string; exports: Set<string> }>,
+    initialFiles: IDirectoryContents,
     appPath: string = './app',
     routingPattern: 'file' | 'folder(route)' | 'folder(index)' = 'file',
 ) => {
@@ -960,6 +958,10 @@ const createAppAndDriver = async (
     const driver = new AppDefDriver<RouteExtraInfo>({
         app,
         initialFiles,
+        evaluatedNodeModules: {
+            'react': React,
+            '@remix-run/react': remixRunReact,
+        },
     });
     const manifest = await driver.init();
 
