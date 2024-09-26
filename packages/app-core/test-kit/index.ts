@@ -9,10 +9,6 @@ export interface AppDefDriverOptions<T> {
     initialFiles: Record<string, string>;
     evaluatedNodeModules: Record<string, unknown>
     /**
-     * @default false
-     */
-    winFs?: boolean;
-    /**
      * @default '/app-def.ts'
      */
     appDefFilePath?: string;
@@ -135,7 +131,7 @@ export class AppDefDriver<T> {
     private fsApi: FSApi = {
         appDefFilePath: this.options.appDefFilePath || '/app-def.ts',
         projectPath: this.options.projectPath || '/',
-        path: (this.options.winFs ? (path as { win32: FSApi['path'] }).win32 : path.posix) as FSApi['path'],
+        path: path.posix as FSApi['path'],
         watchDirectory: (dirPath: string, cb) => {
             const listener: DirListenerObj = {
                 cb,
