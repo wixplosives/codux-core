@@ -33,5 +33,5 @@ function clearJsxSpecialCharactersFromText(txt: string) {
     return txt.replace(/[{}<>]/g, '');
 }
 function cleanInvalidJsIdentChars(txt: string) {
-    return txt.replace(/[!@#%^&*()\-+=[\]{}|;:'",.<>?/~\\`\s]/g, '');
+    return txt.replace(/[$!@#%^&*()\-+=[\]{}|;:'",.<>?/~\\`\s]/g, '');
 }
