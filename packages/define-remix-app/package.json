@@ -12,7 +12,8 @@
     "@remix-run/react": "^2.12.1",
     "@remix-run/router": "^1.19.2",
     "@remix-run/testing": "^2.12.1",
-    "@wixc3/app-core": "^4.3.2"
+    "@wixc3/app-core": "^4.3.2",
+    "@wixc3/common": "^17.1.1"
   },
   "files": [
     "dist",

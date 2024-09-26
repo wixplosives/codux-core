@@ -1,5 +1,7 @@
+import { toPascalCaseJsIdentifier } from '@wixc3/common';
+
 export const pageTemplate = (pageName: string, varNames: Set<string>) => {
-    const compIdentifier = cleanInvalidJsIdentChars(pageName[0].toUpperCase() + pageName.slice(1));
+    const compIdentifier = toPascalCaseJsIdentifier(pageName[0]);
     return varNames.size === 0
         ? `
 import React from 'react';
@@ -31,7 +33,4 @@ export default ${compIdentifier};
 
 function clearJsxSpecialCharactersFromText(txt: string) {
     return txt.replace(/[{}<>]/g, '');
-}
-function cleanInvalidJsIdentChars(txt: string) {
-    return txt.replace(/[!@#%^&*()\-+=[\]{}|;:'",.$<>?/~\\`\s]/g, '');
 }
