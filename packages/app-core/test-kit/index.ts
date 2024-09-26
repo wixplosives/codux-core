@@ -6,7 +6,7 @@ import path from '@file-services/path';
 import { IDirectoryContents } from '@file-services/types';
 export interface AppDefDriverOptions<T> {
     app: IReactApp<T>;
-    initialFiles: Record<string, string>;
+    initialFiles: IDirectoryContents;
     evaluatedNodeModules: Record<string, unknown>
     /**
      * @default '/app-def.ts'
@@ -27,11 +27,7 @@ export class AppDefDriver<T> {
     private lastManifest: IAppManifest<T> | null = null;
     private disposeApp?: () => void;
     constructor(private options: AppDefDriverOptions<T>) {
-        const files: IDirectoryContents = {};
-        for (const [filePath, contents] of Object.entries(options.initialFiles)) {
-            files[filePath] = contents;
-        }
-        this.fs = createMemoryFs(files);
+        this.fs = createMemoryFs(options.initialFiles);
         const resolver = createRequestResolver({fs: this.fs});
         this.moduleSystem = createBaseCjsModuleSystem({
             dirname: this.fs.dirname,

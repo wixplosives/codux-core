@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
+import { IDirectoryContents } from '@file-services/types';
 import * as React from 'react';
 import * as remixRunReact from '@remix-run/react';
 
@@ -929,7 +930,7 @@ describe('define-remix', () => {
 });
 
 const getInitialManifest = async (
-    files: Record<string, string>,
+    files: IDirectoryContents,
     routingPattern?: RoutingPattern,
     appPath = './app',
 ) => {
@@ -937,13 +938,7 @@ const getInitialManifest = async (
         {
             [rootPath]: rootWithLayout,
             'package.json': JSON.stringify({}),
-            ...Object.entries(files).reduce(
-                (acc, [filePath, contents]) => {
-                    acc[filePath] = contents;
-                    return acc;
-                },
-                {} as Record<string, string>,
-            ),
+            ...files,
         },
         appPath,
         routingPattern,
@@ -952,7 +947,7 @@ const getInitialManifest = async (
     return { manifest, app, driver };
 };
 const createAppAndDriver = async (
-    initialFiles: Record<string, string>,
+    initialFiles: IDirectoryContents,
     appPath: string = './app',
     routingPattern: 'file' | 'folder(route)' | 'folder(index)' = 'file',
 ) => {
