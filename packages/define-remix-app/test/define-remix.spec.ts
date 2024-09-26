@@ -598,7 +598,7 @@ describe('define-remix', () => {
                 [indexPath]: simpleLayout,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents);
+            driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
@@ -619,7 +619,7 @@ describe('define-remix', () => {
                 [testedPath]: loaderOnly,
             });
             expect(manifest.routes.length).to.equal(0);
-            driver.addOrUpdateFile(testedPath, simpleLayout.contents);
+            driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -655,7 +655,7 @@ describe('define-remix', () => {
                 ],
             });
 
-            driver.addOrUpdateFile(rootPath, rootWithLayout.contents);
+            driver.addOrUpdateFile(rootPath, rootWithLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
                     routes: [
@@ -929,20 +929,20 @@ describe('define-remix', () => {
 });
 
 const getInitialManifest = async (
-    files: Record<string, { contents: string; exports: Set<string> }>,
+    files: Record<string, string>,
     routingPattern?: RoutingPattern,
     appPath = './app',
 ) => {
     const { manifest, app, driver } = await createAppAndDriver(
         {
             [rootPath]: rootWithLayout,
-            'package.json': {contents: JSON.stringify({}), exports: new Set()},
-            ...Object.entries(files || {}).reduce(
+            'package.json': JSON.stringify({}),
+            ...Object.entries(files).reduce(
                 (acc, [filePath, contents]) => {
                     acc[filePath] = contents;
                     return acc;
                 },
-                {} as Record<string, { contents: string; exports: Set<string> }>,
+                {} as Record<string, string>,
             ),
         },
         appPath,
@@ -952,7 +952,7 @@ const getInitialManifest = async (
     return { manifest, app, driver };
 };
 const createAppAndDriver = async (
-    initialFiles: Record<string, { contents: string; exports: Set<string> }>,
+    initialFiles: Record<string, string>,
     appPath: string = './app',
     routingPattern: 'file' | 'folder(route)' | 'folder(index)' = 'file',
 ) => {

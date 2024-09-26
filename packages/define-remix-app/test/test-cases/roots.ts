@@ -11,108 +11,90 @@ function transformTsx(source: string) {
     return outputText;
 }
 
-export const rootWithLayout = {
-    contents: transformTsx(`
-        import React from 'react';
-        import {
-            Outlet,
-        } from '@remix-run/react';
-        export function Layout({ children }: { children: React.ReactNode }) {
-            return (
-                <html lang="en">
-                    <body>
-                        {children}
-                    </body>
-                </html>
-            );
-        }
-        export default function App() {
-            return (
-                <Outlet />
-            );
-        }
-    `),
-    exports: new Set(['Layout', 'default']),
-};
-export const rootWithLayoutAndErrorBoundary = {
-    contents: transformTsx(`
-        import React from 'react';
-        import {
-            Outlet,
-        } from '@remix-run/react';
-        export function Layout({ children }: { children: React.ReactNode }) {
-            return (
-                <html lang="en">
-                    <body>
-                        {children}
-                    </body>
-                </html>
-            );
-        }
-        export function ErrorBoundary({ error }: { error: Error }) {
-            return <div>{error.message}</div>;
-        }
-        export default function App() {
-            return (
-                <Outlet />
-            );
-        }
-    `),
-    exports: new Set(['Layout', 'ErrorBoundary', 'default']),
-};
-export const simpleRoot = {
-    contents: transformTsx(`
-        import React from 'react';
-        import {
-            Outlet,
-        } from '@remix-run/react';
-      
-        export default function App() {
-            return (
-                <Outlet />
-            );
-        }
-    `),
-    exports: new Set(['default']),
-};
-export const simpleLayout = {
-    contents: transformTsx(`
-        import React from 'react';
-        import {
-            Outlet,
-        } from '@remix-run/react';
-        export default function Layout() {
-            return (
-                <Outlet />
-            );
-        }
-    `),
-    exports: new Set(['default']),
-};
+export const rootWithLayout = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    export function Layout({ children }: { children: React.ReactNode }) {
+        return (
+            <html lang="en">
+                <body>
+                    {children}
+                </body>
+            </html>
+        );
+    }
+    export default function App() {
+        return (
+            <Outlet />
+        );
+    }
+`);
+export const rootWithLayoutAndErrorBoundary = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    export function Layout({ children }: { children: React.ReactNode }) {
+        return (
+            <html lang="en">
+                <body>
+                    {children}
+                </body>
+            </html>
+        );
+    }
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>{error.message}</div>;
+    }
+    export default function App() {
+        return (
+            <Outlet />
+        );
+    }
+`);
+export const simpleRoot = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    
+    export default function App() {
+        return (
+            <Outlet />
+        );
+    }
+`);
+export const simpleLayout = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    export default function Layout() {
+        return (
+            <Outlet />
+        );
+    }
+`);
 
-export const layoutWithErrorBoundary = {
-    contents: transformTsx(`
-        import React from 'react';
-        import {
-            Outlet,
-        } from '@remix-run/react';
-        export function ErrorBoundary({ error }: { error: Error }) {
-            return <div>{error.message}</div>;
-        }
-        export default function Layout() {
-            return (
-                <Outlet />
-            );
-        }
-    `),
-    exports: new Set(['default', 'ErrorBoundary']),
-};
+export const layoutWithErrorBoundary = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>{error.message}</div>;
+    }
+    export default function Layout() {
+        return (
+            <Outlet />
+        );
+    }
+`);
 
-export const loaderOnly = {
-    contents: transformTsx(`
-        export async function loader() {
-            return { message: 'Hello World' };
-        }
-    `),
-    exports: new Set(['loader']),
-};
+export const loaderOnly = transformTsx(`
+    export async function loader() {
+        return { message: 'Hello World' };
+    }
+`);
