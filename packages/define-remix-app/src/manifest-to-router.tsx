@@ -349,9 +349,10 @@ function ErrorPage({
     filePath: string;
 }) {
     navigation.setNavigateFunction(useNavigate());
-
-    if (moduleWithComp.ErrorBoundary) {
+    useEffect(() => {
         onCaughtError({ filePath, exportName: 'ErrorBoundary' });
+    }, [filePath, onCaughtError]);
+    if (moduleWithComp.ErrorBoundary) {
         return <moduleWithComp.ErrorBoundary />;
     }
 
