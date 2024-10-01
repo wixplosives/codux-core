@@ -268,6 +268,16 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             }
             return results as string[];
         },
+        async hasGetStaticRoutes({fsApi}, forRouteAtFilePath) {
+            const {
+                exportNames,
+                stop,
+            } = fsApi.watchFileExports(forRouteAtFilePath, () => {});
+            const results = await exportNames;
+            const hasGetStaticRoutes = results.includes('getStaticRoutes');
+            stop();
+            return hasGetStaticRoutes;
+        },
         getNewPageInfo({ fsApi, requestedURI, manifest }) {
             return getNewOrMove({ fsApi, requestedURI, manifest, layoutMap });
         },

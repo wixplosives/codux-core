@@ -221,7 +221,7 @@ function RootComp({
 
 function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
     const currentModule = useDispatcher(module);
-
+    const location = useLocation()
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
     }
@@ -234,7 +234,7 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
         return <div>default export not found at {filePath}</div>;
     }
 
-    return <Page />;
+    return <Page key={location.pathname}/>;
 }
 function lazyCompAndLoader(
     filePath: string,
@@ -349,9 +349,10 @@ function ErrorPage({
     filePath: string;
 }) {
     navigation.setNavigateFunction(useNavigate());
-
-    if (moduleWithComp.ErrorBoundary) {
+    useEffect(() => {
         onCaughtError({ filePath, exportName: 'ErrorBoundary' });
+    }, [filePath, onCaughtError]);
+    if (moduleWithComp.ErrorBoundary) {
         return <moduleWithComp.ErrorBoundary />;
     }
 

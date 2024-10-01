@@ -145,6 +145,12 @@ export interface IReactApp<T = unknown> {
      * allows codux to get the static routes for a given file path ( needed to allow navigation to a dynamic page )
      */
     getStaticRoutes?: (options: ICallServerMethodOptions, forRouteAtFilePath: string) => Promise<unknown>;
+    /**
+     * can be called on the server or in a web worker
+     * allows codux to get the static routes for a given file path ( needed to allow navigation to a dynamic page )
+     */
+    hasGetStaticRoutes?: (options: ICallServerMethodOptions, forRouteAtFilePath: string) => Promise<boolean>;
+
 
     App: React.ComponentType<IReactAppProps<T>>;
     /**
