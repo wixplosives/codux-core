@@ -90,6 +90,7 @@ export const aRoute = (
     parentLayouts: extraData.parentLayouts,
     pathString: filePathToReadableUri(pageModule.slice(routeDirPath.length + 1), pathApi) || '',
     extraData,
+    hasGetStaticRoutes: extraData.exportNames.includes('getStaticRoutes'),
 });
 export const anErrorRoute = (
     routeDirPath: string,
