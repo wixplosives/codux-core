@@ -107,6 +107,7 @@ export const rootWithLayout2 = transformTsx(`
         return (
             <html lang="en">
                 <body>
+                    Layout|
                     {children}
                 </body>
             </html>
@@ -114,8 +115,33 @@ export const rootWithLayout2 = transformTsx(`
     }
     export default function App() {
         return (
-            <Outlet />
-            <div>app</div>
+            <div>
+                App|
+                <Outlet />
+            </div>
         );
+    }
+
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>Error</div>;
+    }
+`);
+
+export const namedPage = (name: string) => transformTsx(`
+    import React from 'react';
+    import { Outlet } from '@remix-run/react';
+
+    export default function ${name}() {
+        return <div>${name}|<Outlet /></div>;
+    }
+`);
+
+export const loaderPage = (name: string, message: string) => transformTsx(`
+    import React from 'react';
+    import { Outlet, useLoaderData } from '@remix-run/react';
+    export const loader = () => ({ message: '${message}' });
+    export default function ${name}() {
+        const data = useLoaderData();
+        return <div>${name}:{data.message}|<Outlet /></div>;
     }
 `);

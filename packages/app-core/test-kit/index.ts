@@ -131,7 +131,7 @@ export class AppDefDriver<T> {
 
         const container = document.body.appendChild(document.createElement('div'));
 
-        const unmount = await app.render(container, {
+        const createProps = (uri: string) => ({
             callServerMethod(filePath: string, methodName: string, args: unknown[]) {
                 return app.callServerMethod!(
                     { 
@@ -148,11 +148,16 @@ export class AppDefDriver<T> {
                 // ToDo: implement
             },
             uri,
-        })
+        });
+        const unmount = await app.render(container, createProps(uri));
         return {
             dispose() {
                 unmount();
                 container.remove();
+            },
+            container,
+            rerender({uri = '/'}: {uri?: string} = {}) {
+                return app.render(container, createProps(uri));
             }
         };
     }

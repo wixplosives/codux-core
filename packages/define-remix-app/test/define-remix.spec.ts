@@ -7,18 +7,22 @@ import {
     rootWithLayout,
     rootWithLayoutAndErrorBoundary,
     layoutWithErrorBoundary,
+    namedPage,
     rootWithLayout2,
+    loaderPage,
 } from './test-cases/roots';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 import { IDirectoryContents } from '@file-services/types';
 import * as React from 'react';
 import * as remixRunReact from '@remix-run/react';
-
+import { chaiRetryPlugin } from '@wixc3/testing';
+chai.use(chaiRetryPlugin);
 const indexPath = '/app/routes/_index.tsx';
 const rootPath = '/app/root.tsx';
+const aboutPath = '/app/routes/about.tsx';
 
 const rootLayout: ParentLayoutWithExtra = {
     id: 'rootLayout',
@@ -931,23 +935,71 @@ describe('define-remix', () => {
     describe('render', () => {
         it('should output page according to route to dom', async () => {
             const { driver } = await getInitialManifest({
-                [indexPath]: rootWithLayout2,
+                [rootPath]: rootWithLayout2,
+                [indexPath]: namedPage('Home'),
+                [aboutPath]: namedPage('About'),
             });
 
-            const {dispose} = await driver.render({uri: '/'});
+            const { dispose, container, rerender} = await driver.render({ uri: '/' });
+            
+            await expect(()=>container.textContent).retry().to.include('Layout|App|Home|');
+            
+            rerender({uri: 'about'});
 
-           debugger;
+            await expect(()=>container.textContent).retry().to.include('Layout|App|About|');
 
-           dispose();
+            dispose();
         });
+        describe('nested routes', () => {
+            it('should render parent routes where needed', async () => {
+                const aboutPage = '/app/routes/about.tsx';
+                const aboutUsPage = '/app/routes/about.us.tsx';
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: namedPage('Home'),
+                    [aboutPage]: namedPage('About'),
+                    [aboutUsPage]: namedPage('AboutUs'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'about/us' });
+
+                await expect(()=>container.textContent).retry().to.include('Layout|App|About|AboutUs');
+
+                dispose();
+            });
+        });
+        describe('error routes', () => {
+            it('should render error route when error occurs', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: namedPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '404' });
+
+                await expect(()=>container.textContent).retry().to.include('Error');
+
+                dispose();
+            });
+        });
+        describe('loader', ()=>{
+            it('should render loader', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: loaderPage('Home', 'Home loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(()=>container.textContent).retry().to.include('Layout|App|Home:Home loaded data');
+
+                dispose();
+            });
+        })
     });
 });
 
-const getInitialManifest = async (
-    files: IDirectoryContents,
-    routingPattern?: RoutingPattern,
-    appPath = './app',
-) => {
+const getInitialManifest = async (files: IDirectoryContents, routingPattern?: RoutingPattern, appPath = './app') => {
     const { manifest, app, driver } = await createAppAndDriver(
         {
             [rootPath]: rootWithLayout,
@@ -973,7 +1025,7 @@ const createAppAndDriver = async (
         app,
         initialFiles,
         evaluatedNodeModules: {
-            'react': React,
+            react: React,
             '@remix-run/react': remixRunReact,
         },
     });
