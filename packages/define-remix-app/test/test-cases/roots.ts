@@ -105,12 +105,12 @@ export const rootWithLayout2 = transformTsx(`
 
     export function Layout({ children }: { children: React.ReactNode }) {
         return (
-            <html lang="en">
-                <body>
+            <mock-ml lang="en">
+                <mock-body>
                     Layout|
                     {children}
-                </body>
-            </html>
+                </mock-body>
+            </mock-ml>
         );
     }
     export default function App() {
