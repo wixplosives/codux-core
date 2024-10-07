@@ -10,6 +10,10 @@ import {
     namedPage,
     rootWithLayout2,
     loaderPage,
+    deferedLoaderPage,
+    actionPage,
+    rootWithBreadCrumbs,
+    simpleLayoutWithHandle,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1010,9 +1014,82 @@ describe('define-remix', () => {
 
                 dispose();
             });
-        })
+            // mock node services to test this
+            it.skip('should accept delayed response from loader', async () => {
+                const aboutPage = '/app/routes/about.tsx';
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [aboutPage]: deferedLoaderPage('About', 'About loaded data', 'loaded extra'),
+                });
 
+                const { dispose, container } = await driver.render({ uri: 'about' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|About:About loaded data|AboutUs:AboutUs loaded data');
+
+                dispose();
+            });
+
+            
+        })
+        describe('actions', () => {
+            it('should call action and pass the information into useActionData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    '/app/routes/contact.$nickname.tsx': actionPage('Contact'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'contact/yossi' });
+
+                await expect(()=>container.textContent).retry().to.include('Layout|App|Contact|User does not exist');
+
+                const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                nameField.value = 'John Doe';
+                emailField.value = 'jhon@doe.com'
+                submitButton.click();
+                await expect(()=>container.textContent).retry().to.include('Layout|App|Contact|User exist');
+                await expect(()=>container.textContent).retry().to.include('User created');
+                dispose();
+            });
+
+            it.skip('should accept delayed response from action', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'about' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|About:About action data|AboutUs:AboutUs action data');
+
+                dispose();
+            });
+        })
+        describe('handle', ()=>{
+            // TODO - implement
+            it.skip('exported handled should be available using useMatches', async () => {
+                const aboutUsPath = '/app/routes/about.us.tsx';
+
+      
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithBreadCrumbs,
+                    [aboutPath]: simpleLayoutWithHandle('About'),
+                    [aboutUsPath]: simpleLayoutWithHandle('AboutUs'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'about/us' });
+
+                await expect(()=>container.textContent, 'page is rendered').retry().to.include('Layout|App|About|AboutUs');
+                await expect(()=>container.textContent, 'Bread crumbs are there').retry().to.include('Layout!App|About!AboutUs!');
+                dispose();
+            });   
+        })
     });
+
 });
 
 const getInitialManifest = async (files: IDirectoryContents, routingPattern?: RoutingPattern, appPath = './app') => {
