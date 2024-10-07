@@ -13,11 +13,11 @@ import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-    return params;
+    return { params };
 };
 
 const ${compIdentifier} = () => {
-    const params = useLoaderData<typeof loader>();
+    const { params } = useLoaderData<typeof loader>();
     return <div>
         ${[...varNames].map((name) => `<div>${clearJsxSpecialCharactersFromText(name)}: {params["${name}"]}</div>`).join('\n')}
         </div>;
