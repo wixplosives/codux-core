@@ -1,4 +1,4 @@
-import ts from'typescript';
+import ts from 'typescript';
 
 function transformTsx(source: string) {
     const { outputText } = ts.transpileModule(source, {
@@ -6,7 +6,7 @@ function transformTsx(source: string) {
             module: ts.ModuleKind.CommonJS,
             target: ts.ScriptTarget.ES2020,
             jsx: ts.JsxEmit.React,
-        }
+        },
     });
     return outputText;
 }
@@ -127,16 +127,35 @@ export const rootWithLayout2 = transformTsx(`
     }
 `);
 
-export const namedPage = (name: string) => transformTsx(`
+export const namedPage = (
+    name: string,
+    {
+        includeErrorBoundry = false,
+        throwErrorInPage = false,
+    }: { includeErrorBoundry?: boolean; throwErrorInPage?: boolean } = {},
+) =>
+    transformTsx(`
     import React from 'react';
     import { Outlet } from '@remix-run/react';
 
     export default function ${name}() {
+        ${throwErrorInPage ? 'throw new Error("ErrorInPage");' : ''}
         return <div>${name}|<Outlet /></div>;
+    }
+
+    ${
+        includeErrorBoundry
+            ? `
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>ErrorInPage:${name}</div>;
+    }
+    `
+            : ''
     }
 `);
 
-export const loaderPage = (name: string, message: string) => transformTsx(`
+export const loaderPage = (name: string, message: string) =>
+    transformTsx(`
     import React from 'react';
     import { Outlet, useLoaderData } from '@remix-run/react';
     export const loader = () => ({ message: '${message}' });

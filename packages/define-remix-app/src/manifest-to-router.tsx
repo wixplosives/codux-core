@@ -146,6 +146,9 @@ const fileToRoute = (
     return routeObject;
 };
 const loadedModules = new Map<string, ReturnType<typeof lazyCompAndLoader>>();
+export const clearLoadedModules = () => {
+    loadedModules.clear();
+}
 export const getLazyCompAndLoader = (
     filePath: string,
     exportNames: string[],

@@ -981,9 +981,24 @@ describe('define-remix', () => {
 
                 dispose();
             });
+            it('should show internal error page if it exists', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: namedPage('Home', {
+                        includeErrorBoundry: true,
+                        throwErrorInPage: true,
+                    }),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '404' });
+
+                await expect(()=>container.textContent).retry().to.include('Error');
+
+                dispose();
+            });
         });
         describe('loader', ()=>{
-            it('should render loader', async () => {
+            it('should call loader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
                     [indexPath]: loaderPage('Home', 'Home loaded data'),
@@ -996,6 +1011,7 @@ describe('define-remix', () => {
                 dispose();
             });
         })
+
     });
 });
 

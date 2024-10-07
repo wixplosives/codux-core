@@ -29,7 +29,7 @@ import {
     serializeResponse,
     toCamelCase,
 } from './remix-app-utils';
-import { manifestToRouter } from './manifest-to-router';
+import { clearLoadedModules, manifestToRouter } from './manifest-to-router';
 import { parentLayoutWarning } from './content';
 import { pageTemplate } from './page-template';
 import { isDeferredData } from '@remix-run/router';
@@ -208,6 +208,9 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 [manifest, importModule, setUri, onCaughtError, callServerMethod],
             );
 
+            useEffect(()=>{
+                return clearLoadedModules
+            }, [])
             useEffect(() => {
                 navigate(uri.startsWith('/') ? uri : `/${uri}`);
             }, [uri, navigate]);
