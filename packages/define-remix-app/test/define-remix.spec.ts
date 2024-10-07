@@ -944,7 +944,7 @@ describe('define-remix', () => {
             
             await expect(()=>container.textContent).retry().to.include('Layout|App|Home|');
             
-            rerender({uri: 'about'});
+            await rerender({uri: 'about'});
 
             await expect(()=>container.textContent).retry().to.include('Layout|App|About|');
 
