@@ -1,4 +1,4 @@
-import type { FSApi, IAppManifest, IReactApp } from '@wixc3/app-core';
+import type { DynamicImport, FSApi, IAppManifest, IReactApp } from '@wixc3/app-core';
 import { createBaseCjsModuleSystem, ICommonJsModuleSystem } from '@file-services/commonjs';
 import { createMemoryFs, IMemFileSystem } from '@file-services/memory';
 import { createRequestResolver } from '@file-services/resolve';
@@ -121,6 +121,46 @@ export class AppDefDriver<T> {
             movedFilePath,
         });
     }
+    async render({uri = '/'}: {uri?: string} = {}) {
+        const { app } = this.options;
+        const { fsApi, importModule, lastManifest } = this;
+            
+        if (!app.callServerMethod) {
+            throw new Error('app.callServerMethod is not defined');
+        }
+
+        const container = document.body.appendChild(document.createElement('div'));
+
+        const createProps = (uri: string) => ({
+            callServerMethod(filePath: string, methodName: string, args: unknown[]) {
+                return app.callServerMethod!(
+                    { 
+                        fsApi, 
+                        importModule
+                    }, 
+                    filePath, methodName, args
+                );
+            },
+            importModule: this.importModule,
+            manifest: lastManifest!,
+            onCaughtError() {/**/},
+            setUri(_uri: string) {
+                // ToDo: implement
+            },
+            uri,
+        });
+        const unmount = await app.render(container, createProps(uri));
+        return {
+            dispose() {
+                unmount();
+                container.remove();
+            },
+            container,
+            rerender({uri = '/'}: {uri?: string} = {}) {
+                return app.render(container, createProps(uri));
+            }
+        };
+    }
     dispose() {
         this.disposeApp?.();
     }
@@ -173,6 +213,37 @@ export class AppDefDriver<T> {
                 exportNames: Promise.resolve(moduleExports),
             };
         },
+    };
+    private importModule: DynamicImport = (filePath, onModuleChange) => {
+        const requireModule = () => {
+            let module, errorMessage;
+            try {
+                module = this.moduleSystem.requireModule(filePath);
+            } catch (error) {
+                errorMessage = error instanceof Error ? error.message : String(error);
+            }
+            return { module, errorMessage }
+        };
+        const { stop } = this.fsApi.watchFile(filePath, () => {
+            this.moduleSystem.moduleCache.delete(filePath);
+            const {module, errorMessage} = requireModule();
+            onModuleChange?.({
+                results: module || null,
+                status: errorMessage ? 'invalid' : 'ready',
+                errorMessage,
+            });
+        });
+        const { module, errorMessage } = requireModule();
+        return {
+            moduleResults: Promise.resolve({
+                status: errorMessage ? 'invalid' : 'ready',
+                results: module || null,
+                errorMessage
+            }),
+            dispose() {
+                stop();
+            },
+        };
     };
     private listNestedPaths(dirPath: string) {
         const nestedPaths: string[] = [];
