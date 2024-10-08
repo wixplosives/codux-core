@@ -229,7 +229,9 @@ export const loaderPage = (name: string, message: string) =>
     }
 `);
 
-export const deferedLoaderPage = (name: string, initialResposne: string, delayedResponse: string) => `
+export const deferedLoaderPage = (name: string, initialResposne: string, delayedResponse: string) =>
+    transformTsx(`
+import React from 'react';        
 import { defer } from '@remix-run/server-runtime';
 import { Await, useLoaderData } from '@remix-run/react';
 import { Suspense } from 'react';
@@ -257,9 +259,9 @@ export default function ${name}() {
 
     return (
         <div>
-            <h1>${name}</h1>
+            <h1>${name}:</h1>
 
-            <p>{immediateData}</p>
+            <p>{immediateData}-</p>
 
             <Suspense fallback={<p>Loading delayed data...</p>}>
                 <Await resolve={delayedData}>{(loadedData) => <p>{loadedData}</p>}</Await>
@@ -267,7 +269,53 @@ export default function ${name}() {
         </div>
     );
 }
-`;
+`);
+
+export const deferedActionPage = (name: string, initialResposne: string, delayedResponse: string) =>
+    transformTsx(`
+import React from 'react';        
+import { defer } from '@remix-run/server-runtime';
+import { Await, useActionData, Form } from '@remix-run/react';
+import { Suspense } from 'react';
+
+// Simulate an API call with some delay
+const fetchDelayedData = () =>
+    new Promise<string>((resolve) =>
+        setTimeout(() => resolve('${delayedResponse}'), 200)
+    );
+
+
+
+export const action = async () => {
+    debugger;
+    const immediateData = '${initialResposne}'
+    const delayedDataPromise = fetchDelayedData();
+
+    return defer({
+        immediateData,
+        delayedData: delayedDataPromise,
+    });
+};
+
+// Component that uses the loader data
+export default function ${name}() {
+    const { immediateData, delayedData } = useActionData<typeof loader>() || {};
+
+    return (
+        <div>
+            <h1>${name}</h1>
+
+            <p>{immediateData}</p>
+            <Form method="post">
+                <button type="submit">Send</button>
+            </Form>
+            <Suspense fallback={<p>Loading delayed data...</p>}>
+                <Await resolve={delayedData}>{(loadedData) => <p>{loadedData}</p>}</Await>
+            </Suspense>
+        </div>
+    );
+}
+`);
 
 export const actionPage = (name: string) =>
     transformTsx(`
