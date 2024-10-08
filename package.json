@@ -21,7 +21,7 @@
     "@playwright/browser-chromium": "^1.47.2",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
-    "@types/mocha": "^10.0.8",
+    "@types/mocha": "^10.0.9",
     "@types/node": "20",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
