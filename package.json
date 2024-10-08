@@ -18,7 +18,7 @@
     "@file-services/node": "^9.4.1",
     "@file-services/path": "^9.4.1",
     "@file-services/resolve": "^9.4.1",
-    "@playwright/browser-chromium": "^1.47.2",
+    "@playwright/browser-chromium": "^1.48.0",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.9",
