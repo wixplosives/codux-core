@@ -18,10 +18,10 @@
     "@file-services/node": "^9.4.1",
     "@file-services/path": "^9.4.1",
     "@file-services/resolve": "^9.4.1",
-    "@playwright/browser-chromium": "^1.47.2",
+    "@playwright/browser-chromium": "^1.48.0",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
-    "@types/mocha": "^10.0.8",
+    "@types/mocha": "^10.0.9",
     "@types/node": "20",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
@@ -44,11 +44,9 @@
     "react-dom": "^18.3.1",
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
-    "typescript": "~5.6.2",
-    "typescript-eslint": "^8.8.0"
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.8.1"
   },
   "license": "MIT",
-  "private": true,
-  "dependencies": {
-  }
+  "private": true
 }
