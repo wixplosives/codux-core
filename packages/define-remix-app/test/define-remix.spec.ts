@@ -1090,7 +1090,7 @@ describe('define-remix', () => {
                 submitButton.click();
                 await expect(() => container.textContent)
                     .retry()
-                    .to.include('Layout|App|Home:Home action data action extra');
+                    .to.include('Layout|App|Home:Home action data!action extra');
 
                 dispose();
             });

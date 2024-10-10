@@ -287,7 +287,6 @@ const fetchDelayedData = () =>
 
 
 export const action = async () => {
-    debugger;
     const immediateData = '${initialResposne}'
     const delayedDataPromise = fetchDelayedData();
 
@@ -303,15 +302,16 @@ export default function ${name}() {
 
     return (
         <div>
-            <h1>${name}</h1>
+            <h1>${name}:</h1>
 
-            <p>{immediateData}</p>
-            <Form method="post">
-                <button type="submit">Send</button>
-            </Form>
+            <p>{immediateData}!</p>
+       
             <Suspense fallback={<p>Loading delayed data...</p>}>
                 <Await resolve={delayedData}>{(loadedData) => <p>{loadedData}</p>}</Await>
             </Suspense>
+            <Form method="post">
+                <button type="submit">Send</button>
+            </Form>
         </div>
     );
 }
