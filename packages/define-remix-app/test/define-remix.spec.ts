@@ -1113,7 +1113,7 @@ describe('define-remix', () => {
                     .to.include('Layout|App|About|AboutUs');
                 await expect(() => container.textContent, 'Bread crumbs are there')
                     .retry()
-                    .to.include('Layout!App|About!AboutUs!');
+                    .to.include('Breadcrumbs:Home!About!AboutUs!');
                 dispose();
             });
         });

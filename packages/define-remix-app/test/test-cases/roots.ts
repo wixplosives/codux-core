@@ -175,6 +175,7 @@ export const rootWithBreadCrumbs = transformTsx(
                
                 App|
                 <Outlet />
+                Breadcrumbs:
                  <div>
                     {matches.map((match) => (
                         <div key={match.path}>{match?.handle?.name}!</div>
