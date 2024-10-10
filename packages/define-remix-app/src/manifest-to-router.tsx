@@ -36,12 +36,12 @@ export const manifestToRouter = (
         };
     }
     const rootRoute: RouteObject = fileToRoute(
+        '/',
         rootFilePath,
         rootExports,
         requireModule,
         setUri,
         onCaughtError,
-        '/',
         true,
         prevUri,
         callServerMethod,
@@ -50,12 +50,12 @@ export const manifestToRouter = (
     if (manifest.homeRoute) {
         rootRoute.children = [
             fileToRoute(
+                '/',
                 manifest.homeRoute.pageModule,
                 manifest.homeRoute.extraData.exportNames,
                 requireModule,
                 setUri,
                 onCaughtError,
-                '/',
                 false,
                 prevUri,
                 callServerMethod,
@@ -64,12 +64,12 @@ export const manifestToRouter = (
     }
     for (const route of manifest.routes) {
         const routeObject = fileToRoute(
+            pathToRemixRouterUrl(route.path),
             route.pageModule,
             route.extraData.exportNames,
             requireModule,
             setUri,
             onCaughtError,
-            pathToRemixRouterUrl(route.path),
             false,
             prevUri,
             callServerMethod,
@@ -83,12 +83,12 @@ export const manifestToRouter = (
                 layoutMap.set(
                     parentLayout.layoutModule,
                     fileToRoute(
+                        parentLayout.path,
                         parentLayout.layoutModule,
                         route.extraData.exportNames,
                         requireModule,
                         setUri,
                         onCaughtError,
-                        parentLayout.path,
                         false,
                         prevUri,
                         callServerMethod,
@@ -113,43 +113,12 @@ export const manifestToRouter = (
         },
     };
 };
-const fileToRoute = (
-    filePath: string,
-    exportNames: string[],
-    requireModule: DynamicImport,
-    setUri: (uri: string) => void,
-    onCaughtError: ErrorReporter,
-    path: string,
-    isRootPath: boolean = false,
-    prevUri: { current: string },
-    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) => {
-    const { Component, loader, ErrorBoundary, action } = getLazyCompAndLoader(
-        filePath,
-        exportNames,
-        requireModule,
-        setUri,
-        onCaughtError,
-        isRootPath,
-        prevUri,
-        callServerMethod,
-    );
-
-    const routeObject: RouteObject = {
-        path,
-        Component,
-        loader,
-        ErrorBoundary,
-        action,
-    };
-
-    return routeObject;
-};
-const loadedModules = new Map<string, ReturnType<typeof lazyCompAndLoader>>();
+const loadedModules = new Map<string, ReturnType<typeof nonMemoFileToRoute>>();
 export const clearLoadedModules = () => {
     loadedModules.clear();
 }
-export const getLazyCompAndLoader = (
+export const fileToRoute = (
+    uri: string,
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
@@ -158,11 +127,12 @@ export const getLazyCompAndLoader = (
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) => {
+): RouteObject => {
     const key = filePath;
     let module = loadedModules.get(key);
     if (!module) {
-        module = lazyCompAndLoader(
+        module = nonMemoFileToRoute(
+            uri,
             filePath,
             exportNames,
             requireModule,
@@ -239,7 +209,8 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
 
     return <Page key={location.pathname}/>;
 }
-function lazyCompAndLoader(
+function nonMemoFileToRoute(
+    uri: string,
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
@@ -248,7 +219,10 @@ function lazyCompAndLoader(
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) {
+): RouteObject {
+    const handle: Record<string,unknown> = {};
+    
+
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
         const { moduleResults } = requireModule(filePath, (newResults) => {
@@ -308,7 +282,9 @@ function lazyCompAndLoader(
               return deserializeResponse(res as SerializedResponse);
           }
         : undefined;
-    return { Component, loader, ErrorBoundary, action };
+
+    
+    return { Component, loader, ErrorBoundary, action, path: uri };
 }
 
 interface Dispatcher<T> {
