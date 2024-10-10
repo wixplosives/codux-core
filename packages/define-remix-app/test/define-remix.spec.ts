@@ -10,6 +10,11 @@ import {
     namedPage,
     rootWithLayout2,
     loaderPage,
+    deferedLoaderPage,
+    actionPage,
+    rootWithBreadCrumbs,
+    simpleLayoutWithHandle,
+    deferedActionPage,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -18,6 +23,9 @@ import { waitFor } from 'promise-assist';
 import { IDirectoryContents } from '@file-services/types';
 import * as React from 'react';
 import * as remixRunReact from '@remix-run/react';
+import * as remixRunNode from '@remix-run/node';
+import * as remixRunServerRuntime from '@remix-run/server-runtime';
+
 import { chaiRetryPlugin } from '@wixc3/testing';
 chai.use(chaiRetryPlugin);
 const indexPath = '/app/routes/_index.tsx';
@@ -940,13 +948,17 @@ describe('define-remix', () => {
                 [aboutPath]: namedPage('About'),
             });
 
-            const { dispose, container, rerender} = await driver.render({ uri: '/' });
-            
-            await expect(()=>container.textContent).retry().to.include('Layout|App|Home|');
-            
-            await rerender({uri: 'about'});
+            const { dispose, container, rerender } = await driver.render({ uri: '/' });
 
-            await expect(()=>container.textContent).retry().to.include('Layout|App|About|');
+            await expect(() => container.textContent)
+                .retry()
+                .to.include('Layout|App|Home|');
+
+            await rerender({ uri: 'about' });
+
+            await expect(() => container.textContent)
+                .retry()
+                .to.include('Layout|App|About|');
 
             dispose();
         });
@@ -963,7 +975,9 @@ describe('define-remix', () => {
 
                 const { dispose, container } = await driver.render({ uri: 'about/us' });
 
-                await expect(()=>container.textContent).retry().to.include('Layout|App|About|AboutUs');
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|About|AboutUs');
 
                 dispose();
             });
@@ -977,7 +991,9 @@ describe('define-remix', () => {
 
                 const { dispose, container } = await driver.render({ uri: '404' });
 
-                await expect(()=>container.textContent).retry().to.include('Error');
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Error');
 
                 dispose();
             });
@@ -992,12 +1008,14 @@ describe('define-remix', () => {
 
                 const { dispose, container } = await driver.render({ uri: '404' });
 
-                await expect(()=>container.textContent).retry().to.include('Error');
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Error');
 
                 dispose();
             });
         });
-        describe('loader', ()=>{
+        describe('loader', () => {
             it('should call loader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
@@ -1006,12 +1024,99 @@ describe('define-remix', () => {
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expect(()=>container.textContent).retry().to.include('Layout|App|Home:Home loaded data');
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home loaded data');
 
                 dispose();
             });
-        })
+            // mock node services to test this
+            it('should accept delayed response from loader', async () => {
+                const aboutPage = '/app/routes/about.tsx';
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [aboutPage]: deferedLoaderPage('About', 'About loaded data', 'loaded extra'),
+                });
 
+                const { dispose, container } = await driver.render({ uri: 'about' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|About:About loaded data-loaded extra');
+
+                dispose();
+            });
+        });
+        describe('actions', () => {
+            it('should call action and pass the information into useActionData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    '/app/routes/contact.$nickname.tsx': actionPage('Contact'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'contact/yossi' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Contact|User does not exist');
+
+                const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                nameField.value = 'John Doe';
+                emailField.value = 'jhon@doe.com';
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Contact|User exist');
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('User created');
+                dispose();
+            });
+
+            it('should accept delayed response from action', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: deferedActionPage('Home', 'Home action data', 'action extra'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home action data!action extra');
+
+                dispose();
+            });
+        });
+        describe('handle', () => {
+            // TODO - implement
+            it.skip('exported handled should be available using useMatches', async () => {
+                const aboutUsPath = '/app/routes/about.us.tsx';
+
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithBreadCrumbs,
+                    [aboutPath]: simpleLayoutWithHandle('About'),
+                    [aboutUsPath]: simpleLayoutWithHandle('AboutUs'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'about/us' });
+
+                await expect(() => container.textContent, 'page is rendered')
+                    .retry()
+                    .to.include('Layout|App|About|AboutUs');
+                await expect(() => container.textContent, 'Bread crumbs are there')
+                    .retry()
+                    .to.include('Breadcrumbs:Home!About!AboutUs!');
+                dispose();
+            });
+        });
     });
 });
 
@@ -1043,6 +1148,8 @@ const createAppAndDriver = async (
         evaluatedNodeModules: {
             react: React,
             '@remix-run/react': remixRunReact,
+            '@remix-run/node': remixRunNode,
+            '@remix-run/server-runtime': remixRunServerRuntime,
         },
     });
     const manifest = await driver.init();
