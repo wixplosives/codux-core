@@ -9,11 +9,12 @@ import {
 } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
+import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
 import { navigation } from './navigation';
 import { createHandleProxy } from './handle-proxy';
+import { createLinksProxy } from './links-proxy';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -239,16 +240,36 @@ function nonMemoFileToRoute(
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ): RouteObject {
     const { handle, setHandle } = createHandleProxy();
+    const { linksWrapper, setLinks } = createLinksProxy();
+
+    const importModuleAndUpdate: DynamicImport = (filePath, cb) => {
+        const { moduleResults, dispose } = requireModule(filePath, (newResults) => {
+            setHandle((newResults.results as { handle?: unknown }).handle);
+            const linksFunction = (newResults.results as { links?: LinksFunction }).links;
+            if(linksFunction){
+                setLinks(linksFunction);
+            }
+            cb?.(newResults);
+        });
+        const results =  moduleResults.then((res) => {
+            if (res.status === 'ready') {
+                setHandle((res.results as { handle?: unknown }).handle);
+                const linksFunction = (res.results as { links?: LinksFunction }).links;
+                if(linksFunction){
+                    setLinks(linksFunction);
+                }
+            }
+            return res;
+        });
+        return { moduleResults: results, dispose };
+    }
+
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
-        const { moduleResults } = requireModule(filePath, (newResults) => {
-            setHandle((newResults.results as { handle?: unknown }).handle);
+        const { moduleResults } = importModuleAndUpdate(filePath, (newResults) => {
             updateModule?.(newResults);
         });
         const initialyLoadedModule = await moduleResults;
-        if (initialyLoadedModule.status === 'ready') {
-            setHandle((initialyLoadedModule.results as { handle?: unknown }).handle);
-        }
         const dispatcher = createDispatcher(initialyLoadedModule);
         updateModule = (newModule) => dispatcher.setState(newModule);
         if (isRootFile) {
@@ -279,10 +300,9 @@ function nonMemoFileToRoute(
     };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
-
-              const lastResults: {current: IResults<unknown>} = {current: {status: 'loading', results: null}};
-              const { moduleResults } = requireModule(filePath, (updated) => {
-                    lastResults.current = updated;
+              const lastResults: { current: IResults<unknown> } = { current: { status: 'loading', results: null } };
+              const { moduleResults } = importModuleAndUpdate(filePath, (updated) => {
+                  lastResults.current = updated;
               });
 
               const initialyLoadedModule = await moduleResults;
@@ -290,7 +310,7 @@ function nonMemoFileToRoute(
               if (initialyLoadedModule.status !== 'ready') {
                   throw new Error(initialyLoadedModule.errorMessage);
               }
-              return (lastResults.current as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
+              return (lastResults.current.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
                   params,
                   request,
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -322,23 +342,22 @@ function nonMemoFileToRoute(
 
     const action = exportNames.includes('clientAction')
         ? async ({ params, request }: ActionFunctionArgs) => {
-             
-            const lastResults: {current: IResults<unknown>} = {current: {status: 'loading', results: null}};
-            const { moduleResults } = requireModule(filePath, (updated) => {
+              const lastResults: { current: IResults<unknown> } = { current: { status: 'loading', results: null } };
+              const { moduleResults } = importModuleAndUpdate(filePath, (updated) => {
                   lastResults.current = updated;
-            });
+              });
 
-            const initialyLoadedModule = await moduleResults;
-            lastResults.current = initialyLoadedModule;
-            if (initialyLoadedModule.status !== 'ready') {
-                throw new Error(initialyLoadedModule.errorMessage);
-            }
-            return (lastResults.current.results as { clientAction?: ClientActionFunction }).clientAction?.({
-                params,
-                request,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                serverAction: () => serverAction({ params, request, context: {} }) as Promise<any>,
-            });
+              const initialyLoadedModule = await moduleResults;
+              lastResults.current = initialyLoadedModule;
+              if (initialyLoadedModule.status !== 'ready') {
+                  throw new Error(initialyLoadedModule.errorMessage);
+              }
+              return (lastResults.current.results as { clientAction?: ClientActionFunction }).clientAction?.({
+                  params,
+                  request,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  serverAction: () => serverAction({ params, request, context: {} }) as Promise<any>,
+              });
           }
         : exportNames.includes('action')
           ? serverAction
@@ -346,14 +365,10 @@ function nonMemoFileToRoute(
     const HydrateFallback = exportNames.includes('HydrateFallback')
         ? lazy(async () => {
               let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
-              const { moduleResults } = requireModule(filePath, (newResults) => {
-                  setHandle((newResults.results as { handle?: unknown }).handle);
+              const { moduleResults } = importModuleAndUpdate(filePath, (newResults) => {
                   updateModule?.(newResults);
               });
               const initialyLoadedModule = await moduleResults;
-              if (initialyLoadedModule.status === 'ready') {
-                  setHandle((initialyLoadedModule.results as { handle?: unknown }).handle);
-              }
               const dispatcher = createDispatcher(initialyLoadedModule);
               updateModule = (newModule) => dispatcher.setState(newModule);
 
@@ -364,7 +379,10 @@ function nonMemoFileToRoute(
               };
           })
         : undefined;
-    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback };
+    const links: LinksFunction | undefined = exportNames.includes('links')
+        ? linksWrapper
+        : undefined;
+    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback, links };
 }
 
 interface Dispatcher<T> {
