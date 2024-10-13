@@ -428,3 +428,76 @@ export const actionPage = (name: string) =>
         </div>;
     }
 `);
+
+
+export const clientActionPage = (name: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, Form, useLoaderData, useActionData, json } from '@remix-run/react';
+    
+
+    const userNames = new Map<string, {
+        fullName: string;
+        email: string;
+    }>();
+
+    export const action = async ({ request, params }: LoaderFunctionArgs) => {
+        const nickname = params.nickname;
+        const existing = userNames.has(nickname);
+        const body = await request.formData();
+        const newEmail = body.get('email');
+        const newFullName = body.get('fullName');
+        if (newEmail && newFullName) {
+            userNames.set(nickname, { email: newEmail, fullName: newFullName });
+            return json({
+                message: existing ? 'User updated' : 'User created',
+            })
+        }
+       
+    };
+    export const clientAction = async ({
+        request,
+        params,
+        serverAction,
+        }: ClientActionFunctionArgs) => {
+        const serverResponse = await serverAction();
+        const data = await serverResponse.json();
+        return {
+            ...data,
+            clientMessage: 'client action data',
+        };
+    };
+
+    export const loader = async ({ params }: LoaderFunctionArgs) => {
+        const nickname = params.nickname;
+        const user = userNames.get(nickname);
+        if (user) {
+            return {
+                exists: true,
+                user,
+            };
+        }
+        return {
+            exists: false,
+        };
+      
+    };
+    export default function ${name}() {
+        const data = useLoaderData();        
+        const actionData = useActionData();
+        return <div>
+        ${name}|<Outlet />
+
+            <p>{actionData?.message}!</p>
+            <p>{actionData?.clientMessage}</p>
+            <p>{data.exists ? 'User exists' : 'User does not exist'}</p>
+            <Form method="post">
+                <input type="text" name="fullName" />
+                <input type="text" name="email" />
+
+                <button type="submit">Send</button>
+            </Form>
+          
+        </div>;
+    }
+`);

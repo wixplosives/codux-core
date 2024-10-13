@@ -18,6 +18,7 @@ import {
     clientLoaderPage,
     loaderAndClientLoaderPage,
     clientLoaderWithFallbackPage,
+    clientActionPage,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1142,6 +1143,31 @@ describe('define-remix', () => {
                 await expect(() => container.textContent)
                     .retry()
                     .to.include('Layout|App|Home:Home action data!action extra');
+
+                dispose();
+            });
+
+            it('should support client actions', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientActionPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                nameField.value = 'John Doe';
+                emailField.value = 'jhon@doe.com';
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home|User created!client action data');
 
                 dispose();
             });

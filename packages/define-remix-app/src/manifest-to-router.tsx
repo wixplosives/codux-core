@@ -11,7 +11,7 @@ import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
+import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
 import { navigation } from './navigation';
 import { createHandleProxy } from './handle-proxy';
 
@@ -273,17 +273,24 @@ function nonMemoFileToRoute(
         const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
         return isSerializedResponse(res) ? deserializeResponse(res) : res;
     };
+    const serverAction = async ({ params, request }: ActionFunctionArgs) => {
+        const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
+        return deserializeResponse(res as SerializedResponse);
+    };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
-              const { moduleResults } = requireModule(filePath, () => {
-                  //
+
+              const lastResults: {current: IResults<unknown>} = {current: {status: 'loading', results: null}};
+              const { moduleResults } = requireModule(filePath, (updated) => {
+                    lastResults.current = updated;
               });
 
               const initialyLoadedModule = await moduleResults;
+              lastResults.current = initialyLoadedModule;
               if (initialyLoadedModule.status !== 'ready') {
                   throw new Error(initialyLoadedModule.errorMessage);
               }
-              return (initialyLoadedModule.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
+              return (lastResults.current as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
                   params,
                   request,
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -294,8 +301,8 @@ function nonMemoFileToRoute(
           ? serverLoader
           : undefined;
 
-    if(loader && !exportNames.includes('loader')) {
-        (loader as {hydrate?: boolean}).hydrate = true;
+    if (loader && !exportNames.includes('loader')) {
+        (loader as { hydrate?: boolean }).hydrate = true;
     }
     const ErrorBoundary = exportNames.includes('ErrorBoundary')
         ? lazy(async () => {
@@ -313,14 +320,29 @@ function nonMemoFileToRoute(
           })
         : undefined;
 
-    const action = exportNames.includes('action')
+    const action = exportNames.includes('clientAction')
         ? async ({ params, request }: ActionFunctionArgs) => {
-              const res = await callServerMethod(filePath, 'action', [
-                  { params, request: await serializeRequest(request) },
-              ]);
-              return deserializeResponse(res as SerializedResponse);
+             
+            const lastResults: {current: IResults<unknown>} = {current: {status: 'loading', results: null}};
+            const { moduleResults } = requireModule(filePath, (updated) => {
+                  lastResults.current = updated;
+            });
+
+            const initialyLoadedModule = await moduleResults;
+            lastResults.current = initialyLoadedModule;
+            if (initialyLoadedModule.status !== 'ready') {
+                throw new Error(initialyLoadedModule.errorMessage);
+            }
+            return (lastResults.current.results as { clientAction?: ClientActionFunction }).clientAction?.({
+                params,
+                request,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                serverAction: () => serverAction({ params, request, context: {} }) as Promise<any>,
+            });
           }
-        : undefined;
+        : exportNames.includes('action')
+          ? serverAction
+          : undefined;
     const HydrateFallback = exportNames.includes('HydrateFallback')
         ? lazy(async () => {
               let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
@@ -334,7 +356,7 @@ function nonMemoFileToRoute(
               }
               const dispatcher = createDispatcher(initialyLoadedModule);
               updateModule = (newModule) => dispatcher.setState(newModule);
-  
+
               return {
                   default: () => {
                       return <HydrateFallbackComp module={dispatcher} filePath={filePath} />;
@@ -342,7 +364,7 @@ function nonMemoFileToRoute(
               };
           })
         : undefined;
-    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback,  };
+    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback };
 }
 
 interface Dispatcher<T> {
