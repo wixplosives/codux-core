@@ -16,6 +16,8 @@ import {
     simpleLayoutWithHandle,
     deferedActionPage,
     clientLoaderPage,
+    loaderAndClientLoaderPage,
+    clientLoaderWithFallbackPage,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1062,7 +1064,39 @@ describe('define-remix', () => {
 
                 dispose();
             });
-        
+            it('should call clientLoader allowing it to call server loader (if hydrate is set to true)', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: loaderAndClientLoaderPage('Home', 'Home loaded data', 'client loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home loaded data!client loaded data');
+
+                dispose();
+            });
+            it.skip('should show Hydrate fallback while calling clientLoader ( if such exists )', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientLoaderWithFallbackPage('Home', 'Home loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Loading Data...');
+
+                window.dispatchEvent(new Event('load-data'));
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home: Home loaded data');
+                dispose();
+            });
         });
         describe('actions', () => {
             it('should call action and pass the information into useActionData', async () => {
@@ -1111,6 +1145,7 @@ describe('define-remix', () => {
 
                 dispose();
             });
+
         });
         describe('handle', () => {
             it('exported handled should be available using useMatches', async () => {

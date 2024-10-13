@@ -239,6 +239,50 @@ export const clientLoaderPage = (name: string, message: string) =>
         return <div>${name}:{data.message}|<Outlet /></div>;
     }
 `);
+
+export const loaderAndClientLoaderPage = (name: string, message: string, clientMessage: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, useLoaderData, json } from '@remix-run/react';
+    export const clientLoader = async ({serverLoader}) => {
+        const serverResponse = await serverLoader();
+        const serverData = await serverResponse.json();
+        return { clientMessage: '${clientMessage}', ...serverData }
+    };
+    clientLoader.hydrate = true;
+    export const loader = () => (json({ message: '${message}' }));
+
+    export default function ${name}() {
+        const data = useLoaderData();
+        return <div>${name}:{data.message}!{data.clientMessage}|<Outlet /></div>;
+    }
+`);
+
+export const clientLoaderWithFallbackPage = (name: string,  clientMessage: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, useLoaderData } from '@remix-run/react';
+    const loaderPromise = new Promise((resolve) => {
+        const globalListener = () => {
+            debugger;
+            resolve();
+            globalThis.removeEventListener('load-data', globalListener);
+        }
+
+        globalThis.addEventListener('load-data',globalListener)
+    });
+    export const clientLoader = async () => {
+        await loaderPromise;
+        return { clientMessage: '${clientMessage}', }
+    };
+    export function HydrateFallback() {
+        return <p>Loading Data...</p>;
+    }
+    export default function ${name}() {
+        const data = useLoaderData();
+        return <div>${name}:{data.message}!{data.clientMessage}|<Outlet /></div>;
+    }
+`);
 export const deferedLoaderPage = (name: string, initialResposne: string, delayedResponse: string) =>
     transformTsx(`
 import React from 'react';        

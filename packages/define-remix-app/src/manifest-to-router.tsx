@@ -210,6 +210,23 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
 
     return <Page key={location.pathname} />;
 }
+function HydrateFallbackComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
+    const currentModule = useDispatcher(module);
+    const location = useLocation();
+    if (currentModule.errorMessage) {
+        return <div>{currentModule.errorMessage}</div>;
+    }
+    const moduleAsExpected = currentModule.results as {
+        HydrateFallbackComp?: React.ComponentType;
+    };
+    const HydrateFallbackComp = moduleAsExpected.HydrateFallbackComp;
+
+    if (!HydrateFallbackComp) {
+        return <div>HydrateFallbackComp export not found at {filePath}</div>;
+    }
+
+    return <HydrateFallbackComp key={location.pathname} />;
+}
 function nonMemoFileToRoute(
     uri: string,
     filePath: string,
@@ -253,37 +270,33 @@ function nonMemoFileToRoute(
     });
 
     const serverLoader: LoaderFunction = async ({ params, request }) => {
-        const res = await callServerMethod(filePath, 'loader', [
-            { params, request: await serializeRequest(request) },
-        ]);
+        const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
         return isSerializedResponse(res) ? deserializeResponse(res) : res;
-    }
+    };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
+              const { moduleResults } = requireModule(filePath, () => {
+                  //
+              });
 
-                const { moduleResults } = requireModule(filePath, () => {
-                    //
-                });
-
-                const initialyLoadedModule = await moduleResults;
-                if(initialyLoadedModule.status!== 'ready'){
-                    throw new Error(initialyLoadedModule.errorMessage);
-                }
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                return (initialyLoadedModule.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
-                    params,
-                    request,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    // serverLoader: () => serverLoader({ params, request }) as any,
-
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any);
-
+              const initialyLoadedModule = await moduleResults;
+              if (initialyLoadedModule.status !== 'ready') {
+                  throw new Error(initialyLoadedModule.errorMessage);
+              }
+              return (initialyLoadedModule.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
+                  params,
+                  request,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  serverLoader: () => serverLoader({ params, request, context: {} }) as Promise<any>,
+              });
           }
         : exportNames.includes('loader')
           ? serverLoader
           : undefined;
 
+    if(loader && !exportNames.includes('loader')) {
+        (loader as {hydrate?: boolean}).hydrate = true;
+    }
     const ErrorBoundary = exportNames.includes('ErrorBoundary')
         ? lazy(async () => {
               const { moduleResults } = requireModule(filePath);
@@ -308,8 +321,28 @@ function nonMemoFileToRoute(
               return deserializeResponse(res as SerializedResponse);
           }
         : undefined;
-
-    return { Component, loader, ErrorBoundary, action, path: uri, handle, };
+    const HydrateFallback = exportNames.includes('HydrateFallback')
+        ? lazy(async () => {
+              let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
+              const { moduleResults } = requireModule(filePath, (newResults) => {
+                  setHandle((newResults.results as { handle?: unknown }).handle);
+                  updateModule?.(newResults);
+              });
+              const initialyLoadedModule = await moduleResults;
+              if (initialyLoadedModule.status === 'ready') {
+                  setHandle((initialyLoadedModule.results as { handle?: unknown }).handle);
+              }
+              const dispatcher = createDispatcher(initialyLoadedModule);
+              updateModule = (newModule) => dispatcher.setState(newModule);
+  
+              return {
+                  default: () => {
+                      return <HydrateFallbackComp module={dispatcher} filePath={filePath} />;
+                  },
+              };
+          })
+        : undefined;
+    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback,  };
 }
 
 interface Dispatcher<T> {
