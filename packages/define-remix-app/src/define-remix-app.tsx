@@ -29,10 +29,11 @@ import {
     serializeResponse,
     toCamelCase,
 } from './remix-app-utils';
-import { manifestToRouter } from './manifest-to-router';
+import { clearLoadedModules, manifestToRouter } from './manifest-to-router';
 import { parentLayoutWarning } from './content';
 import { pageTemplate } from './page-template';
 import { isDeferredData } from '@remix-run/router';
+import { json } from '@remix-run/node';
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
@@ -208,6 +209,9 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 [manifest, importModule, setUri, onCaughtError, callServerMethod],
             );
 
+            useEffect(()=>{
+                return clearLoadedModules
+            }, [])
             useEffect(() => {
                 navigate(uri.startsWith('/') ? uri : `/${uri}`);
             }, [uri, navigate]);
@@ -254,7 +258,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             }
             if (isDeferredData(res)) {
                 await res.resolveData(new AbortController().signal);
-                return res.unwrappedData;
+                return serializeResponse(json(res.unwrappedData));
             }
             return res;
         },
