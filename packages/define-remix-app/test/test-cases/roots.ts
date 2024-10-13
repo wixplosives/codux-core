@@ -229,7 +229,16 @@ export const loaderPage = (name: string, message: string) =>
         return <div>${name}:{data.message}|<Outlet /></div>;
     }
 `);
-
+export const clientLoaderPage = (name: string, message: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, useLoaderData } from '@remix-run/react';
+    export const clientLoader = () => ({ message: '${message}' });
+    export default function ${name}() {
+        const data = useLoaderData();
+        return <div>${name}:{data.message}|<Outlet /></div>;
+    }
+`);
 export const deferedLoaderPage = (name: string, initialResposne: string, delayedResponse: string) =>
     transformTsx(`
 import React from 'react';        

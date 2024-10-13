@@ -15,6 +15,7 @@ import {
     rootWithBreadCrumbs,
     simpleLayoutWithHandle,
     deferedActionPage,
+    clientLoaderPage,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1030,7 +1031,6 @@ describe('define-remix', () => {
 
                 dispose();
             });
-            // mock node services to test this
             it('should accept delayed response from loader', async () => {
                 const aboutPage = '/app/routes/about.tsx';
                 const { driver } = await getInitialManifest({
@@ -1046,6 +1046,23 @@ describe('define-remix', () => {
 
                 dispose();
             });
+        });
+        describe('clientLoader', () => {
+            it('should call clientLoader and pass the information into useLoaderData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientLoaderPage('Home', 'Home loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home loaded data');
+
+                dispose();
+            });
+        
         });
         describe('actions', () => {
             it('should call action and pass the information into useActionData', async () => {
@@ -1096,8 +1113,7 @@ describe('define-remix', () => {
             });
         });
         describe('handle', () => {
-            // TODO - implement
-            it.skip('exported handled should be available using useMatches', async () => {
+            it('exported handled should be available using useMatches', async () => {
                 const aboutUsPath = '/app/routes/about.us.tsx';
 
                 const { driver } = await getInitialManifest({

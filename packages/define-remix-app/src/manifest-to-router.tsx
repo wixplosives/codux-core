@@ -11,8 +11,9 @@ import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { useLocation, useNavigate } from '@remix-run/react';
+import { ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
 import { navigation } from './navigation';
+import { createHandleProxy } from './handle-proxy';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -113,10 +114,10 @@ export const manifestToRouter = (
         },
     };
 };
-const loadedModules = new Map<string, ReturnType<typeof nonMemoFileToRoute>>();
+const loadedModules = new Map<string, RouteObject>();
 export const clearLoadedModules = () => {
     loadedModules.clear();
-}
+};
 export const fileToRoute = (
     uri: string,
     filePath: string,
@@ -194,7 +195,7 @@ function RootComp({
 
 function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
     const currentModule = useDispatcher(module);
-    const location = useLocation()
+    const location = useLocation();
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
     }
@@ -207,7 +208,7 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
         return <div>default export not found at {filePath}</div>;
     }
 
-    return <Page key={location.pathname}/>;
+    return <Page key={location.pathname} />;
 }
 function nonMemoFileToRoute(
     uri: string,
@@ -220,15 +221,17 @@ function nonMemoFileToRoute(
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ): RouteObject {
-    const handle: Record<string,unknown> = {};
-    
-
+    const { handle, setHandle } = createHandleProxy();
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
         const { moduleResults } = requireModule(filePath, (newResults) => {
+            setHandle((newResults.results as { handle?: unknown }).handle);
             updateModule?.(newResults);
         });
         const initialyLoadedModule = await moduleResults;
+        if (initialyLoadedModule.status === 'ready') {
+            setHandle((initialyLoadedModule.results as { handle?: unknown }).handle);
+        }
         const dispatcher = createDispatcher(initialyLoadedModule);
         updateModule = (newModule) => dispatcher.setState(newModule);
         if (isRootFile) {
@@ -249,14 +252,37 @@ function nonMemoFileToRoute(
         };
     });
 
-    const loader: LoaderFunction | undefined = exportNames.includes('loader')
+    const serverLoader: LoaderFunction = async ({ params, request }) => {
+        const res = await callServerMethod(filePath, 'loader', [
+            { params, request: await serializeRequest(request) },
+        ]);
+        return isSerializedResponse(res) ? deserializeResponse(res) : res;
+    }
+    const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
-              const res = await callServerMethod(filePath, 'loader', [
-                  { params, request: await serializeRequest(request) },
-              ]);
-              return isSerializedResponse(res) ? deserializeResponse(res) : res;
+
+                const { moduleResults } = requireModule(filePath, () => {
+                    //
+                });
+
+                const initialyLoadedModule = await moduleResults;
+                if(initialyLoadedModule.status!== 'ready'){
+                    throw new Error(initialyLoadedModule.errorMessage);
+                }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                return (initialyLoadedModule.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
+                    params,
+                    request,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    // serverLoader: () => serverLoader({ params, request }) as any,
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any);
+
           }
-        : undefined;
+        : exportNames.includes('loader')
+          ? serverLoader
+          : undefined;
 
     const ErrorBoundary = exportNames.includes('ErrorBoundary')
         ? lazy(async () => {
@@ -283,8 +309,7 @@ function nonMemoFileToRoute(
           }
         : undefined;
 
-    
-    return { Component, loader, ErrorBoundary, action, path: uri };
+    return { Component, loader, ErrorBoundary, action, path: uri, handle, };
 }
 
 interface Dispatcher<T> {
