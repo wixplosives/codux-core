@@ -19,6 +19,7 @@ import {
     loaderAndClientLoaderPage,
     clientLoaderWithFallbackPage,
     clientActionPage,
+    pageWithLinks,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1194,6 +1195,27 @@ describe('define-remix', () => {
                 dispose();
             });
         });
+
+        describe('links function', ()=>{
+            it('should render links returned by the links function', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: pageWithLinks,
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const link = container.querySelector('link')
+                expect(link?.getAttribute('href'))
+                    .to.include('some.css');
+              
+                dispose();
+            });
+        })
     });
 });
 

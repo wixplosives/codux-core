@@ -77,6 +77,23 @@ export const simpleLayout = transformTsx(`
         );
     }
 `);
+export const pageWithLinks = transformTsx(`
+    import React from 'react';
+    import {
+        Outlet,
+    } from '@remix-run/react';
+    export function links() {
+        return [{
+            rel: "stylesheet",
+            href: "https://example.com/some.css",
+        }]
+    }
+    export default function Layout() {
+        return (
+           <div>Home|<Outlet /></div>
+        );
+    }
+`);
 
 export const layoutWithErrorBoundary = transformTsx(`
     import React from 'react';
@@ -101,11 +118,12 @@ export const loaderOnly = transformTsx(`
 
 export const rootWithLayout2 = transformTsx(`
     import React from 'react';
-    import { Outlet } from '@remix-run/react';
+    import { Outlet, Links } from '@remix-run/react';
 
     export function Layout({ children }: { children: React.ReactNode }) {
         return (
             <mock-ml lang="en">
+                <mock-header><Links/></mock-header>
                 <mock-body>
                     Layout|
                     {children}
