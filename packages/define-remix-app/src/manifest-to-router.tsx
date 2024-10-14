@@ -130,7 +130,7 @@ export const fileToRoute = (
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ): RouteObject => {
-    const key = filePath;
+    const key = filePath + "#" + exportNames.join(',');
     let module = loadedModules.get(key);
     if (!module) {
         module = nonMemoFileToRoute(

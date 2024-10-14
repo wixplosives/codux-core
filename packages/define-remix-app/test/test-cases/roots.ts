@@ -77,7 +77,8 @@ export const simpleLayout = transformTsx(`
         );
     }
 `);
-export const pageWithLinks = transformTsx(`
+
+export const pageWithLinks =(name: string)=> transformTsx(`
     import React from 'react';
     import {
         Outlet,
@@ -90,7 +91,7 @@ export const pageWithLinks = transformTsx(`
     }
     export default function Layout() {
         return (
-           <div>Home|<Outlet /></div>
+           <div>${name}|<Outlet /></div>
         );
     }
 `);

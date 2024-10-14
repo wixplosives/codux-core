@@ -1200,7 +1200,7 @@ describe('define-remix', () => {
             it('should render links returned by the links function', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
-                    [indexPath]: pageWithLinks,
+                    [indexPath]: pageWithLinks('Home'),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
@@ -1211,6 +1211,35 @@ describe('define-remix', () => {
 
                 const link = container.querySelector('link')
                 expect(link?.getAttribute('href'))
+                    .to.include('some.css');
+              
+                dispose();
+            });
+            it('should support having the links function added and removed', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: namedPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+
+                const link = container.querySelector('link')
+                expect(link).to.equal(null);
+
+                driver.addOrUpdateFile(indexPath, pageWithLinks('HomeUpdated'));
+
+                
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|HomeUpdated');
+
+                const updatedLink = container.querySelector('link')
+                expect(updatedLink?.getAttribute('href'))
                     .to.include('some.css');
               
                 dispose();

@@ -22,6 +22,7 @@ export class AppDefDriver<T> {
     private fs: IMemFileSystem;
     private moduleSystem: ICommonJsModuleSystem;
     private dirListeners: Array<DirListenerObj> = [];
+    private manifestListeners: Set<(manifest: IAppManifest<T>) => void> = new Set();
     private fileListeners: Record<string, Set<(contents: string | null) => void>> = {};
     private exportsListeners: Record<string, Set<(exportNames: string[]) => void>> = {};
     private lastManifest: IAppManifest<T> | null = null;
@@ -62,6 +63,7 @@ export class AppDefDriver<T> {
             fsApi: this.fsApi,
             onManifestUpdate: (manifest) => {
                 this.lastManifest = manifest;
+                this.dispatchManifestUpdate();
             },
         });
         this.lastManifest = manifest;
@@ -121,9 +123,20 @@ export class AppDefDriver<T> {
             movedFilePath,
         });
     }
+    addManifestListener(cb: (manifest: IAppManifest<T>) => void) {
+        this.manifestListeners.add(cb);
+    }
+    removeManifestListener(cb: (manifest: IAppManifest<T>) => void) {
+        this.manifestListeners.delete(cb);
+    }
+    private dispatchManifestUpdate() {
+        for (const listener of this.manifestListeners) {
+            listener(this.lastManifest!);
+        }
+    }
     async render({uri = '/'}: {uri?: string} = {}) {
         const { app } = this.options;
-        const { fsApi, importModule, lastManifest } = this;
+        const { fsApi, importModule } = this;
             
         if (!app.callServerMethod) {
             throw new Error('app.callServerMethod is not defined');
@@ -142,7 +155,7 @@ export class AppDefDriver<T> {
                 );
             },
             importModule: this.importModule,
-            manifest: lastManifest!,
+            manifest: this.lastManifest!,
             onCaughtError() {/**/},
             setUri(_uri: string) {
                 // ToDo: implement
@@ -150,15 +163,23 @@ export class AppDefDriver<T> {
             uri,
         });
         const unmount = await app.render(container, createProps(uri));
+        let lastUri = uri;
+        const rerender = ({uri = '/'}: {uri?: string} = {})=>{
+            lastUri = uri;
+            return app.render(container, createProps(uri));
+        }
+        const manifestListener = () => {
+            void rerender({uri: lastUri});
+        };
+        this.addManifestListener(manifestListener);
         return {
-            dispose() {
+            dispose: ()=> {
                 unmount();
                 container.remove();
+                this.removeManifestListener(manifestListener)
             },
             container,
-            rerender({uri = '/'}: {uri?: string} = {}) {
-                return app.render(container, createProps(uri));
-            }
+            rerender
         };
     }
     dispose() {
