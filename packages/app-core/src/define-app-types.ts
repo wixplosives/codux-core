@@ -179,6 +179,12 @@ export interface RouteInfo<T = unknown> {
     }>;
 
     /**
+     * signifies that a dynamic page has the capability to provide its static routes
+     */
+    hasGetStaticRoutes?: boolean;
+
+ 
+    /**
      * a list of export names of the page that should be editable
      * if the page is a function, the UI will edit its return value
      * if the page is an object, the UI will edit the object

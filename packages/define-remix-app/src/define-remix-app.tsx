@@ -187,6 +187,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                     routeId: filePathToRouteId(appDir, pageModule),
                     exportNames: varNames.size ? ['loader', 'meta', 'default'] : ['meta', 'default'],
                 },
+                hasGetStaticRoutes: false,
                 path: wantedPath,
                 pathString: requestedURI,
                 parentLayouts,
@@ -209,9 +210,9 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 [manifest, importModule, setUri, onCaughtError, callServerMethod],
             );
 
-            useEffect(()=>{
-                return clearLoadedModules
-            }, [])
+            useEffect(() => {
+                return clearLoadedModules;
+            }, []);
             useEffect(() => {
                 navigate(uri.startsWith('/') ? uri : `/${uri}`);
             }, [uri, navigate]);
@@ -272,11 +273,8 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             }
             return results as string[];
         },
-        async hasGetStaticRoutes({fsApi}, forRouteAtFilePath) {
-            const {
-                exportNames,
-                stop,
-            } = fsApi.watchFileExports(forRouteAtFilePath, () => {});
+        async hasGetStaticRoutes({ fsApi }, forRouteAtFilePath) {
+            const { exportNames, stop } = fsApi.watchFileExports(forRouteAtFilePath, () => {});
             const results = await exportNames;
             const hasGetStaticRoutes = results.includes('getStaticRoutes');
             stop();
