@@ -1173,6 +1173,7 @@ const anyRoute = ({
     path = [],
     parentLayouts = [],
     exportNames = ['default'],
+    hasGetStaticRoutes = false,
 }: {
     routeId: string;
     pageModule: string;
@@ -1181,11 +1182,13 @@ const anyRoute = ({
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     exportNames?: string[];
+    hasGetStaticRoutes?: boolean;
 }): RouteInfo<RouteExtraInfo> => {
     return {
         path,
         pathString,
         pageModule,
+        hasGetStaticRoutes,
         pageExportName,
         extraData: {
             parentLayouts,
@@ -1203,6 +1206,7 @@ const aRoute = ({
     parentLayouts = [],
     includeRootLayout = true,
     exportNames,
+    hasGetStaticRoutes = false,
 }: {
     routeId: string;
     pageModule: string;
@@ -1211,6 +1215,7 @@ const aRoute = ({
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     includeRootLayout?: boolean;
     exportNames?: string[];
+    hasGetStaticRoutes?: boolean;
 }): RouteInfo<RouteExtraInfo> => {
     const expectedParentLayouts = includeRootLayout ? [rootLayout, root, ...parentLayouts] : [root, ...parentLayouts];
     return anyRoute({
@@ -1220,6 +1225,7 @@ const aRoute = ({
         path,
         parentLayouts: expectedParentLayouts,
         exportNames,
+        hasGetStaticRoutes,
     });
 };
 
