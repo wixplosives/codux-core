@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/define-remix-app",
   "description": "Remix App definition for Codux",
-  "version": "4.3.3",
+  "version": "4.4.0",
   "main": "dist/index.js",
   "peerDependencies": {
     "react": "^18.0.0",
@@ -12,7 +12,7 @@
     "@remix-run/react": "^2.12.1",
     "@remix-run/router": "^1.19.2",
     "@remix-run/testing": "^2.12.1",
-    "@wixc3/app-core": "^4.3.3"
+    "@wixc3/app-core": "^4.4.0"
   },
   "files": [
     "dist",
