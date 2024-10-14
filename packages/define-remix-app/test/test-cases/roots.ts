@@ -264,7 +264,6 @@ export const clientLoaderWithFallbackPage = (name: string,  clientMessage: strin
     import { Outlet, useLoaderData } from '@remix-run/react';
     const loaderPromise = new Promise((resolve) => {
         const globalListener = () => {
-            debugger;
             resolve();
             globalThis.removeEventListener('load-data', globalListener);
         }
