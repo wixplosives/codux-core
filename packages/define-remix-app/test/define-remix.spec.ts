@@ -15,6 +15,11 @@ import {
     rootWithBreadCrumbs,
     simpleLayoutWithHandle,
     deferedActionPage,
+    clientLoaderPage,
+    loaderAndClientLoaderPage,
+    clientLoaderWithFallbackPage,
+    clientActionPage,
+    pageWithLinks,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1030,7 +1035,6 @@ describe('define-remix', () => {
 
                 dispose();
             });
-            // mock node services to test this
             it('should accept delayed response from loader', async () => {
                 const aboutPage = '/app/routes/about.tsx';
                 const { driver } = await getInitialManifest({
@@ -1044,6 +1048,55 @@ describe('define-remix', () => {
                     .retry()
                     .to.include('Layout|App|About:About loaded data-loaded extra');
 
+                dispose();
+            });
+        });
+        describe('clientLoader', () => {
+            it('should call clientLoader and pass the information into useLoaderData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientLoaderPage('Home', 'Home loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home loaded data');
+
+                dispose();
+            });
+            it('should call clientLoader allowing it to call server loader (if hydrate is set to true)', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: loaderAndClientLoaderPage('Home', 'Home loaded data', 'client loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:Home loaded data!client loaded data');
+
+                dispose();
+            });
+            it.skip('should show Hydrate fallback while calling clientLoader ( if such exists )', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientLoaderWithFallbackPage('Home', 'Home loaded data'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Loading Data...');
+
+                window.dispatchEvent(new Event('load-data'));
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home: Home loaded data');
                 dispose();
             });
         });
@@ -1094,10 +1147,35 @@ describe('define-remix', () => {
 
                 dispose();
             });
+
+            it('should support client actions', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientActionPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                nameField.value = 'John Doe';
+                emailField.value = 'jhon@doe.com';
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home|User created!client action data');
+
+                dispose();
+            });
+
         });
         describe('handle', () => {
-            // TODO - implement
-            it.skip('exported handled should be available using useMatches', async () => {
+            it('exported handled should be available using useMatches', async () => {
                 const aboutUsPath = '/app/routes/about.us.tsx';
 
                 const { driver } = await getInitialManifest({
@@ -1117,6 +1195,56 @@ describe('define-remix', () => {
                 dispose();
             });
         });
+
+        describe('links function', ()=>{
+            it('should render links returned by the links function', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: pageWithLinks('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const link = container.querySelector('link')
+                expect(link?.getAttribute('href'))
+                    .to.include('some.css');
+              
+                dispose();
+            });
+            it('should support having the links function added and removed', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: namedPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+
+                const link = container.querySelector('link')
+                expect(link).to.equal(null);
+
+                driver.addOrUpdateFile(indexPath, pageWithLinks('HomeUpdated'));
+
+                
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|HomeUpdated');
+
+                const updatedLink = container.querySelector('link')
+                expect(updatedLink?.getAttribute('href'))
+                    .to.include('some.css');
+              
+                dispose();
+            });
+        })
     });
 });
 

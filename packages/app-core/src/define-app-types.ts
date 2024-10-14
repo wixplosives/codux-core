@@ -260,7 +260,7 @@ export interface EditablePointOfInterest {
 }
 
 export interface IResults<T> {
-    status: 'ready' | 'invalid' | 'disposed';
+    status: 'ready' | 'invalid' | 'disposed' | 'loading';
     results: T | null;
     errorMessage?: string;
 }

@@ -9,10 +9,12 @@ import {
 } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
+import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { useLocation, useNavigate } from '@remix-run/react';
+import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
 import { navigation } from './navigation';
+import { createHandleProxy } from './handle-proxy';
+import { createLinksProxy } from './links-proxy';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -36,12 +38,12 @@ export const manifestToRouter = (
         };
     }
     const rootRoute: RouteObject = fileToRoute(
+        '/',
         rootFilePath,
         rootExports,
         requireModule,
         setUri,
         onCaughtError,
-        '/',
         true,
         prevUri,
         callServerMethod,
@@ -50,12 +52,12 @@ export const manifestToRouter = (
     if (manifest.homeRoute) {
         rootRoute.children = [
             fileToRoute(
+                '/',
                 manifest.homeRoute.pageModule,
                 manifest.homeRoute.extraData.exportNames,
                 requireModule,
                 setUri,
                 onCaughtError,
-                '/',
                 false,
                 prevUri,
                 callServerMethod,
@@ -64,12 +66,12 @@ export const manifestToRouter = (
     }
     for (const route of manifest.routes) {
         const routeObject = fileToRoute(
+            pathToRemixRouterUrl(route.path),
             route.pageModule,
             route.extraData.exportNames,
             requireModule,
             setUri,
             onCaughtError,
-            pathToRemixRouterUrl(route.path),
             false,
             prevUri,
             callServerMethod,
@@ -83,12 +85,12 @@ export const manifestToRouter = (
                 layoutMap.set(
                     parentLayout.layoutModule,
                     fileToRoute(
+                        parentLayout.path,
                         parentLayout.layoutModule,
                         route.extraData.exportNames,
                         requireModule,
                         setUri,
                         onCaughtError,
-                        parentLayout.path,
                         false,
                         prevUri,
                         callServerMethod,
@@ -113,43 +115,12 @@ export const manifestToRouter = (
         },
     };
 };
-const fileToRoute = (
-    filePath: string,
-    exportNames: string[],
-    requireModule: DynamicImport,
-    setUri: (uri: string) => void,
-    onCaughtError: ErrorReporter,
-    path: string,
-    isRootPath: boolean = false,
-    prevUri: { current: string },
-    callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) => {
-    const { Component, loader, ErrorBoundary, action } = getLazyCompAndLoader(
-        filePath,
-        exportNames,
-        requireModule,
-        setUri,
-        onCaughtError,
-        isRootPath,
-        prevUri,
-        callServerMethod,
-    );
-
-    const routeObject: RouteObject = {
-        path,
-        Component,
-        loader,
-        ErrorBoundary,
-        action,
-    };
-
-    return routeObject;
-};
-const loadedModules = new Map<string, ReturnType<typeof lazyCompAndLoader>>();
+const loadedModules = new Map<string, RouteObject>();
 export const clearLoadedModules = () => {
     loadedModules.clear();
-}
-export const getLazyCompAndLoader = (
+};
+export const fileToRoute = (
+    uri: string,
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
@@ -158,11 +129,12 @@ export const getLazyCompAndLoader = (
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) => {
-    const key = filePath;
+): RouteObject => {
+    const key = filePath + "#" + exportNames.join(',');
     let module = loadedModules.get(key);
     if (!module) {
-        module = lazyCompAndLoader(
+        module = nonMemoFileToRoute(
+            uri,
             filePath,
             exportNames,
             requireModule,
@@ -224,7 +196,7 @@ function RootComp({
 
 function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
     const currentModule = useDispatcher(module);
-    const location = useLocation()
+    const location = useLocation();
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
     }
@@ -237,9 +209,27 @@ function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>;
         return <div>default export not found at {filePath}</div>;
     }
 
-    return <Page key={location.pathname}/>;
+    return <Page key={location.pathname} />;
 }
-function lazyCompAndLoader(
+function HydrateFallbackComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
+    const currentModule = useDispatcher(module);
+    const location = useLocation();
+    if (currentModule.errorMessage) {
+        return <div>{currentModule.errorMessage}</div>;
+    }
+    const moduleAsExpected = currentModule.results as {
+        HydrateFallbackComp?: React.ComponentType;
+    };
+    const HydrateFallbackComp = moduleAsExpected.HydrateFallbackComp;
+
+    if (!HydrateFallbackComp) {
+        return <div>HydrateFallbackComp export not found at {filePath}</div>;
+    }
+
+    return <HydrateFallbackComp key={location.pathname} />;
+}
+function nonMemoFileToRoute(
+    uri: string,
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
@@ -248,10 +238,35 @@ function lazyCompAndLoader(
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
-) {
+): RouteObject {
+    const { handle, setHandle } = createHandleProxy();
+    const { linksWrapper, setLinks } = createLinksProxy();
+
+    const importModuleAndUpdate: DynamicImport = (filePath, cb) => {
+        const { moduleResults, dispose } = requireModule(filePath, (newResults) => {
+            setHandle((newResults.results as { handle?: unknown }).handle);
+            const linksFunction = (newResults.results as { links?: LinksFunction }).links;
+            if(linksFunction){
+                setLinks(linksFunction);
+            }
+            cb?.(newResults);
+        });
+        const results =  moduleResults.then((res) => {
+            if (res.status === 'ready') {
+                setHandle((res.results as { handle?: unknown }).handle);
+                const linksFunction = (res.results as { links?: LinksFunction }).links;
+                if(linksFunction){
+                    setLinks(linksFunction);
+                }
+            }
+            return res;
+        });
+        return { moduleResults: results, dispose };
+    }
+
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
-        const { moduleResults } = requireModule(filePath, (newResults) => {
+        const { moduleResults } = importModuleAndUpdate(filePath, (newResults) => {
             updateModule?.(newResults);
         });
         const initialyLoadedModule = await moduleResults;
@@ -275,15 +290,40 @@ function lazyCompAndLoader(
         };
     });
 
-    const loader: LoaderFunction | undefined = exportNames.includes('loader')
+    const serverLoader: LoaderFunction = async ({ params, request }) => {
+        const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
+        return isSerializedResponse(res) ? deserializeResponse(res) : res;
+    };
+    const serverAction = async ({ params, request }: ActionFunctionArgs) => {
+        const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
+        return deserializeResponse(res as SerializedResponse);
+    };
+    const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
-              const res = await callServerMethod(filePath, 'loader', [
-                  { params, request: await serializeRequest(request) },
-              ]);
-              return isSerializedResponse(res) ? deserializeResponse(res) : res;
-          }
-        : undefined;
+              const lastResults: { current: IResults<unknown> } = { current: { status: 'loading', results: null } };
+              const { moduleResults } = importModuleAndUpdate(filePath, (updated) => {
+                  lastResults.current = updated;
+              });
 
+              const initialyLoadedModule = await moduleResults;
+              lastResults.current = initialyLoadedModule;
+              if (initialyLoadedModule.status !== 'ready') {
+                  throw new Error(initialyLoadedModule.errorMessage);
+              }
+              return (lastResults.current.results as { clientLoader?: ClientLoaderFunction }).clientLoader?.({
+                  params,
+                  request,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  serverLoader: () => serverLoader({ params, request, context: {} }) as Promise<any>,
+              });
+          }
+        : exportNames.includes('loader')
+          ? serverLoader
+          : undefined;
+
+    if (loader && !exportNames.includes('loader')) {
+        (loader as { hydrate?: boolean }).hydrate = true;
+    }
     const ErrorBoundary = exportNames.includes('ErrorBoundary')
         ? lazy(async () => {
               const { moduleResults } = requireModule(filePath);
@@ -300,15 +340,49 @@ function lazyCompAndLoader(
           })
         : undefined;
 
-    const action = exportNames.includes('action')
+    const action = exportNames.includes('clientAction')
         ? async ({ params, request }: ActionFunctionArgs) => {
-              const res = await callServerMethod(filePath, 'action', [
-                  { params, request: await serializeRequest(request) },
-              ]);
-              return deserializeResponse(res as SerializedResponse);
+              const lastResults: { current: IResults<unknown> } = { current: { status: 'loading', results: null } };
+              const { moduleResults } = importModuleAndUpdate(filePath, (updated) => {
+                  lastResults.current = updated;
+              });
+
+              const initialyLoadedModule = await moduleResults;
+              lastResults.current = initialyLoadedModule;
+              if (initialyLoadedModule.status !== 'ready') {
+                  throw new Error(initialyLoadedModule.errorMessage);
+              }
+              return (lastResults.current.results as { clientAction?: ClientActionFunction }).clientAction?.({
+                  params,
+                  request,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  serverAction: () => serverAction({ params, request, context: {} }) as Promise<any>,
+              });
           }
+        : exportNames.includes('action')
+          ? serverAction
+          : undefined;
+    const HydrateFallback = exportNames.includes('HydrateFallback')
+        ? lazy(async () => {
+              let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
+              const { moduleResults } = importModuleAndUpdate(filePath, (newResults) => {
+                  updateModule?.(newResults);
+              });
+              const initialyLoadedModule = await moduleResults;
+              const dispatcher = createDispatcher(initialyLoadedModule);
+              updateModule = (newModule) => dispatcher.setState(newModule);
+
+              return {
+                  default: () => {
+                      return <HydrateFallbackComp module={dispatcher} filePath={filePath} />;
+                  },
+              };
+          })
         : undefined;
-    return { Component, loader, ErrorBoundary, action };
+    const links: LinksFunction | undefined = exportNames.includes('links')
+        ? linksWrapper
+        : undefined;
+    return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback, links };
 }
 
 interface Dispatcher<T> {
