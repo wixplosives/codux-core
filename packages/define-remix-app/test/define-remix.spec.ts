@@ -18,6 +18,8 @@ import {
     clientLoaderPage,
     loaderAndClientLoaderPage,
     clientLoaderWithFallbackPage,
+    clientActionPage,
+    pageWithLinks,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1146,6 +1148,31 @@ describe('define-remix', () => {
                 dispose();
             });
 
+            it('should support client actions', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: clientActionPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                nameField.value = 'John Doe';
+                emailField.value = 'jhon@doe.com';
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home|User created!client action data');
+
+                dispose();
+            });
+
         });
         describe('handle', () => {
             it('exported handled should be available using useMatches', async () => {
@@ -1168,6 +1195,27 @@ describe('define-remix', () => {
                 dispose();
             });
         });
+
+        describe('links function', ()=>{
+            it('should render links returned by the links function', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: pageWithLinks,
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const link = container.querySelector('link')
+                expect(link?.getAttribute('href'))
+                    .to.include('some.css');
+              
+                dispose();
+            });
+        })
     });
 });
 
