@@ -134,10 +134,13 @@ export class AppDefDriver<T> {
             listener(this.lastManifest!);
         }
     }
-    async render({uri = '/'}: {uri?: string} = {}) {
+    async render({
+        uri = '/',
+        testAutoRerenderOnManifestUpdate,
+    }: { uri?: string; testAutoRerenderOnManifestUpdate?: boolean } = {}) {
         const { app } = this.options;
         const { fsApi, importModule } = this;
-            
+
         if (!app.callServerMethod) {
             throw new Error('app.callServerMethod is not defined');
         }
@@ -171,7 +174,9 @@ export class AppDefDriver<T> {
         const manifestListener = () => {
             void rerender({uri: lastUri});
         };
-        this.addManifestListener(manifestListener);
+        if (testAutoRerenderOnManifestUpdate !== false) {
+            this.addManifestListener(manifestListener);
+        }
         return {
             dispose: ()=> {
                 unmount();
