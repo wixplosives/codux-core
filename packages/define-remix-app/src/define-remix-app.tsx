@@ -34,6 +34,7 @@ import { parentLayoutWarning } from './content';
 import { pageTemplate } from './page-template';
 import { isDeferredData } from '@remix-run/router';
 import { json } from '@remix-run/node';
+import { Navigation } from './navigation';
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
@@ -52,6 +53,7 @@ export const INVALID_MSGS = {
 export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
+    const navigation = new Navigation();
     const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi, layouts = layoutMap) => {
         const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
         const routeLayouts = filePathToLayoutMatching(filePathInRouteDir, fsApi.path);
@@ -205,8 +207,17 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
         }: IReactAppProps<RouteExtraInfo>) => {
             const uriRef = useRef(uri);
             uriRef.current = uri;
-            const { Router, navigate } = useMemo(
-                () => manifestToRouter(manifest, importModule, setUri, onCaughtError, uriRef, callServerMethod),
+            const { Router } = useMemo(
+                () =>
+                    manifestToRouter(
+                        manifest,
+                        navigation,
+                        importModule,
+                        setUri,
+                        onCaughtError,
+                        uriRef,
+                        callServerMethod,
+                    ),
                 [manifest, importModule, setUri, onCaughtError, callServerMethod],
             );
 
@@ -214,8 +225,8 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                 return clearLoadedModules;
             }, []);
             useEffect(() => {
-                navigate(uri.startsWith('/') ? uri : `/${uri}`);
-            }, [uri, navigate]);
+                navigation.navigate(uri.startsWith('/') ? uri : `/${uri}`);
+            }, [uri]);
 
             return (
                 <Router
