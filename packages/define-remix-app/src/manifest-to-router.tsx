@@ -11,8 +11,8 @@ import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate } from '@remix-run/react';
-import { navigation } from './navigation';
+import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, Location } from '@remix-run/react';
+import { Navigation } from './navigation';
 import { createHandleProxy } from './handle-proxy';
 import { createLinksProxy } from './links-proxy';
 
@@ -20,6 +20,7 @@ type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
 export const manifestToRouter = (
     manifest: IAppManifest<RouteExtraInfo>,
+    navigation: Navigation,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
@@ -47,6 +48,7 @@ export const manifestToRouter = (
         true,
         prevUri,
         callServerMethod,
+        navigation,
     );
     const layoutMap = new Map<string, RouteObject>();
     if (manifest.homeRoute) {
@@ -61,6 +63,7 @@ export const manifestToRouter = (
                 false,
                 prevUri,
                 callServerMethod,
+                navigation,
             ),
         ];
     }
@@ -75,6 +78,7 @@ export const manifestToRouter = (
             false,
             prevUri,
             callServerMethod,
+            navigation,
         );
         let parentRoute: RouteObject = rootRoute;
         for (const parentLayout of route.extraData.parentLayouts) {
@@ -94,6 +98,7 @@ export const manifestToRouter = (
                         false,
                         prevUri,
                         callServerMethod,
+                        navigation,
                     ),
                 );
                 parentRoute.children = parentRoute.children || [];
@@ -129,8 +134,9 @@ export const fileToRoute = (
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
+    navigation: Navigation,
 ): RouteObject => {
-    const key = filePath + "#" + exportNames.join(',');
+    const key = filePath + '#' + exportNames.join(',');
     let module = loadedModules.get(key);
     if (!module) {
         module = nonMemoFileToRoute(
@@ -143,29 +149,43 @@ export const fileToRoute = (
             isRootFile,
             prevUri,
             callServerMethod,
+            navigation,
         );
         loadedModules.set(key, module);
     }
     return module;
 };
 
+const locationToUri = (location: Location) => {
+    let uri = location.pathname;
+    if (location.search) {
+        uri += location.search;
+    }
+    if (location.hash) {
+        uri += location.hash;
+    }
+    return uri;
+};
+
 function RootComp({
     module,
+    navigation,
     filePath,
     setUri,
     prevUri,
 }: {
     module: Dispatcher<IResults<unknown>>;
+    navigation: Navigation;
     filePath: string;
     setUri: (uri: string) => void;
     prevUri: { current: string };
 }) {
     const currentModule = useDispatcher(module);
-
-    const uri = useLocation().pathname;
-
     navigation.setNavigateFunction(useNavigate());
 
+    const location = useLocation();
+
+    const uri = locationToUri(location);
     useEffect(() => {
         if (uri.slice(1) !== prevUri.current) {
             setUri(uri.slice(1));
@@ -238,6 +258,7 @@ function nonMemoFileToRoute(
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
+    navigation: Navigation,
 ): RouteObject {
     const { handle, setHandle } = createHandleProxy();
     const { linksWrapper, setLinks } = createLinksProxy();
@@ -246,23 +267,23 @@ function nonMemoFileToRoute(
         const { moduleResults, dispose } = requireModule(filePath, (newResults) => {
             setHandle((newResults.results as { handle?: unknown }).handle);
             const linksFunction = (newResults.results as { links?: LinksFunction }).links;
-            if(linksFunction){
+            if (linksFunction) {
                 setLinks(linksFunction);
             }
             cb?.(newResults);
         });
-        const results =  moduleResults.then((res) => {
+        const results = moduleResults.then((res) => {
             if (res.status === 'ready') {
                 setHandle((res.results as { handle?: unknown }).handle);
                 const linksFunction = (res.results as { links?: LinksFunction }).links;
-                if(linksFunction){
+                if (linksFunction) {
                     setLinks(linksFunction);
                 }
             }
             return res;
         });
         return { moduleResults: results, dispose };
-    }
+    };
 
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
@@ -277,7 +298,13 @@ function nonMemoFileToRoute(
                 default: () => {
                     return (
                         <Suspense>
-                            <RootComp module={dispatcher} filePath={filePath} setUri={setUri} prevUri={prevUri} />
+                            <RootComp
+                                navigation={navigation}
+                                module={dispatcher}
+                                filePath={filePath}
+                                setUri={setUri}
+                                prevUri={prevUri}
+                            />
                         </Suspense>
                     );
                 },
@@ -334,7 +361,12 @@ function nonMemoFileToRoute(
               };
               return {
                   default: () => (
-                      <ErrorPage filePath={filePath} moduleWithComp={moduleWithComp} onCaughtError={onCaughtError} />
+                      <ErrorPage
+                          filePath={filePath}
+                          moduleWithComp={moduleWithComp}
+                          onCaughtError={onCaughtError}
+                          navigation={navigation}
+                      />
                   ),
               };
           })
@@ -379,9 +411,7 @@ function nonMemoFileToRoute(
               };
           })
         : undefined;
-    const links: LinksFunction | undefined = exportNames.includes('links')
-        ? linksWrapper
-        : undefined;
+    const links: LinksFunction | undefined = exportNames.includes('links') ? linksWrapper : undefined;
     return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback, links };
 }
 
@@ -415,10 +445,12 @@ function useDispatcher<T>(dispatcher: Dispatcher<T>) {
 }
 
 function ErrorPage({
+    navigation,
     moduleWithComp,
     filePath,
     onCaughtError,
 }: {
+    navigation: Navigation;
     moduleWithComp: {
         ErrorBoundary?: React.ComponentType;
     };
