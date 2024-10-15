@@ -145,34 +145,6 @@ export const rootWithLayout2 = transformTsx(`
         return <div>Error</div>;
     }
 `);
-export const rootWithLayoutAndLoader = transformTsx(`
-    import React from 'react';
-    import { Outlet, Links } from '@remix-run/react';
-
-    export function Layout({ children }: { children: React.ReactNode }) {
-        return (
-            <mock-ml lang="en">
-                <mock-header><Links/></mock-header>
-                <mock-body>
-                    Layout|
-                    {children}
-                </mock-body>
-            </mock-ml>
-        );
-    }
-    export default function App() {
-        return (
-            <div>
-                App|
-                <Outlet />
-            </div>
-        );
-    }
-
-    export function ErrorBoundary({ error }: { error: Error }) {
-        return <div>Error</div>;
-    }
-`);
 export const withHandle = (originalSrc: string, name: string) => {
     return `
     ${originalSrc}
