@@ -145,6 +145,34 @@ export const rootWithLayout2 = transformTsx(`
         return <div>Error</div>;
     }
 `);
+export const rootWithLayoutAndLoader = transformTsx(`
+    import React from 'react';
+    import { Outlet, Links } from '@remix-run/react';
+
+    export function Layout({ children }: { children: React.ReactNode }) {
+        return (
+            <mock-ml lang="en">
+                <mock-header><Links/></mock-header>
+                <mock-body>
+                    Layout|
+                    {children}
+                </mock-body>
+            </mock-ml>
+        );
+    }
+    export default function App() {
+        return (
+            <div>
+                App|
+                <Outlet />
+            </div>
+        );
+    }
+
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>Error</div>;
+    }
+`);
 export const withHandle = (originalSrc: string, name: string) => {
     return `
     ${originalSrc}
@@ -277,7 +305,46 @@ export const loaderAndClientLoaderPage = (name: string, message: string, clientM
     }
 `);
 
-export const clientLoaderWithFallbackPage = (name: string,  clientMessage: string) =>
+export const loaderAndClientLoaderRoot = (serverLoaderMsg: string, clientLoaderMsg: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, Links, useLoaderData, json } from '@remix-run/react';
+
+    export const clientLoader = async ({serverLoader}) => {
+        const serverResponse = await serverLoader();
+        const serverData = await serverResponse.json();
+        return { clientMessage: '${clientLoaderMsg}', ...serverData }
+    };
+    clientLoader.hydrate = true;
+    export const loader = () => (json({ serverMessage: '${serverLoaderMsg}' }));
+
+    export function Layout({ children }: { children: React.ReactNode }) {
+        return (
+            <mock-ml lang="en">
+                <mock-header><Links/></mock-header>
+                <mock-body>
+                    Layout|
+                    {children}
+                </mock-body>
+            </mock-ml>
+        );
+    }
+    export default function App() {
+        const data = useLoaderData();
+        return (
+            <div>
+                App:{data.serverMessage}!{data.clientMessage}|
+                <Outlet />
+            </div>
+        );
+    }
+
+    export function ErrorBoundary({ error }: { error: Error }) {
+        return <div>Error</div>;
+    }
+`);
+
+export const clientLoaderWithFallbackPage = (name: string, clientMessage: string) =>
     transformTsx(`
     import React from 'react';
     import { Outlet, useLoaderData } from '@remix-run/react';
