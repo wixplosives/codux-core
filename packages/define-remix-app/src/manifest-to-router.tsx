@@ -115,9 +115,6 @@ export const manifestToRouter = (
 
     return {
         Router,
-        navigate(path: string) {
-            navigation.navigate(path);
-        },
     };
 };
 const loadedModules = new Map<string, RouteObject>();
@@ -156,17 +153,6 @@ export const fileToRoute = (
     return module;
 };
 
-const locationToUri = (location: Location) => {
-    let uri = location.pathname;
-    if (location.search) {
-        uri += location.search;
-    }
-    if (location.hash) {
-        uri += location.hash;
-    }
-    return uri;
-};
-
 function RootComp({
     module,
     navigation,
@@ -183,9 +169,9 @@ function RootComp({
     const currentModule = useDispatcher(module);
     navigation.setNavigateFunction(useNavigate());
 
-    const location = useLocation();
+    const { pathname, search = '', hash = '' } = useLocation();
+    const uri = `${pathname}${search}${hash}`;
 
-    const uri = locationToUri(location);
     useEffect(() => {
         if (uri.slice(1) !== prevUri.current) {
             setUri(uri.slice(1));
