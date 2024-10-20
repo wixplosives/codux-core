@@ -4,8 +4,8 @@ import { createMemoryFs, IMemFileSystem } from '@file-services/memory';
 import { createRequestResolver } from '@file-services/resolve';
 import path from '@file-services/path';
 import { IDirectoryContents } from '@file-services/types';
-export interface AppDefDriverOptions<T, U> {
-    app: IReactApp<T, U>;
+export interface AppDefDriverOptions<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATAU = unknown> {
+    app: IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATAU>;
     initialFiles: IDirectoryContents;
     evaluatedNodeModules: Record<string, unknown>;
     /**
@@ -18,16 +18,16 @@ export interface AppDefDriverOptions<T, U> {
     projectPath?: string;
 }
 type DirListenerObj = { cb: (files: string[]) => void; dirPath: string };
-export class AppDefDriver<T, U> {
+export class AppDefDriver<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown> {
     private fs: IMemFileSystem;
     private moduleSystem: ICommonJsModuleSystem;
     private dirListeners: Array<DirListenerObj> = [];
-    private manifestListeners: Set<(manifest: IAppManifest<T, U>) => void> = new Set();
+    private manifestListeners: Set<(manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void> = new Set();
     private fileListeners: Record<string, Set<(contents: string | null) => void>> = {};
     private exportsListeners: Record<string, Set<(exportNames: string[]) => void>> = {};
-    private lastManifest: IAppManifest<T, U> | null = null;
+    private lastManifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA> | null = null;
     private disposeApp?: () => void;
-    constructor(private options: AppDefDriverOptions<T, U>) {
+    constructor(private options: AppDefDriverOptions<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) {
         this.fs = createMemoryFs(options.initialFiles);
         const resolver = createRequestResolver({ fs: this.fs });
         this.moduleSystem = createBaseCjsModuleSystem({
@@ -123,10 +123,10 @@ export class AppDefDriver<T, U> {
             movedFilePath,
         });
     }
-    addManifestListener(cb: (manifest: IAppManifest<T, U>) => void) {
+    addManifestListener(cb: (manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void) {
         this.manifestListeners.add(cb);
     }
-    removeManifestListener(cb: (manifest: IAppManifest<T, U>) => void) {
+    removeManifestListener(cb: (manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void) {
         this.manifestListeners.delete(cb);
     }
     private dispatchManifestUpdate() {

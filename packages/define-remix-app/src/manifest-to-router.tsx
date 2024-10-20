@@ -18,7 +18,7 @@ import { createLinksProxy } from './links-proxy';
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
 export const manifestToRouter = (
-    manifest: IAppManifest<undefined, RouteModuleInfo>,
+    manifest: IAppManifest<RouteModuleInfo, undefined>,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,

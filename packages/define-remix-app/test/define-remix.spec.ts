@@ -1444,7 +1444,7 @@ const createAppAndDriver = async (
         appPath,
         routingPattern,
     });
-    const driver = new AppDefDriver<undefined, RouteModuleInfo>({
+    const driver = new AppDefDriver<RouteModuleInfo, undefined>({
         app,
         initialFiles,
         evaluatedNodeModules: {
@@ -1459,8 +1459,8 @@ const createAppAndDriver = async (
     return { app, driver, manifest };
 };
 const expectManifest = (
-    manifest: IAppManifest<undefined, RouteModuleInfo>,
-    expected: Partial<IAppManifest<undefined, RouteModuleInfo>>,
+    manifest: IAppManifest<RouteModuleInfo, undefined>,
+    expected: Partial<IAppManifest<RouteModuleInfo, undefined>>,
 ) => {
     const fullExpected = {
         errorRoutes: [],

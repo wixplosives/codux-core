@@ -70,7 +70,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
         requestedURI,
         manifest,
         layoutMap,
-    }: IGetNewPageInfoOptions<undefined, RouteModuleInfo> & { layoutMap: Map<string, ParentLayoutWithExtra> }) => {
+    }: IGetNewPageInfoOptions<RouteModuleInfo, undefined> & { layoutMap: Map<string, ParentLayoutWithExtra> }) => {
         const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
         const routeDir = fsApi.path.join(appDir, 'routes');
         const varNames = new Set<string>();
@@ -191,7 +191,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             },
         };
     };
-    return defineApp<undefined, RouteModuleInfo>({
+    return defineApp<RouteModuleInfo, undefined>({
         App: ({
             manifest,
             importModule,
@@ -199,7 +199,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             uri,
             onCaughtError,
             callServerMethod,
-        }: IReactAppProps<undefined, RouteModuleInfo>) => {
+        }: IReactAppProps<RouteModuleInfo, undefined>) => {
             const uriRef = useRef(uri);
             uriRef.current = uri;
             const { Router, navigate } = useMemo(
@@ -466,7 +466,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                     },
                 );
                 layoutMap = layouts;
-                const initialManifest: IAppManifest<undefined, RouteModuleInfo> = {
+                const initialManifest: IAppManifest<RouteModuleInfo, undefined> = {
                     routes: [],
                     errorRoutes: [],
                     extraData: rootModuleInfo,

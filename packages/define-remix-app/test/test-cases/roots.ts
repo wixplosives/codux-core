@@ -198,7 +198,7 @@ export const rootWithBreadCrumbs = transformTsx(
                 Breadcrumbs:
                  <div>
                     {matches.map((match) => (
-                        match?.handle?.name ? <div key={match?.handle?.name}>{match?.handle?.name}!</div> : null
+                        match?.handle?.name ? <div key={match.handle.name}>{match.handle.name}!</div> : null
                     ))}
                 </div>
             </div>

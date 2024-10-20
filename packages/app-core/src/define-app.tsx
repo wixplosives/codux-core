@@ -1,8 +1,10 @@
 import { reactErrorHandledRendering } from '@wixc3/react-board/dist/react-error-handled-render';
 import { IReactApp, OmitReactApp } from './define-app-types';
 
-export function defineApp<T, U>(input: OmitReactApp<IReactApp<T, U>>): IReactApp<T, U> {
-    const res: IReactApp<T, U> = {
+export function defineApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = undefined>(
+    input: OmitReactApp<IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>>,
+): IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA> {
+    const res: IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA> = {
         ...input,
 
         async render(target, appProps) {
