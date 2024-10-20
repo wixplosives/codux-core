@@ -78,7 +78,8 @@ export const simpleLayout = transformTsx(`
     }
 `);
 
-export const pageWithLinks =(name: string)=> transformTsx(`
+export const pageWithLinks = (name: string) =>
+    transformTsx(`
     import React from 'react';
     import {
         Outlet,
@@ -197,7 +198,7 @@ export const rootWithBreadCrumbs = transformTsx(
                 Breadcrumbs:
                  <div>
                     {matches.map((match) => (
-                        <div key={match.path}>{match?.handle?.name}!</div>
+                        match?.handle?.name ? <div key={match.handle.name}>{match.handle.name}!</div> : null
                     ))}
                 </div>
             </div>
@@ -427,14 +428,7 @@ export default function ${name}() {
     );
 }
 `);
-
-export const actionPage = (name: string) =>
-    transformTsx(`
-    import React from 'react';
-    import { Outlet, Form, useLoaderData, useActionData, json } from '@remix-run/react';
-    
-
-    const userNames = new Map<string, {
+const userApi = ` const userNames = new Map<string, {
         fullName: string;
         email: string;
     }>();
@@ -467,7 +461,22 @@ export const actionPage = (name: string) =>
             exists: false,
         };
       
-    };
+    };`;
+export const userApiPage = transformTsx(`
+    import React from 'react';
+    import { Outlet, Form,  json ,} from '@remix-run/react';
+    
+
+    ${userApi}
+   
+`);
+
+export const actionPage = (name: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, Form, useLoaderData, useActionData, json ,} from '@remix-run/react';
+    
+    ${userApi}
     export default function ${name}() {
         const data = useLoaderData();        
         const actionData = useActionData();
@@ -485,7 +494,35 @@ export const actionPage = (name: string) =>
         </div>;
     }
 `);
+export const userApiConsumer = (apiRoute: string) =>
+    transformTsx(`
+    import React, { useEffect } from 'react';
+    import { Outlet, Form, useFetcher,   } from '@remix-run/react';
 
+    export default function UserPage() {
+    
+        const fetcher = useFetcher();
+        useEffect(()=>{
+        fetcher.load("${apiRoute}");
+        })
+        const data = fetcher.data || {};
+
+        const actionFetcher = useFetcher();
+        const actionData = actionFetcher.data || {};
+        return <div>
+        UserPage|<Outlet />
+
+            <p>{data.exists ? 'User exists' : 'User does not exist'}</p>
+            <actionFetcher.Form method="post" action="${apiRoute}">
+                <input type="text" name="fullName" />
+                <input type="text" name="email" />
+
+                <button type="submit">Send</button>
+            </actionFetcher.Form>
+            <p>{actionData?.message}</p>
+        </div>;
+    }
+`);
 
 export const clientActionPage = (name: string) =>
     transformTsx(`
