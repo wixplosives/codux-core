@@ -1,5 +1,12 @@
 import { DynamicRoutePart, PathApi, RouteInfo, RoutingPattern, StaticRoutePart } from '@wixc3/app-core';
 
+export interface RouteModuleInfo {
+    id: string;
+    path: string;
+    file: string;
+    exportNames: string[];
+    children: RouteModuleInfo[];
+}
 export interface ParentLayoutWithExtra {
     layoutModule: string;
     layoutExportName: string;
@@ -80,32 +87,33 @@ export function readableUriToFilePath(
 export const aRoute = (
     routeDirPath: string,
     path: RouteInfo['path'],
+    parentLayouts: RouteInfo['parentLayouts'],
     pageModule: string,
-    extraData: RouteExtraInfo,
     pathApi: PathApi,
-): RouteInfo<RouteExtraInfo> => ({
+    hasGetStaticRoutes: boolean,
+): RouteInfo<undefined> => ({
     path,
     pageModule,
     pageExportName: 'default',
-    parentLayouts: extraData.parentLayouts,
+    parentLayouts,
     pathString: filePathToReadableUri(pageModule.slice(routeDirPath.length + 1), pathApi) || '',
-    extraData,
-    hasGetStaticRoutes: extraData.exportNames.includes('getStaticRoutes'),
+    hasGetStaticRoutes,
+    extraData: undefined,
 });
 export const anErrorRoute = (
     routeDirPath: string,
     path: RouteInfo['path'],
     pageModule: string,
-    extraData: RouteExtraInfo,
+    parentLayouts: RouteInfo['parentLayouts'],
     pathApi: PathApi,
-): RouteInfo<RouteExtraInfo> => ({
+): RouteInfo<undefined> => ({
     path,
     pageModule,
     pageExportName: 'ErrorBoundary',
-    parentLayouts: extraData.parentLayouts,
+    parentLayouts,
     pathString: filePathToReadableUri(pageModule.slice(routeDirPath.length + 1), pathApi) || '',
-    extraData,
-    hasGetStaticRoutes: extraData.exportNames.includes('getStaticRoutes'),
+    extraData: undefined,
+    hasGetStaticRoutes: false,
 });
 export function filePathToURLParts(filePathInRouteDir: string, path: PathApi): string[] {
     const dirStructure = filePathInRouteDir.split(path.sep);

@@ -2,8 +2,7 @@ import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app
 import {
     deserializeResponse,
     isSerializedResponse,
-    pathToRemixRouterUrl,
-    RouteExtraInfo,
+    RouteModuleInfo,
     SerializedResponse,
     serializeRequest,
 } from './remix-app-utils';
@@ -19,16 +18,17 @@ import { createLinksProxy } from './links-proxy';
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
 export const manifestToRouter = (
-    manifest: IAppManifest<RouteExtraInfo>,
+    manifest: IAppManifest<undefined, RouteModuleInfo>,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
-    const rootRouteInfo = manifest.homeRoute || manifest.routes[0];
-    const rootFilePath = rootRouteInfo?.parentLayouts?.[0]?.layoutModule;
-    const rootExports = rootRouteInfo?.extraData.parentLayouts?.[0]?.exportNames;
+    const routerData = manifest.extraData;
+
+    const rootFilePath = routerData.file;
+    const rootExports = routerData.exportNames;
     if (!rootFilePath || !rootExports) {
         return {
             Router: createRemixStub([]),
@@ -48,63 +48,25 @@ export const manifestToRouter = (
         prevUri,
         callServerMethod,
     );
-    const layoutMap = new Map<string, RouteObject>();
-    if (manifest.homeRoute) {
-        rootRoute.children = [
-            fileToRoute(
-                '/',
-                manifest.homeRoute.pageModule,
-                manifest.homeRoute.extraData.exportNames,
+
+    const addChildren = (route: RouteObject, children: RouteModuleInfo[]) => {
+        route.children = children.map((child) => {
+            const childRoute = fileToRoute(
+                child.path,
+                child.file,
+                child.exportNames,
                 requireModule,
                 setUri,
                 onCaughtError,
                 false,
                 prevUri,
                 callServerMethod,
-            ),
-        ];
-    }
-    for (const route of manifest.routes) {
-        const routeObject = fileToRoute(
-            pathToRemixRouterUrl(route.path),
-            route.pageModule,
-            route.extraData.exportNames,
-            requireModule,
-            setUri,
-            onCaughtError,
-            false,
-            prevUri,
-            callServerMethod,
-        );
-        let parentRoute: RouteObject = rootRoute;
-        for (const parentLayout of route.extraData.parentLayouts) {
-            if (parentLayout.layoutModule === rootFilePath) {
-                continue;
-            }
-            if (!layoutMap.has(parentLayout.layoutModule)) {
-                layoutMap.set(
-                    parentLayout.layoutModule,
-                    fileToRoute(
-                        parentLayout.path,
-                        parentLayout.layoutModule,
-                        route.extraData.exportNames,
-                        requireModule,
-                        setUri,
-                        onCaughtError,
-                        false,
-                        prevUri,
-                        callServerMethod,
-                    ),
-                );
-                parentRoute.children = parentRoute.children || [];
-                parentRoute.children.push(layoutMap.get(parentLayout.layoutModule)!);
-                parentRoute = layoutMap.get(parentLayout.layoutModule)!;
-            }
-            parentRoute = layoutMap.get(parentLayout.layoutModule)!;
-        }
-        parentRoute.children = parentRoute.children || [];
-        parentRoute.children.push(routeObject);
-    }
+            );
+            addChildren(childRoute, child.children);
+            return childRoute;
+        });
+    };
+    addChildren(rootRoute, routerData.children);
 
     const Router = createRemixStub([rootRoute]);
 
@@ -130,7 +92,7 @@ export const fileToRoute = (
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ): RouteObject => {
-    const key = filePath + "#" + exportNames.join(',');
+    const key = filePath + '#' + exportNames.join(',');
     let module = loadedModules.get(key);
     if (!module) {
         module = nonMemoFileToRoute(
@@ -246,23 +208,23 @@ function nonMemoFileToRoute(
         const { moduleResults, dispose } = requireModule(filePath, (newResults) => {
             setHandle((newResults.results as { handle?: unknown }).handle);
             const linksFunction = (newResults.results as { links?: LinksFunction }).links;
-            if(linksFunction){
+            if (linksFunction) {
                 setLinks(linksFunction);
             }
             cb?.(newResults);
         });
-        const results =  moduleResults.then((res) => {
+        const results = moduleResults.then((res) => {
             if (res.status === 'ready') {
                 setHandle((res.results as { handle?: unknown }).handle);
                 const linksFunction = (res.results as { links?: LinksFunction }).links;
-                if(linksFunction){
+                if (linksFunction) {
                     setLinks(linksFunction);
                 }
             }
             return res;
         });
         return { moduleResults: results, dispose };
-    }
+    };
 
     const Component = lazy(async () => {
         let updateModule: ((newModule: IResults<unknown>) => void) | undefined = undefined;
@@ -379,9 +341,7 @@ function nonMemoFileToRoute(
               };
           })
         : undefined;
-    const links: LinksFunction | undefined = exportNames.includes('links')
-        ? linksWrapper
-        : undefined;
+    const links: LinksFunction | undefined = exportNames.includes('links') ? linksWrapper : undefined;
     return { Component, loader, ErrorBoundary, action, path: uri, handle, HydrateFallback, links };
 }
 

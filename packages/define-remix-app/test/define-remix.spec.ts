@@ -20,10 +20,12 @@ import {
     clientLoaderWithFallbackPage,
     clientActionPage,
     pageWithLinks,
+    userApiConsumer,
+    userApiPage,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
-import { ParentLayoutWithExtra, RouteExtraInfo } from '../src/remix-app-utils';
+import { ParentLayoutWithExtra, RouteExtraInfo, RouteModuleInfo } from '../src/remix-app-utils';
 import { waitFor } from 'promise-assist';
 import { IDirectoryContents } from '@file-services/types';
 import * as React from 'react';
@@ -51,6 +53,24 @@ const root: ParentLayoutWithExtra = {
     path: '/',
     exportNames: ['Layout', 'default'],
 };
+const rootModuleInfo = (
+    children: RouteModuleInfo[] = [],
+    overrides: Partial<RouteModuleInfo> = {},
+): RouteModuleInfo => ({
+    children,
+    exportNames: ['Layout', 'default'],
+    file: rootPath,
+    id: 'root',
+    path: '/',
+    ...overrides,
+});
+const moduleInfo = ({ id, path, file, exportNames, children }: Partial<RouteModuleInfo>): RouteModuleInfo => ({
+    children: children || [],
+    exportNames: exportNames || ['default'],
+    file: file!,
+    id: id!,
+    path: path!,
+});
 
 describe('define-remix', () => {
     describe('flat routes', () => {
@@ -59,7 +79,8 @@ describe('define-remix', () => {
                 [indexPath]: simpleLayout,
             });
             expectManifest(manifest, {
-                homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/_index', path: '/', file: indexPath })]),
+                homeRoute: aRoute({ pageModule: indexPath, readableUri: '', path: [] }),
             });
         });
         it('manifest for: about.tsx', async () => {
@@ -68,9 +89,9 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/about', path: '/about', file: testedPath })]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about',
                         pageModule: testedPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
@@ -84,6 +105,9 @@ describe('define-remix', () => {
                 [testedPath]: loaderOnly,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({ id: 'routes/about', path: '/about', file: testedPath, exportNames: ['loader'] }),
+                ]),
                 routes: [],
             });
         });
@@ -93,9 +117,11 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({ id: 'routes/about/_index', path: '/about', file: testedPath }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/_index',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
                         path: [urlSeg('about')],
@@ -113,9 +139,16 @@ describe('define-remix', () => {
             });
 
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/about',
+                        path: '/about',
+                        file: layoutPath,
+                        children: [moduleInfo({ id: 'routes/about/_index', path: '/about', file: testedPath })],
+                    }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/_index',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
                         path: [urlSeg('about')],
@@ -142,15 +175,22 @@ describe('define-remix', () => {
                 [aboutUsPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/about',
+                        path: '/about',
+                        file: aboutPath,
+                        children: [moduleInfo({ id: 'routes/about/us', path: '/about/us', file: aboutUsPath })],
+                    }),
+                    moduleInfo({ id: 'routes/middle', path: '/middle', file: middlePath }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about',
                         pageModule: aboutPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
                     }),
                     aRoute({
-                        routeId: 'routes/about/us',
                         pageModule: aboutUsPath,
                         readableUri: 'about/us',
                         path: [urlSeg('about'), urlSeg('us')],
@@ -165,7 +205,6 @@ describe('define-remix', () => {
                         ],
                     }),
                     aRoute({
-                        routeId: 'routes/middle',
                         pageModule: middlePath,
                         readableUri: 'middle',
                         path: [urlSeg('middle')],
@@ -184,15 +223,21 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/about',
+                            path: '/about',
+                            file: aboutPage,
+                            children: [moduleInfo({ id: 'routes/about/us', path: '/about/us', file: aboutUsPage })],
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: aboutPage,
                             readableUri: 'about',
                             path: [urlSeg('about')],
                         }),
                         aRoute({
-                            routeId: 'routes/about/us',
                             pageModule: aboutUsPage,
                             readableUri: 'about/us',
                             path: [urlSeg('about'), urlSeg('us')],
@@ -218,15 +263,25 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/about',
+                            path: '/about',
+                            file: aboutPage,
+                        }),
+                        moduleInfo({
+                            id: 'routes/about_/us',
+                            path: '/about/us',
+                            file: aboutUsPage,
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: aboutPage,
                             readableUri: 'about',
                             path: [urlSeg('about')],
                         }),
                         aRoute({
-                            routeId: 'routes/about_/us',
                             pageModule: aboutUsPage,
                             readableUri: 'about_/us',
                             path: [urlSeg('about'), urlSeg('us')],
@@ -247,15 +302,33 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/about',
+                            path: '/about',
+                            file: aboutPage,
+                            children: [
+                                moduleInfo({
+                                    id: 'routes/about/us',
+                                    path: '/about/us',
+                                    file: aboutUsPage,
+                                }),
+                                moduleInfo({
+                                    id: 'routes/about/us_/lang',
+                                    path: '/about/us/lang',
+                                    file: aboutUsLangPage,
+                                }),
+                            ],
+                        }),
+                    ]),
+
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: aboutPage,
                             readableUri: 'about',
                             path: [urlSeg('about')],
                         }),
                         aRoute({
-                            routeId: 'routes/about/us',
                             pageModule: aboutUsPage,
                             readableUri: 'about/us',
                             path: [urlSeg('about'), urlSeg('us')],
@@ -270,7 +343,6 @@ describe('define-remix', () => {
                             ],
                         }),
                         aRoute({
-                            routeId: 'routes/about/us_/lang',
                             pageModule: aboutUsLangPage,
                             readableUri: 'about/us_/lang',
                             path: [urlSeg('about'), urlSeg('us'), urlSeg('lang')],
@@ -295,9 +367,15 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/product/$productId',
+                            path: '/product/:productId',
+                            file: productPage,
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/product/$productId',
                             pageModule: productPage,
                             readableUri: 'product/$productId',
                             path: [urlSeg('product'), { kind: 'dynamic', name: 'productId' }],
@@ -313,9 +391,15 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/product/($productId)',
+                            path: '/product/:productId',
+                            file: productPage,
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/product/($productId)',
                             pageModule: productPage,
                             readableUri: 'product/($productId)',
                             path: [urlSeg('product'), { kind: 'dynamic', name: 'productId', isOptional: true }],
@@ -331,9 +415,15 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/product/$',
+                            path: '/product/:$',
+                            file: productPage,
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/product/$',
                             pageModule: productPage,
                             readableUri: 'product/$',
                             path: [urlSeg('product'), { kind: 'dynamic', name: '$', isCatchAll: true }],
@@ -348,9 +438,15 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/_layout/about',
+                            path: '/about',
+                            file: aboutPage,
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/_layout/about',
                             pageModule: aboutPage,
                             readableUri: '_layout/about',
                             path: [urlSeg('about')],
@@ -367,9 +463,22 @@ describe('define-remix', () => {
                 });
 
                 expectManifest(manifest, {
+                    extraData: rootModuleInfo([
+                        moduleInfo({
+                            id: 'routes/_layout',
+                            path: '/',
+                            file: layout,
+                            children: [
+                                moduleInfo({
+                                    id: 'routes/_layout/about',
+                                    path: '/about',
+                                    file: aboutPage,
+                                }),
+                            ],
+                        }),
+                    ]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/_layout/about',
                             pageModule: aboutPage,
                             readableUri: '_layout/about',
                             path: [urlSeg('about')],
@@ -395,9 +504,9 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/about/index', path: '/about', file: testedPath })]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/index',
                         pageModule: testedPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
@@ -411,9 +520,9 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/about/route', path: '/about', file: testedPath })]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/route',
                         pageModule: testedPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
@@ -427,9 +536,11 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({ id: 'routes/about/_index/route', path: '/about', file: testedPath }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
                         path: [urlSeg('about')],
@@ -443,9 +554,11 @@ describe('define-remix', () => {
                 [testedPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({ id: 'routes/about/_index/route', path: '/about', file: testedPath }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
                         path: [urlSeg('about')],
@@ -461,9 +574,22 @@ describe('define-remix', () => {
                 [layoutPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/about/route',
+                        path: '/about',
+                        file: layoutPath,
+                        children: [
+                            moduleInfo({
+                                id: 'routes/about/_index/route',
+                                path: '/about',
+                                file: testedPath,
+                            }),
+                        ],
+                    }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/_index/route',
                         pageModule: testedPath,
                         readableUri: 'about/_index',
                         path: [urlSeg('about')],
@@ -490,15 +616,32 @@ describe('define-remix', () => {
                 [aboutUsPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/about/route',
+                        path: '/about',
+                        file: aboutPath,
+                        children: [
+                            moduleInfo({
+                                id: 'routes/about/us/route',
+                                path: '/about/us',
+                                file: aboutUsPath,
+                            }),
+                        ],
+                    }),
+                    moduleInfo({
+                        id: 'routes/middle/route',
+                        path: '/middle',
+                        file: middlePath,
+                    }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about/route',
                         pageModule: aboutPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
                     }),
                     aRoute({
-                        routeId: 'routes/about/us/route',
                         pageModule: aboutUsPath,
                         readableUri: 'about/us',
                         path: [urlSeg('about'), urlSeg('us')],
@@ -513,7 +656,6 @@ describe('define-remix', () => {
                         ],
                     }),
                     aRoute({
-                        routeId: 'routes/middle/route',
                         pageModule: middlePath,
                         readableUri: 'middle',
                         path: [urlSeg('middle')],
@@ -537,8 +679,10 @@ describe('define-remix', () => {
                 [indexPath]: simpleLayout,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/_index', path: '/', file: indexPath })], {
+                    exportNames: ['Layout', 'ErrorBoundary', 'default'],
+                }),
                 homeRoute: anyRoute({
-                    routeId: 'routes/_index',
                     pageModule: indexPath,
                     readableUri: '',
                     path: [],
@@ -546,11 +690,9 @@ describe('define-remix', () => {
                 }),
                 errorRoutes: [
                     anErrorRoute({
-                        routeId: 'error',
                         pageModule: rootPath,
                         readableUri: '',
                         path: [],
-                        exportNames: ['Layout', 'ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -561,21 +703,25 @@ describe('define-remix', () => {
                 [indexPath]: layoutWithErrorBoundary,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/_index',
+                        path: '/',
+                        file: indexPath,
+                        exportNames: ['ErrorBoundary', 'default'],
+                    }),
+                ]),
                 homeRoute: aRoute({
-                    routeId: 'routes/_index',
                     pageModule: indexPath,
                     readableUri: '',
                     path: [],
-                    exportNames: ['ErrorBoundary', 'default'],
                 }),
                 errorRoutes: [
                     anErrorRoute({
-                        routeId: 'routes/_index',
                         pageModule: indexPath,
                         readableUri: '',
                         path: [],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -588,23 +734,27 @@ describe('define-remix', () => {
                 [aboutPage]: layoutWithErrorBoundary,
             });
             expectManifest(manifest, {
+                extraData: rootModuleInfo([
+                    moduleInfo({
+                        id: 'routes/about',
+                        path: '/about',
+                        file: aboutPage,
+                        exportNames: ['ErrorBoundary', 'default'],
+                    }),
+                ]),
                 routes: [
                     aRoute({
-                        routeId: 'routes/about',
                         pageModule: aboutPage,
                         readableUri: 'about',
                         path: [urlSeg('about')],
-                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
                 errorRoutes: [
                     anErrorRoute({
-                        routeId: 'routes/about',
                         pageModule: aboutPage,
                         readableUri: 'about',
                         path: [urlSeg('about')],
                         parentLayouts: [rootLayout, root],
-                        exportNames: ['ErrorBoundary', 'default'],
                     }),
                 ],
             });
@@ -620,10 +770,13 @@ describe('define-remix', () => {
             driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
-                    homeRoute: aRoute({ routeId: 'routes/_index', pageModule: indexPath, readableUri: '', path: [] }),
+                    extraData: rootModuleInfo([
+                        moduleInfo({ id: 'routes/_index', path: '/', file: indexPath }),
+                        moduleInfo({ id: 'routes/about', path: '/about', file: testedPath }),
+                    ]),
+                    homeRoute: aRoute({ pageModule: indexPath, readableUri: '', path: [] }),
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: testedPath,
                             readableUri: 'about',
                             path: [urlSeg('about')],
@@ -641,9 +794,9 @@ describe('define-remix', () => {
             driver.addOrUpdateFile(testedPath, simpleLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
+                    extraData: rootModuleInfo([moduleInfo({ id: 'routes/about', path: '/about', file: testedPath })]),
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: testedPath,
                             readableUri: 'about',
                             path: [urlSeg('about')],
@@ -663,9 +816,11 @@ describe('define-remix', () => {
                 exportNames: ['default'],
             };
             expectManifest(manifest, {
+                extraData: rootModuleInfo([moduleInfo({ id: 'routes/about', path: '/about', file: testedPath })], {
+                    exportNames: ['default'],
+                }),
                 routes: [
                     anyRoute({
-                        routeId: 'routes/about',
                         pageModule: testedPath,
                         readableUri: 'about',
                         path: [urlSeg('about')],
@@ -677,9 +832,11 @@ describe('define-remix', () => {
             driver.addOrUpdateFile(rootPath, rootWithLayout);
             await waitFor(() =>
                 expectManifest(driver.getManifest()!, {
+                    extraData: rootModuleInfo([moduleInfo({ id: 'routes/about', path: '/about', file: testedPath })], {
+                        exportNames: ['Layout', 'default'],
+                    }),
                     routes: [
                         aRoute({
-                            routeId: 'routes/about',
                             pageModule: testedPath,
                             readableUri: 'about',
                             path: [urlSeg('about')],
@@ -701,11 +858,9 @@ describe('define-remix', () => {
             expect(pageModule).to.eql('/app/routes/about.tsx');
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about',
                     pageModule: '/app/routes/about.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(newPageSourceCode).to.include('export default');
@@ -723,11 +878,9 @@ describe('define-remix', () => {
             expect(pageModule).to.eql('/app/routes/about/route.tsx');
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about/route',
                     pageModule: '/app/routes/about/route.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('folder(route)');
@@ -744,11 +897,9 @@ describe('define-remix', () => {
             expect(pageModule).to.eql('/app/routes/about/index.tsx');
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about/index',
                     pageModule: '/app/routes/about/index.tsx',
                     readableUri: 'about',
                     path: [urlSeg('about')],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('folder(index)');
@@ -765,7 +916,6 @@ describe('define-remix', () => {
             expect(pageModule).to.eql(aboutUsPage);
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about/us',
                     pageModule: aboutUsPage,
                     readableUri: 'about/us',
                     path: [urlSeg('about'), urlSeg('us')],
@@ -778,7 +928,6 @@ describe('define-remix', () => {
                             exportNames: ['default'],
                         },
                     ],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/us'));
@@ -795,7 +944,6 @@ describe('define-remix', () => {
             expect(pageModule).to.eql(aboutUsPage);
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about/_index',
                     pageModule: aboutUsPage,
                     readableUri: 'about/_index',
                     path: [urlSeg('about')],
@@ -808,7 +956,6 @@ describe('define-remix', () => {
                             exportNames: ['default'],
                         },
                     ],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(warningMessage).to.include(parentLayoutWarning('about', 'about_/_index'));
@@ -935,11 +1082,9 @@ describe('define-remix', () => {
             expect(pageModule).to.eql('/app/routes/about2.tsx');
             expect(newPageRoute).to.eql(
                 aRoute({
-                    routeId: 'routes/about2',
                     pageModule: '/app/routes/about2.tsx',
                     readableUri: 'about2',
                     path: [urlSeg('about2')],
-                    exportNames: ['meta', 'default'],
                 }),
             );
             expect(routingPattern).to.eql('file');
@@ -1172,8 +1317,41 @@ describe('define-remix', () => {
 
                 dispose();
             });
-
         });
+        describe('fetchers', () => {
+            const fetcherSuite = (fetcherType: 'page' | 'api') => {
+                it('should load data using fetcher for ' + fetcherType, async () => {
+                    const { driver } = await getInitialManifest({
+                        [rootPath]: rootWithLayout2,
+                        '/app/routes/api.users.tsx': fetcherType === 'page' ? actionPage('Users') : userApiPage,
+                        '/app/routes/contact.$nickname.tsx': userApiConsumer('/api/users'),
+                    });
+
+                    const { dispose, container } = await driver.render({ uri: 'contact/yossi' });
+
+                    await expect(() => container.textContent)
+                        .retry()
+                        .to.include('Layout|App|UserPage|User does not exist');
+
+                    const nameField = container.querySelector('input[name=fullName]') as HTMLInputElement;
+                    const emailField = container.querySelector('input[name=email]') as HTMLInputElement;
+                    const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                    nameField.value = 'John Doe';
+                    emailField.value = 'jhon@doe.com';
+                    submitButton.click();
+                    await expect(() => container.textContent)
+                        .retry()
+                        .to.include('Layout|App|UserPage|User exist');
+                    await expect(() => container.textContent)
+                        .retry()
+                        .to.include('User created');
+                    dispose();
+                });
+            };
+            fetcherSuite('page');
+            fetcherSuite('api');
+        });
+
         describe('handle', () => {
             it('exported handled should be available using useMatches', async () => {
                 const aboutUsPath = '/app/routes/about.us.tsx';
@@ -1196,7 +1374,7 @@ describe('define-remix', () => {
             });
         });
 
-        describe('links function', ()=>{
+        describe('links function', () => {
             it('should render links returned by the links function', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
@@ -1209,10 +1387,9 @@ describe('define-remix', () => {
                     .retry()
                     .to.include('Layout|App|Home');
 
-                const link = container.querySelector('link')
-                expect(link?.getAttribute('href'))
-                    .to.include('some.css');
-              
+                const link = container.querySelector('link');
+                expect(link?.getAttribute('href')).to.include('some.css');
+
                 dispose();
             });
             it('should support having the links function added and removed', async () => {
@@ -1227,24 +1404,21 @@ describe('define-remix', () => {
                     .retry()
                     .to.include('Layout|App|Home');
 
-
-                const link = container.querySelector('link')
+                const link = container.querySelector('link');
                 expect(link).to.equal(null);
 
                 driver.addOrUpdateFile(indexPath, pageWithLinks('HomeUpdated'));
 
-                
                 await expect(() => container.textContent)
                     .retry()
                     .to.include('Layout|App|HomeUpdated');
 
-                const updatedLink = container.querySelector('link')
-                expect(updatedLink?.getAttribute('href'))
-                    .to.include('some.css');
-              
+                const updatedLink = container.querySelector('link');
+                expect(updatedLink?.getAttribute('href')).to.include('some.css');
+
                 dispose();
             });
-        })
+        });
     });
 });
 
@@ -1270,7 +1444,7 @@ const createAppAndDriver = async (
         appPath,
         routingPattern,
     });
-    const driver = new AppDefDriver<RouteExtraInfo>({
+    const driver = new AppDefDriver<undefined, RouteModuleInfo>({
         app,
         initialFiles,
         evaluatedNodeModules: {
@@ -1284,7 +1458,10 @@ const createAppAndDriver = async (
 
     return { app, driver, manifest };
 };
-const expectManifest = (manifest: IAppManifest<RouteExtraInfo>, expected: Partial<IAppManifest<RouteExtraInfo>>) => {
+const expectManifest = (
+    manifest: IAppManifest<undefined, RouteModuleInfo>,
+    expected: Partial<IAppManifest<undefined, RouteModuleInfo>>,
+) => {
     const fullExpected = {
         errorRoutes: [],
         routes: [],
@@ -1294,92 +1471,72 @@ const expectManifest = (manifest: IAppManifest<RouteExtraInfo>, expected: Partia
 };
 
 const anyRoute = ({
-    routeId,
     pageModule,
     pageExportName = 'default',
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
-    exportNames = ['default'],
     hasGetStaticRoutes = false,
 }: {
-    routeId: string;
     pageModule: string;
     pageExportName?: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
-    exportNames?: string[];
     hasGetStaticRoutes?: boolean;
-}): RouteInfo<RouteExtraInfo> => {
+}): RouteInfo<undefined> => {
     return {
         path,
         pathString,
         pageModule,
         hasGetStaticRoutes,
         pageExportName,
-        extraData: {
-            parentLayouts,
-            routeId,
-            exportNames,
-        },
+        extraData: undefined,
         parentLayouts,
     };
 };
 const aRoute = ({
-    routeId,
     pageModule,
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
     includeRootLayout = true,
-    exportNames,
     hasGetStaticRoutes = false,
 }: {
-    routeId: string;
     pageModule: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
     includeRootLayout?: boolean;
-    exportNames?: string[];
     hasGetStaticRoutes?: boolean;
-}): RouteInfo<RouteExtraInfo> => {
+}): RouteInfo<undefined> => {
     const expectedParentLayouts = includeRootLayout ? [rootLayout, root, ...parentLayouts] : [root, ...parentLayouts];
     return anyRoute({
-        routeId,
         pageModule,
         readableUri: pathString,
         path,
         parentLayouts: expectedParentLayouts,
-        exportNames,
         hasGetStaticRoutes,
     });
 };
 
 const anErrorRoute = ({
-    routeId,
     pageModule,
     readableUri: pathString = '',
     path = [],
     parentLayouts = [],
-    exportNames,
 }: {
-    routeId: string;
     pageModule: string;
     readableUri?: string;
     path?: RouteInfo['path'];
     parentLayouts?: RouteExtraInfo['parentLayouts'];
-    exportNames?: string[];
 }) => {
     return anyRoute({
-        routeId,
         pageModule,
         readableUri: pathString,
         path,
         parentLayouts,
         pageExportName: 'ErrorBoundary',
-        exportNames,
     });
 };
 

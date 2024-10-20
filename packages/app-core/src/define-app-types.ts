@@ -87,7 +87,7 @@ export interface FSApi {
     path: PathApi;
 }
 
-export interface IReactApp<T = unknown> {
+export interface IReactApp<T = unknown, U = unknown> {
     /**
      * Should be isomorphic, should return the same result on the server and in a web worker
      * returns the app manifest containing a list of routes for the app.
@@ -95,7 +95,7 @@ export interface IReactApp<T = unknown> {
      * should call onManifestUpdate when the manifest is updated
      */
     prepareApp: (options: IPrepareAppOptions) => Promise<{
-        manifest: IAppManifest<T>;
+        manifest: IAppManifest<T, U>;
         dispose: () => void;
     }>;
 
@@ -106,7 +106,7 @@ export interface IReactApp<T = unknown> {
      * returns the information needed to create a new page
      *
      */
-    getNewPageInfo?: (options: IGetNewPageInfoOptions<T>) => {
+    getNewPageInfo?: (options: IGetNewPageInfoOptions<T, U>) => {
         isValid: boolean;
         errorMessage?: string;
         warningMessage?: string;
@@ -121,7 +121,7 @@ export interface IReactApp<T = unknown> {
      *
      * returns the information needed to move a page
      */
-    getMovePageInfo?: (options: IMovePageInfoOptions<T>) => {
+    getMovePageInfo?: (options: IMovePageInfoOptions<T, U>) => {
         isValid: boolean;
         errorMessage?: string;
         warningMessage?: string;
@@ -151,16 +151,16 @@ export interface IReactApp<T = unknown> {
      */
     hasGetStaticRoutes?: (options: ICallServerMethodOptions, forRouteAtFilePath: string) => Promise<boolean>;
 
-
-    App: React.ComponentType<IReactAppProps<T>>;
+    App: React.ComponentType<IReactAppProps<T, U>>;
     /**
      * Renders the App into an HTML element
      *
      * @returns a cleanup function
      */
-    render: (targetElement: HTMLElement, props: IReactAppProps<T>) => Promise<() => void>;
+    render: (targetElement: HTMLElement, props: IReactAppProps<T, U>) => Promise<() => void>;
 }
-export interface IAppManifest<T = unknown> {
+export interface IAppManifest<T = unknown, U = undefined> {
+    extraData: U;
     routes: RouteInfo<T>[];
     homeRoute?: RouteInfo<T>;
     errorRoutes?: RouteInfo<T>[];
@@ -183,7 +183,6 @@ export interface RouteInfo<T = unknown> {
      */
     hasGetStaticRoutes?: boolean;
 
- 
     /**
      * a list of export names of the page that should be editable
      * if the page is a function, the UI will edit its return value
@@ -215,8 +214,8 @@ export interface DynamicRoutePart {
     name: string;
 }
 
-export interface IReactAppProps<T = unknown> {
-    manifest: IAppManifest<T>;
+export interface IReactAppProps<T = unknown, U = unknown> {
+    manifest: IAppManifest<T, U>;
     importModule: DynamicImport;
     uri: string;
     setUri: (uri: string) => void;
@@ -236,22 +235,22 @@ export type DynamicImport = (
 
 export interface IPrepareAppOptions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onManifestUpdate: (appProps: IAppManifest<any>) => void;
+    onManifestUpdate: (appProps: IAppManifest<any, any>) => void;
     fsApi: FSApi;
 }
 export interface ICallServerMethodOptions {
     fsApi: FSApi;
     importModule: DynamicImport;
 }
-export interface IGetNewPageInfoOptions<T> {
+export interface IGetNewPageInfoOptions<T, U> {
     fsApi: FSApi;
     requestedURI: string;
-    manifest: IAppManifest<T>;
+    manifest: IAppManifest<T, U>;
 }
 
 export type RoutingPattern = 'file' | 'folder(route)' | 'folder(index)';
 
-export interface IMovePageInfoOptions<T> extends IGetNewPageInfoOptions<T> {
+export interface IMovePageInfoOptions<T, U> extends IGetNewPageInfoOptions<T, U> {
     movedFilePath: string;
 }
 export interface EditablePointOfInterest {
@@ -265,4 +264,5 @@ export interface IResults<T> {
     errorMessage?: string;
 }
 
-export type OmitReactApp<T extends IReactApp<D>, D> = Omit<T, 'render' | 'setupStage' | 'setProps'>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type OmitReactApp<T extends IReactApp<any, any>> = Omit<T, 'render' | 'setupStage' | 'setProps'>;
