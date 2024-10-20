@@ -8,13 +8,13 @@ import {
     serializeRequest,
 } from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
-import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, Location } from '@remix-run/react';
-import { Navigation } from './navigation';
+import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, useRevalidator } from '@remix-run/react';
 import { createHandleProxy } from './handle-proxy';
 import { createLinksProxy } from './links-proxy';
+import { Navigation } from './navigation';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -166,11 +166,19 @@ function RootComp({
     setUri: (uri: string) => void;
     prevUri: { current: string };
 }) {
-    const currentModule = useDispatcher(module);
-    navigation.setNavigateFunction(useNavigate());
+    const revalidator = useRevalidator();
+    const currentModule = useDispatcher(
+        module,
+        useCallback(() => {
+            // invalidates loader data
+            revalidator.revalidate();
+        }, [revalidator]),
+    );
 
     const { pathname, search = '', hash = '' } = useLocation();
     const uri = `${pathname}${search}${hash}`;
+
+    navigation.setNavigateFunction(useNavigate());
 
     useEffect(() => {
         if (uri.slice(1) !== prevUri.current) {
@@ -201,7 +209,14 @@ function RootComp({
 }
 
 function PageComp({ module, filePath }: { module: Dispatcher<IResults<unknown>>; filePath: string }) {
-    const currentModule = useDispatcher(module);
+    const revalidator = useRevalidator();
+    const currentModule = useDispatcher(
+        module,
+        useCallback(() => {
+            // invalidates loader data
+            revalidator.revalidate();
+        }, [revalidator]),
+    );
     const location = useLocation();
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
@@ -422,11 +437,14 @@ function createDispatcher<T>(value: T): Dispatcher<T> {
         },
     };
 }
-function useDispatcher<T>(dispatcher: Dispatcher<T>) {
+function useDispatcher<T>(dispatcher: Dispatcher<T>, onChange?: (newValue: T) => void) {
     const [state, setState] = useState(dispatcher.getState());
     useEffect(() => {
-        return dispatcher.subscribe(setState);
-    }, [dispatcher]);
+        return dispatcher.subscribe((newValue) => {
+            setState(newValue);
+            onChange?.(newValue);
+        });
+    }, [dispatcher, onChange]);
     return state;
 }
 
