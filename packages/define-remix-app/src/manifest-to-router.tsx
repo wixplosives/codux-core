@@ -11,14 +11,15 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, useRevalidator } from '@remix-run/react';
-import { navigation } from './navigation';
 import { createHandleProxy } from './handle-proxy';
 import { createLinksProxy } from './links-proxy';
+import { Navigation } from './navigation';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
 export const manifestToRouter = (
     manifest: IAppManifest<RouteModuleInfo, undefined>,
+    navigation: Navigation,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
@@ -47,6 +48,7 @@ export const manifestToRouter = (
         true,
         prevUri,
         callServerMethod,
+        navigation,
     );
 
     const addChildren = (route: RouteObject, children: RouteModuleInfo[]) => {
@@ -61,6 +63,7 @@ export const manifestToRouter = (
                 false,
                 prevUri,
                 callServerMethod,
+                navigation,
             );
             addChildren(childRoute, child.children);
             return childRoute;
@@ -72,9 +75,6 @@ export const manifestToRouter = (
 
     return {
         Router,
-        navigate(path: string) {
-            navigation.navigate(path);
-        },
     };
 };
 const loadedModules = new Map<string, RouteObject>();
@@ -91,6 +91,7 @@ export const fileToRoute = (
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
+    navigation: Navigation,
 ): RouteObject => {
     const key = filePath + '#' + exportNames.join(',');
     let module = loadedModules.get(key);
@@ -105,6 +106,7 @@ export const fileToRoute = (
             isRootFile,
             prevUri,
             callServerMethod,
+            navigation,
         );
         loadedModules.set(key, module);
     }
@@ -113,11 +115,13 @@ export const fileToRoute = (
 
 function RootComp({
     module,
+    navigation,
     filePath,
     setUri,
     prevUri,
 }: {
     module: Dispatcher<IResults<unknown>>;
+    navigation: Navigation;
     filePath: string;
     setUri: (uri: string) => void;
     prevUri: { current: string };
@@ -131,7 +135,8 @@ function RootComp({
         }, [revalidator]),
     );
 
-    const uri = useLocation().pathname;
+    const { pathname, search = '', hash = '' } = useLocation();
+    const uri = `${pathname}${search}${hash}`;
 
     navigation.setNavigateFunction(useNavigate());
 
@@ -214,6 +219,7 @@ function nonMemoFileToRoute(
     isRootFile = false,
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
+    navigation: Navigation,
 ): RouteObject {
     const { handle, setHandle } = createHandleProxy();
     const { linksWrapper, setLinks } = createLinksProxy();
@@ -253,7 +259,13 @@ function nonMemoFileToRoute(
                 default: () => {
                     return (
                         <Suspense>
-                            <RootComp module={dispatcher} filePath={filePath} setUri={setUri} prevUri={prevUri} />
+                            <RootComp
+                                navigation={navigation}
+                                module={dispatcher}
+                                filePath={filePath}
+                                setUri={setUri}
+                                prevUri={prevUri}
+                            />
                         </Suspense>
                     );
                 },
@@ -310,7 +322,12 @@ function nonMemoFileToRoute(
               };
               return {
                   default: () => (
-                      <ErrorPage filePath={filePath} moduleWithComp={moduleWithComp} onCaughtError={onCaughtError} />
+                      <ErrorPage
+                          filePath={filePath}
+                          moduleWithComp={moduleWithComp}
+                          onCaughtError={onCaughtError}
+                          navigation={navigation}
+                      />
                   ),
               };
           })
@@ -392,10 +409,12 @@ function useDispatcher<T>(dispatcher: Dispatcher<T>, onChange?: (newValue: T) =>
 }
 
 function ErrorPage({
+    navigation,
     moduleWithComp,
     filePath,
     onCaughtError,
 }: {
+    navigation: Navigation;
     moduleWithComp: {
         ErrorBoundary?: React.ComponentType;
     };
