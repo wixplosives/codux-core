@@ -24,6 +24,7 @@ import {
     pathToRemixRouterUrl,
     readableUriToFilePath,
     RouteExtraInfo,
+    RouteModuleInfo,
     routePartsToRoutePath,
     routePathId,
     serializeResponse,
@@ -71,7 +72,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
         requestedURI,
         manifest,
         layoutMap,
-    }: IGetNewPageInfoOptions<RouteExtraInfo> & { layoutMap: Map<string, ParentLayoutWithExtra> }) => {
+    }: IGetNewPageInfoOptions<RouteModuleInfo, undefined> & { layoutMap: Map<string, ParentLayoutWithExtra> }) => {
         const appDir = fsApi.path.join(fsApi.path.dirname(fsApi.appDefFilePath), appPath);
         const routeDir = fsApi.path.join(appDir, 'routes');
         const varNames = new Set<string>();
@@ -184,11 +185,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             newPageRoute: {
                 pageModule,
                 pageExportName: 'default',
-                extraData: {
-                    parentLayouts,
-                    routeId: filePathToRouteId(appDir, pageModule),
-                    exportNames: varNames.size ? ['loader', 'meta', 'default'] : ['meta', 'default'],
-                },
+                extraData: undefined,
                 hasGetStaticRoutes: false,
                 path: wantedPath,
                 pathString: requestedURI,
@@ -196,7 +193,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             },
         };
     };
-    return defineApp<RouteExtraInfo>({
+    return defineApp<RouteModuleInfo, undefined>({
         App: ({
             manifest,
             importModule,
@@ -204,7 +201,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             uri,
             onCaughtError,
             callServerMethod,
-        }: IReactAppProps<RouteExtraInfo>) => {
+        }: IReactAppProps<RouteModuleInfo, undefined>) => {
             const uriRef = useRef(uri);
             uriRef.current = uri;
             const { Router } = useMemo(
@@ -358,6 +355,15 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
 
             const compute = async (filesInDir: string[], rootExportNames: string[]) => {
                 const routeDirLength = routeDir.length + 1;
+
+                const rootModuleInfo: RouteModuleInfo = {
+                    exportNames: rootExportNames,
+                    children: [],
+                    file: rootPath,
+                    id: 'root',
+                    path: '/',
+                };
+
                 rootLayouts = [
                     {
                         id: filePathToRouteId(appDir, rootPath),
@@ -471,71 +477,80 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                     },
                 );
                 layoutMap = layouts;
-                const initialManifest: IAppManifest<RouteExtraInfo> = {
+                const initialManifest: IAppManifest<RouteModuleInfo, undefined> = {
                     routes: [],
                     errorRoutes: [],
+                    extraData: rootModuleInfo,
                 };
 
                 const sortedFilesByRoute = [...routes.entries()].sort(([, a], [, b]) =>
                     a.readableName.localeCompare(b.readableName),
                 );
                 if (rootExportNames.includes('ErrorBoundary')) {
-                    const errorRoute = anErrorRoute(
-                        routeDir,
-                        [],
-                        rootPath,
-                        {
-                            parentLayouts: [],
-                            routeId: 'error',
-                            exportNames: rootExportNames,
-                        },
-                        fsApi.path,
-                    );
+                    const errorRoute = anErrorRoute(routeDir, [], rootPath, [], fsApi.path);
                     initialManifest.errorRoutes!.push(errorRoute);
                 }
 
+                const routeInfoById = new Map<string, RouteModuleInfo>();
+                routeInfoById.set(rootModuleInfo.id, rootModuleInfo);
                 for (const [, value] of sortedFilesByRoute) {
                     const exports = exportNames.get(value.file) || [];
+                    const { parentLayouts } = getRouteLayouts(value.file.slice(routeDirLength), fsApi);
+                    let parent = rootModuleInfo;
+                    for (const layout of parentLayouts) {
+                        if (layout.layoutModule === rootPath) {
+                            continue;
+                        }
+                        const existingRoute = routeInfoById.get(layout.id);
+                        if (!existingRoute) {
+                            const layoutExports = exportNames.get(layout.layoutModule) || [];
+                            const layoutRoute: RouteModuleInfo = {
+                                id: layout.id,
+                                children: [],
+                                exportNames: layoutExports,
+                                file: layout.layoutModule,
+                                path: layout.path,
+                            };
+                            routeInfoById.set(layout.id, layoutRoute);
+                            parent.children.push(layoutRoute);
+                            parent = layoutRoute;
+                        } else {
+                            parent = existingRoute;
+                        }
+                    }
+
+                    const routeId = filePathToRouteId(appDir, value.file);
+                    const route: RouteModuleInfo = {
+                        id: routeId,
+                        children: [],
+                        exportNames: exports,
+                        file: value.file,
+                        path: pathToRemixRouterUrl(value.path),
+                    };
+                    routeInfoById.set(routeId, route);
+                    parent.children.push(route);
                     if (value.path.length === 0) {
                         initialManifest.homeRoute = aRoute(
                             routeDir,
                             [],
+                            rootLayouts,
                             value.file,
-                            {
-                                parentLayouts: rootLayouts,
-                                routeId: filePathToRouteId(appDir, value.file),
-                                exportNames: exports,
-                            },
                             fsApi.path,
+                            rootExportNames.includes('getStaticRoutes'),
                         );
                         if (exports.includes('ErrorBoundary')) {
-                            const errorRoute = anErrorRoute(
-                                routeDir,
-                                value.path,
-                                value.file,
-                                {
-                                    parentLayouts: rootLayouts,
-                                    routeId: filePathToRouteId(appDir, value.file),
-                                    exportNames: exports,
-                                },
-                                fsApi.path,
-                            );
+                            const errorRoute = anErrorRoute(routeDir, value.path, value.file, rootLayouts, fsApi.path);
                             initialManifest.errorRoutes!.push(errorRoute);
                         }
                     } else {
-                        const { parentLayouts } = getRouteLayouts(value.file.slice(routeDirLength), fsApi);
-
                         if (exports.includes('default')) {
                             const route = aRoute(
                                 routeDir,
                                 value.path,
+                                parentLayouts,
                                 value.file,
-                                {
-                                    parentLayouts,
-                                    routeId: filePathToRouteId(appDir, value.file),
-                                    exportNames: exports,
-                                },
                                 fsApi.path,
+                                exports.includes('getStaticRoutes'),
                             );
                             initialManifest.routes.push(route);
                             if (exports.includes('ErrorBoundary')) {
@@ -543,11 +558,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                                     routeDir,
                                     value.path,
                                     value.file,
-                                    {
-                                        parentLayouts,
-                                        routeId: filePathToRouteId(appDir, value.file),
-                                        exportNames: exports,
-                                    },
+                                    parentLayouts,
                                     fsApi.path,
                                 );
                                 initialManifest.errorRoutes!.push(errorRoute);

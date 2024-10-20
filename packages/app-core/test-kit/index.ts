@@ -4,10 +4,10 @@ import { createMemoryFs, IMemFileSystem } from '@file-services/memory';
 import { createRequestResolver } from '@file-services/resolve';
 import path from '@file-services/path';
 import { IDirectoryContents } from '@file-services/types';
-export interface AppDefDriverOptions<T> {
-    app: IReactApp<T>;
+export interface AppDefDriverOptions<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATAU = unknown> {
+    app: IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATAU>;
     initialFiles: IDirectoryContents;
-    evaluatedNodeModules: Record<string, unknown>
+    evaluatedNodeModules: Record<string, unknown>;
     /**
      * @default '/app-def.ts'
      */
@@ -18,22 +18,22 @@ export interface AppDefDriverOptions<T> {
     projectPath?: string;
 }
 type DirListenerObj = { cb: (files: string[]) => void; dirPath: string };
-export class AppDefDriver<T> {
+export class AppDefDriver<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown> {
     private fs: IMemFileSystem;
     private moduleSystem: ICommonJsModuleSystem;
     private dirListeners: Array<DirListenerObj> = [];
-    private manifestListeners: Set<(manifest: IAppManifest<T>) => void> = new Set();
+    private manifestListeners: Set<(manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void> = new Set();
     private fileListeners: Record<string, Set<(contents: string | null) => void>> = {};
     private exportsListeners: Record<string, Set<(exportNames: string[]) => void>> = {};
-    private lastManifest: IAppManifest<T> | null = null;
+    private lastManifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA> | null = null;
     private disposeApp?: () => void;
-    constructor(private options: AppDefDriverOptions<T>) {
+    constructor(private options: AppDefDriverOptions<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) {
         this.fs = createMemoryFs(options.initialFiles);
-        const resolver = createRequestResolver({fs: this.fs});
+        const resolver = createRequestResolver({ fs: this.fs });
         this.moduleSystem = createBaseCjsModuleSystem({
             dirname: this.fs.dirname,
             readFileSync: (filePath) => {
-                const fileContents = this.fs.readFileSync(filePath, {encoding: 'utf8'});
+                const fileContents = this.fs.readFileSync(filePath, { encoding: 'utf8' });
                 if (typeof fileContents !== 'string') {
                     throw new Error(`No content for: ${filePath}`);
                 }
@@ -44,7 +44,7 @@ export class AppDefDriver<T> {
                     return request;
                 }
                 const resolved = resolver(contextPath, request);
-                return resolved.resolvedFile
+                return resolved.resolvedFile;
             },
             globals: {},
         });
@@ -73,7 +73,7 @@ export class AppDefDriver<T> {
     addOrUpdateFile(filePath: string, contents: string) {
         const existingFile = !!this.fs.existsSync(filePath);
         this.fs.writeFileSync(filePath, contents);
-        
+
         if (!existingFile) {
             for (const listener of this.dirListeners) {
                 if (filePath.startsWith(listener.dirPath)) {
@@ -123,10 +123,10 @@ export class AppDefDriver<T> {
             movedFilePath,
         });
     }
-    addManifestListener(cb: (manifest: IAppManifest<T>) => void) {
+    addManifestListener(cb: (manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void) {
         this.manifestListeners.add(cb);
     }
-    removeManifestListener(cb: (manifest: IAppManifest<T>) => void) {
+    removeManifestListener(cb: (manifest: IAppManifest<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>) => void) {
         this.manifestListeners.delete(cb);
     }
     private dispatchManifestUpdate() {
@@ -150,16 +150,20 @@ export class AppDefDriver<T> {
         const createProps = (uri: string) => ({
             callServerMethod(filePath: string, methodName: string, args: unknown[]) {
                 return app.callServerMethod!(
-                    { 
-                        fsApi, 
-                        importModule
-                    }, 
-                    filePath, methodName, args
+                    {
+                        fsApi,
+                        importModule,
+                    },
+                    filePath,
+                    methodName,
+                    args,
                 );
             },
             importModule: this.importModule,
             manifest: this.lastManifest!,
-            onCaughtError() {/**/},
+            onCaughtError() {
+                /**/
+            },
             setUri(_uri: string) {
                 // ToDo: implement
             },
@@ -167,24 +171,24 @@ export class AppDefDriver<T> {
         });
         const unmount = await app.render(container, createProps(uri));
         let lastUri = uri;
-        const rerender = ({uri = '/'}: {uri?: string} = {})=>{
+        const rerender = ({ uri = '/' }: { uri?: string } = {}) => {
             lastUri = uri;
             return app.render(container, createProps(uri));
-        }
+        };
         const manifestListener = () => {
-            void rerender({uri: lastUri});
+            void rerender({ uri: lastUri });
         };
         if (testAutoRerenderOnManifestUpdate !== false) {
             this.addManifestListener(manifestListener);
         }
         return {
-            dispose: ()=> {
+            dispose: () => {
                 unmount();
                 container.remove();
-                this.removeManifestListener(manifestListener)
+                this.removeManifestListener(manifestListener);
             },
             container,
-            rerender
+            rerender,
         };
     }
     dispose() {
@@ -215,7 +219,7 @@ export class AppDefDriver<T> {
                 stop: () => {
                     listeners.delete(cb);
                 },
-                contents: Promise.resolve(this.fs.readFileSync(filePath, {encoding: 'utf8'}) ?? null),
+                contents: Promise.resolve(this.fs.readFileSync(filePath, { encoding: 'utf8' }) ?? null),
             };
         },
         watchFileExports: (filePath: string, cb) => {
@@ -227,11 +231,11 @@ export class AppDefDriver<T> {
             try {
                 const module = this.moduleSystem.requireModule(filePath);
                 moduleExports = Object.keys(module as Record<string, unknown>);
-            } catch (e){
+            } catch (e) {
                 const errMsg = e instanceof Error ? e.message : String(e);
                 throw new Error(`error requiring module ${filePath}: ${errMsg}`);
             }
-            
+
             return {
                 stop: () => {
                     listeners.delete(cb);
@@ -248,11 +252,11 @@ export class AppDefDriver<T> {
             } catch (error) {
                 errorMessage = error instanceof Error ? error.message : String(error);
             }
-            return { module, errorMessage }
+            return { module, errorMessage };
         };
         const { stop } = this.fsApi.watchFile(filePath, () => {
             this.moduleSystem.moduleCache.delete(filePath);
-            const {module, errorMessage} = requireModule();
+            const { module, errorMessage } = requireModule();
             onModuleChange?.({
                 results: module || null,
                 status: errorMessage ? 'invalid' : 'ready',
@@ -264,7 +268,7 @@ export class AppDefDriver<T> {
             moduleResults: Promise.resolve({
                 status: errorMessage ? 'invalid' : 'ready',
                 results: module || null,
-                errorMessage
+                errorMessage,
             }),
             dispose() {
                 stop();
@@ -283,7 +287,4 @@ export class AppDefDriver<T> {
         }
         return nestedPaths;
     }
-
 }
-
-

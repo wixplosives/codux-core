@@ -2,8 +2,7 @@ import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app
 import {
     deserializeResponse,
     isSerializedResponse,
-    pathToRemixRouterUrl,
-    RouteExtraInfo,
+    RouteModuleInfo,
     SerializedResponse,
     serializeRequest,
 } from './remix-app-utils';
@@ -19,7 +18,7 @@ import { Navigation } from './navigation';
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
 export const manifestToRouter = (
-    manifest: IAppManifest<RouteExtraInfo>,
+    manifest: IAppManifest<RouteModuleInfo, undefined>,
     navigation: Navigation,
     requireModule: DynamicImport,
     setUri: (uri: string) => void,
@@ -27,9 +26,10 @@ export const manifestToRouter = (
     prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
-    const rootRouteInfo = manifest.homeRoute || manifest.routes[0];
-    const rootFilePath = rootRouteInfo?.parentLayouts?.[0]?.layoutModule;
-    const rootExports = rootRouteInfo?.extraData.parentLayouts?.[0]?.exportNames;
+    const routerData = manifest.extraData;
+
+    const rootFilePath = routerData.file;
+    const rootExports = routerData.exportNames;
     if (!rootFilePath || !rootExports) {
         return {
             Router: createRemixStub([]),
@@ -50,13 +50,13 @@ export const manifestToRouter = (
         callServerMethod,
         navigation,
     );
-    const layoutMap = new Map<string, RouteObject>();
-    if (manifest.homeRoute) {
-        rootRoute.children = [
-            fileToRoute(
-                '/',
-                manifest.homeRoute.pageModule,
-                manifest.homeRoute.extraData.exportNames,
+
+    const addChildren = (route: RouteObject, children: RouteModuleInfo[]) => {
+        route.children = children.map((child) => {
+            const childRoute = fileToRoute(
+                child.path,
+                child.file,
+                child.exportNames,
                 requireModule,
                 setUri,
                 onCaughtError,
@@ -64,52 +64,12 @@ export const manifestToRouter = (
                 prevUri,
                 callServerMethod,
                 navigation,
-            ),
-        ];
-    }
-    for (const route of manifest.routes) {
-        const routeObject = fileToRoute(
-            pathToRemixRouterUrl(route.path),
-            route.pageModule,
-            route.extraData.exportNames,
-            requireModule,
-            setUri,
-            onCaughtError,
-            false,
-            prevUri,
-            callServerMethod,
-            navigation,
-        );
-        let parentRoute: RouteObject = rootRoute;
-        for (const parentLayout of route.extraData.parentLayouts) {
-            if (parentLayout.layoutModule === rootFilePath) {
-                continue;
-            }
-            if (!layoutMap.has(parentLayout.layoutModule)) {
-                layoutMap.set(
-                    parentLayout.layoutModule,
-                    fileToRoute(
-                        parentLayout.path,
-                        parentLayout.layoutModule,
-                        route.extraData.exportNames,
-                        requireModule,
-                        setUri,
-                        onCaughtError,
-                        false,
-                        prevUri,
-                        callServerMethod,
-                        navigation,
-                    ),
-                );
-                parentRoute.children = parentRoute.children || [];
-                parentRoute.children.push(layoutMap.get(parentLayout.layoutModule)!);
-                parentRoute = layoutMap.get(parentLayout.layoutModule)!;
-            }
-            parentRoute = layoutMap.get(parentLayout.layoutModule)!;
-        }
-        parentRoute.children = parentRoute.children || [];
-        parentRoute.children.push(routeObject);
-    }
+            );
+            addChildren(childRoute, child.children);
+            return childRoute;
+        });
+    };
+    addChildren(rootRoute, routerData.children);
 
     const Router = createRemixStub([rootRoute]);
 
