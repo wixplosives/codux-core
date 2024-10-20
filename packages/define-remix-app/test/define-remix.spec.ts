@@ -22,6 +22,7 @@ import {
     pageWithLinks,
     userApiConsumer,
     userApiPage,
+    loaderAndClientLoaderRoot,
 } from './test-cases/roots';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1192,6 +1193,58 @@ describe('define-remix', () => {
                 await expect(() => container.textContent)
                     .retry()
                     .to.include('Layout|App|About:About loaded data-loaded extra');
+
+                dispose();
+            });
+            it('should re-load data on route source change (root)', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: loaderAndClientLoaderRoot('server initial data', 'client initial data'),
+                    [indexPath]: namedPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({
+                    uri: '',
+                    testAutoRerenderOnManifestUpdate: false,
+                });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('App:server initial data!client initial data');
+
+                driver.addOrUpdateFile(
+                    rootPath,
+                    loaderAndClientLoaderRoot('server modified data', 'client modified data'),
+                );
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('App:server modified data!client modified data');
+
+                dispose();
+            });
+            it('should re-load data on route source change (page)', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: loaderAndClientLoaderPage('Home', 'server initial data', 'client initial data'),
+                });
+
+                const { dispose, container } = await driver.render({
+                    uri: '',
+                    testAutoRerenderOnManifestUpdate: false,
+                });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:server initial data!client initial data');
+
+                driver.addOrUpdateFile(
+                    indexPath,
+                    loaderAndClientLoaderPage('Home', 'server modified data', 'client modified data'),
+                );
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home:server modified data!client modified data');
 
                 dispose();
             });

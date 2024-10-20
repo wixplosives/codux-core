@@ -134,7 +134,10 @@ export class AppDefDriver<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unkn
             listener(this.lastManifest!);
         }
     }
-    async render({ uri = '/' }: { uri?: string } = {}) {
+    async render({
+        uri = '/',
+        testAutoRerenderOnManifestUpdate,
+    }: { uri?: string; testAutoRerenderOnManifestUpdate?: boolean } = {}) {
         const { app } = this.options;
         const { fsApi, importModule } = this;
 
@@ -175,7 +178,9 @@ export class AppDefDriver<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unkn
         const manifestListener = () => {
             void rerender({ uri: lastUri });
         };
-        this.addManifestListener(manifestListener);
+        if (testAutoRerenderOnManifestUpdate !== false) {
+            this.addManifestListener(manifestListener);
+        }
         return {
             dispose: () => {
                 unmount();
