@@ -1,6 +1,6 @@
 import { NavigateFunction } from '@remix-run/react';
 
-class Navigation {
+export class Navigation {
     private navigateFunction?: NavigateFunction;
 
     navigate(path: string) {
@@ -12,4 +12,3 @@ class Navigation {
     }
 }
 
-export const navigation = new Navigation();
