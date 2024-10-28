@@ -87,7 +87,7 @@ export interface FSApi {
     path: PathApi;
 }
 
-export interface IReactApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = undefined> {
+export interface IReactApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown> {
     /**
      * Should be isomorphic, should return the same result on the server and in a web worker
      * returns the app manifest containing a list of routes for the app.
@@ -162,9 +162,9 @@ export interface IReactApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = und
         props: IReactAppProps<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>,
     ) => Promise<() => void>;
 }
-export interface IAppManifest<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = undefined> {
-    extraData: MANIFEST_EXTRA_DATA;
+export interface IAppManifest<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown> {
     routes: RouteInfo<ROUTE_EXTRA_DATA>[];
+    extraData?: MANIFEST_EXTRA_DATA;
     homeRoute?: RouteInfo<ROUTE_EXTRA_DATA>;
     errorRoutes?: RouteInfo<ROUTE_EXTRA_DATA>[];
 }
