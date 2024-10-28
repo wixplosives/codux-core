@@ -87,7 +87,7 @@ export interface FSApi {
     path: PathApi;
 }
 
-export interface IReactApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown> {
+export interface IReactApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = undefined> {
     /**
      * Should be isomorphic, should return the same result on the server and in a web worker
      * returns the app manifest containing a list of routes for the app.
