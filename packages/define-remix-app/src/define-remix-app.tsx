@@ -42,6 +42,11 @@ export interface IDefineRemixAppProps {
     routingPattern?: RoutingPattern;
 }
 
+/**
+ * Allows Codux to get the static routes (needed to allow navigation to a dynamic page).
+ */
+export type GetStaticRoutes = () => Promise<string[]>;
+
 export const INVALID_MSGS = {
     homeRouteExists: (routePath: string) => 'Home route already exists at ' + routePath,
     emptyName: 'page name cannot be empty',
