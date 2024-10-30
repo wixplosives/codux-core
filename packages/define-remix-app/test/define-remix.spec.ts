@@ -7,23 +7,15 @@ import {
     rootWithLayout,
     rootWithLayoutAndErrorBoundary,
     layoutWithErrorBoundary,
-    namedPage,
     rootWithLayout2,
-    loaderPage,
-    deferedLoaderPage,
     actionPage,
-    rootWithBreadCrumbs,
-    simpleLayoutWithHandle,
     deferedActionPage,
-    clientLoaderPage,
-    loaderAndClientLoaderPage,
     clientLoaderWithFallbackPage,
     clientActionPage,
-    pageWithLinks,
     userApiConsumer,
     userApiPage,
-    loaderAndClientLoaderRoot,
 } from './test-cases/roots';
+import { pageSource, rootSource as originRootSource, expectRoute, expectLoaderData } from './test-cases/route-builder';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo, RouteModuleInfo } from '../src/remix-app-utils';
@@ -72,6 +64,9 @@ const moduleInfo = ({ id, path, file, exportNames, children }: Partial<RouteModu
     id: id!,
     path: path!,
 });
+
+const rootSource = (options: Parameters<typeof originRootSource>[0]) =>
+    originRootSource({ layoutMock: true, ...options });
 
 describe('define-remix', () => {
     describe('flat routes', () => {
@@ -1092,24 +1087,23 @@ describe('define-remix', () => {
         });
     });
     describe('render', () => {
-        it('should output page according to route to dom', async () => {
+        it('should navigate while preserving root state', async () => {
+            // ToDo: validate root state is preserved
             const { driver } = await getInitialManifest({
-                [rootPath]: rootWithLayout2,
-                [indexPath]: namedPage('Home'),
-                [aboutPath]: namedPage('About'),
+                [rootPath]: rootSource({ componentName: 'RootComponent' }),
+                [indexPath]: pageSource({ componentName: 'Home' }),
+                [aboutPath]: pageSource({ componentName: 'About' }),
             });
 
             const { dispose, container, rerender } = await driver.render({ uri: '/' });
 
-            await expect(() => container.textContent)
-                .retry()
-                .to.include('Layout|App|Home|');
+            await expectRoute(container, 'RootComponent');
+            await expectRoute(container, 'Home');
 
             await rerender({ uri: 'about' });
 
-            await expect(() => container.textContent)
-                .retry()
-                .to.include('Layout|App|About|');
+            await expectRoute(container, 'RootComponent');
+            await expectRoute(container, 'About');
 
             dispose();
         });
@@ -1118,17 +1112,16 @@ describe('define-remix', () => {
                 const aboutPage = '/app/routes/about.tsx';
                 const aboutUsPage = '/app/routes/about.us.tsx';
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: namedPage('Home'),
-                    [aboutPage]: namedPage('About'),
-                    [aboutUsPage]: namedPage('AboutUs'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({ componentName: 'Home' }),
+                    [aboutPage]: pageSource({ componentName: 'About' }),
+                    [aboutUsPage]: pageSource({ componentName: 'AboutUs' }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: 'about/us' });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|About|AboutUs');
+                await expectRoute(container, 'About');
+                await expectRoute(container, 'AboutUs');
 
                 dispose();
             });
@@ -1136,32 +1129,37 @@ describe('define-remix', () => {
         describe('error routes', () => {
             it('should render error route when error occurs', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: namedPage('Home'),
+                    [rootPath]: rootSource({ componentName: 'RootComponent' }),
+                    [indexPath]: pageSource({ componentName: 'Home' }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '404' });
 
+                // ToDo: change to make sure layout is rendered around error
                 await expect(() => container.textContent)
                     .retry()
-                    .to.include('Error');
+                    .to.include('RootComponent error');
 
                 dispose();
             });
             it('should show internal error page if it exists', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: namedPage('Home', {
-                        includeErrorBoundry: true,
-                        throwErrorInPage: true,
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        errorBoundary: true,
+                        componentCode: {
+                            hooks: 'throw new Error("page render error");',
+                        },
                     }),
                 });
 
+                // ToDo: change test to actually test page error
                 const { dispose, container } = await driver.render({ uri: '404' });
 
                 await expect(() => container.textContent)
                     .retry()
-                    .to.include('Error');
+                    .to.include('App error');
 
                 dispose();
             });
@@ -1169,37 +1167,42 @@ describe('define-remix', () => {
         describe('loader', () => {
             it('should call loader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: loaderPage('Home', 'Home loaded data'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        loader: { loaderDataFrom: 'home' },
+                    }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home:Home loaded data');
+                await expectLoaderData(container, 'Home', { loaderDataFrom: 'home' });
 
                 dispose();
             });
             it('should accept delayed response from loader', async () => {
-                const aboutPage = '/app/routes/about.tsx';
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [aboutPage]: deferedLoaderPage('About', 'About loaded data', 'loaded extra'),
+                    [rootPath]: rootSource({}),
+                    [aboutPath]: pageSource({
+                        componentName: 'About',
+                        loader: { loaderDataFrom: 'about' },
+                        loaderDelay: 200,
+                    }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: 'about' });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|About:About loaded data-loaded extra');
+                await expectLoaderData(container, 'About', { loaderDataFrom: 'about' });
 
                 dispose();
             });
             it('should re-load data on route source change (root)', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: loaderAndClientLoaderRoot('server initial data', 'client initial data'),
-                    [indexPath]: namedPage('Home'),
+                    [rootPath]: rootSource({
+                        componentName: 'Root',
+                        loader: { data: 'initial' },
+                    }),
+                    [indexPath]: pageSource({}),
                 });
 
                 const { dispose, container } = await driver.render({
@@ -1207,25 +1210,27 @@ describe('define-remix', () => {
                     testAutoRerenderOnManifestUpdate: false,
                 });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('App:server initial data!client initial data');
+                await expectLoaderData(container, 'Root', { data: 'initial' });
 
                 driver.addOrUpdateFile(
                     rootPath,
-                    loaderAndClientLoaderRoot('server modified data', 'client modified data'),
+                    pageSource({
+                        componentName: 'Root',
+                        loader: { data: 'updated' },
+                    }),
                 );
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('App:server modified data!client modified data');
+                await expectLoaderData(container, 'Root', { data: 'updated' });
 
                 dispose();
             });
             it('should re-load data on route source change (page)', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: loaderAndClientLoaderPage('Home', 'server initial data', 'client initial data'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        loader: { data: 'initial' },
+                    }),
                 });
 
                 const { dispose, container } = await driver.render({
@@ -1233,18 +1238,17 @@ describe('define-remix', () => {
                     testAutoRerenderOnManifestUpdate: false,
                 });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home:server initial data!client initial data');
+                await expectLoaderData(container, 'Home', { data: 'initial' });
 
                 driver.addOrUpdateFile(
                     indexPath,
-                    loaderAndClientLoaderPage('Home', 'server modified data', 'client modified data'),
+                    pageSource({
+                        componentName: 'Home',
+                        loader: { data: 'updated' },
+                    }),
                 );
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home:server modified data!client modified data');
+                await expectLoaderData(container, 'Home', { data: 'updated' });
 
                 dispose();
             });
@@ -1252,29 +1256,30 @@ describe('define-remix', () => {
         describe('clientLoader', () => {
             it('should call clientLoader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: clientLoaderPage('Home', 'Home loaded data'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({ componentName: 'Home', clientLoader: { clientLoaderData: 'home' } }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home:Home loaded data');
+                await expectLoaderData(container, 'Home', { clientLoaderData: 'home' });
 
                 dispose();
             });
             it('should call clientLoader allowing it to call server loader (if hydrate is set to true)', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: loaderAndClientLoaderPage('Home', 'Home loaded data', 'client loaded data'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        loader: { loader: 'home' },
+                        clientLoader: { clientLoader: 'home' },
+                        clientLoaderHydrate: true,
+                    }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home:Home loaded data!client loaded data');
+                await expectLoaderData(container, 'Home', { loader: 'home', clientLoader: 'home' });
 
                 dispose();
             });
@@ -1410,19 +1415,24 @@ describe('define-remix', () => {
                 const aboutUsPath = '/app/routes/about.us.tsx';
 
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithBreadCrumbs,
-                    [aboutPath]: simpleLayoutWithHandle('About'),
-                    [aboutUsPath]: simpleLayoutWithHandle('AboutUs'),
+                    [rootPath]: rootSource({
+                        handle: { origin: 'Root' },
+                        componentCode: {
+                            remixRunReactImports: ['useMatches'],
+                            hooks: 'const matches = useMatches();',
+                            jsx: '<div id="matches">{matches.map((m) => m?.handle?.origin).join(">")}</div>',
+                        },
+                    }),
+                    [aboutPath]: pageSource({ componentName: 'About', handle: { origin: 'About' } }),
+                    [aboutUsPath]: pageSource({ componentName: 'AboutUs', handle: { origin: 'AboutUs' } }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: 'about/us' });
 
-                await expect(() => container.textContent, 'page is rendered')
-                    .retry()
-                    .to.include('Layout|App|About|AboutUs');
-                await expect(() => container.textContent, 'Bread crumbs are there')
-                    .retry()
-                    .to.include('Breadcrumbs:Home!About!AboutUs!');
+                await expectRoute(container, 'AboutUs');
+                const matches = container.querySelector('#matches') as HTMLElement;
+                expect(matches.textContent).to.eql('Root>About>AboutUs');
+
                 dispose();
             });
         });
@@ -1430,44 +1440,54 @@ describe('define-remix', () => {
         describe('links function', () => {
             it('should render links returned by the links function', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: pageWithLinks('Home'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        links: [{ rel: 'stylesheet', href: 'some.css' }],
+                    }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
+                await expectRoute(container, 'Home');
 
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home');
-
-                const link = container.querySelector('link');
-                expect(link?.getAttribute('href')).to.include('some.css');
+                const links = container.querySelectorAll('link');
+                expect(links.length).to.equal(1);
+                expect(links[0].getAttribute('rel')).to.include('stylesheet');
+                expect(links[0].getAttribute('href')).to.include('some.css');
 
                 dispose();
             });
             it('should support having the links function added and removed', async () => {
                 const { driver } = await getInitialManifest({
-                    [rootPath]: rootWithLayout2,
-                    [indexPath]: namedPage('Home'),
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({ componentName: 'Home' }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
-
-                await expect(() => container.textContent)
-                    .retry()
-                    .to.include('Layout|App|Home');
+                await expectRoute(container, 'Home');
 
                 const link = container.querySelector('link');
                 expect(link).to.equal(null);
 
-                driver.addOrUpdateFile(indexPath, pageWithLinks('HomeUpdated'));
+                driver.addOrUpdateFile(
+                    indexPath,
+                    pageSource({
+                        componentName: 'Home',
+                        componentCode: {
+                            jsx: '<div>HomeUpdated</div>',
+                        },
+                        links: [{ rel: 'stylesheet', href: 'some.css' }],
+                    }),
+                );
 
                 await expect(() => container.textContent)
                     .retry()
-                    .to.include('Layout|App|HomeUpdated');
+                    .to.include('HomeUpdated');
 
-                const updatedLink = container.querySelector('link');
-                expect(updatedLink?.getAttribute('href')).to.include('some.css');
+                const links = container.querySelectorAll('link');
+                expect(links.length).to.equal(1);
+                expect(links[0].getAttribute('rel')).to.include('stylesheet');
+                expect(links[0].getAttribute('href')).to.include('some.css');
 
                 dispose();
             });
