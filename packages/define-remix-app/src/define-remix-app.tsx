@@ -115,7 +115,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
         } else if (!pageName[0].match(/[A-Za-z]/)) {
             return {
                 isValid: false,
-                errorMessage: 'page name must start with an a letter between a-z',
+                errorMessage: 'Page names must start with a letter of the alphabet',
                 pageModule: '',
                 newPageSourceCode: '',
             };
