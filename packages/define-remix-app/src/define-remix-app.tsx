@@ -50,7 +50,7 @@ export type GetStaticRoutes = () => Promise<string[]>;
 export const INVALID_MSGS = {
     homeRouteExists: (routePath: string) => 'Home route already exists at ' + routePath,
     emptyName: 'page name cannot be empty',
-    initialPageLetter: 'page name must start with an a letter between a-z',
+    initialPageLetter: 'Page names must start with a letter of the alphabet',
     invalidVar: (varName: string) =>
         `invalid variable name: "${varName}", page params must start with a letter or underscore and contain only letters, numbers and underscores`,
     invalidRouteChar: (param: string, char: string) => `invalid character "${char}" in page route ${param}`,
@@ -115,7 +115,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
         } else if (!pageName[0].match(/[A-Za-z]/)) {
             return {
                 isValid: false,
-                errorMessage: 'page name must start with an a letter between a-z',
+                errorMessage: 'Page names must start with a letter of the alphabet',
                 pageModule: '',
                 newPageSourceCode: '',
             };
