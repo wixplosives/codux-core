@@ -317,16 +317,18 @@ function nonMemoFileToRoute(
               const { moduleResults } = requireModule(filePath);
               const { results } = await moduleResults;
 
-              const moduleWithComp = results as {
+              const routeModule = results as {
                   ErrorBoundary?: React.ComponentType;
+                  Layout?: React.ComponentType;
               };
               return {
                   default: () => (
                       <ErrorPage
                           filePath={filePath}
-                          moduleWithComp={moduleWithComp}
+                          routeModule={routeModule}
                           onCaughtError={onCaughtError}
                           navigation={navigation}
+                          isRootFile={isRootFile}
                       />
                   ),
               };
@@ -410,24 +412,35 @@ function useDispatcher<T>(dispatcher: Dispatcher<T>, onChange?: (newValue: T) =>
 
 function ErrorPage({
     navigation,
-    moduleWithComp,
+    routeModule,
     filePath,
     onCaughtError,
+    isRootFile,
 }: {
     navigation: Navigation;
-    moduleWithComp: {
+    routeModule: {
         ErrorBoundary?: React.ComponentType;
+        Layout?: React.ComponentType<{ children?: React.ReactNode }>;
     };
     onCaughtError: ErrorReporter;
     filePath: string;
+    isRootFile: boolean;
 }) {
     navigation.setNavigateFunction(useNavigate());
     useEffect(() => {
         onCaughtError({ filePath, exportName: 'ErrorBoundary' });
     }, [filePath, onCaughtError]);
-    if (moduleWithComp.ErrorBoundary) {
-        return <moduleWithComp.ErrorBoundary />;
-    }
 
-    return <div>error boundary not found at {filePath}</div>;
+    const errorContent = routeModule.ErrorBoundary ? (
+        <routeModule.ErrorBoundary />
+    ) : (
+        <div>error boundary not found at {filePath}</div>
+    );
+
+    if (isRootFile && routeModule.Layout) {
+        const Layout = routeModule.Layout;
+        return <Layout>{errorContent}</Layout>;
+    } else {
+        return errorContent;
+    }
 }
