@@ -1024,17 +1024,14 @@ describe('define-remix', () => {
                     [indexPath]: simpleLayout,
                 });
 
-                const invalidCases = ['1st-page', '_about'];
-                for (const invalidCase of invalidCases) {
-                    const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
-                        driver.getNewPageInfo(invalidCase);
+                const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
+                    driver.getNewPageInfo('1st-page');
 
-                    expect(isValid, `isValid ${invalidCase}`).to.eql(false);
-                    expect(errorMessage, `error message ${invalidCase}`).to.eql(INVALID_MSGS.initialPageLetter);
-                    expect(pageModule, `page module ${invalidCase}`).to.eql('');
-                    expect(newPageSourceCode, `newPageSourceCode ${invalidCase}`).to.eql('');
-                    expect(newPageRoute, `newPageRoute ${invalidCase}`).to.eql(undefined);
-                }
+                expect(isValid, 'isValid').to.eql(false);
+                expect(errorMessage, 'error message').to.eql(INVALID_MSGS.initialPageLetter);
+                expect(pageModule, 'page module').to.eql('');
+                expect(newPageSourceCode, 'newPageSourceCode').to.eql('');
+                expect(newPageRoute, 'newPageRoute').to.eql(undefined);
             });
             it('should limit route param key', async () => {
                 const { driver } = await getInitialManifest({

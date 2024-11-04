@@ -105,17 +105,17 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             })
             .join('.');
         const pageName = toCamelCase(pageFileName);
-        if (!pageName && !requestedURI) {
+        if (!pageName) {
             return {
                 isValid: false,
                 errorMessage: INVALID_MSGS.emptyName,
                 pageModule: '',
                 newPageSourceCode: '',
             };
-        } else if (!(pageName[0] || requestedURI[0]).match(/[A-Za-z]/)) {
+        } else if (!pageName[0].match(/[A-Za-z]/)) {
             return {
                 isValid: false,
-                errorMessage: INVALID_MSGS.initialPageLetter,
+                errorMessage: 'Page names must start with a letter of the alphabet',
                 pageModule: '',
                 newPageSourceCode: '',
             };
