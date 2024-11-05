@@ -182,6 +182,10 @@ export const expectRoute = async (root: HTMLElement, pageComponentName: string) 
     const pageRootExpectedAttr = `[data-origin="${pageComponentName}-page-component"]`;
     await expect(() => root.querySelector(pageRootExpectedAttr), `in ${pageComponentName} page`).retry().to.exist;
 };
+export const expectRootLayout = async (root: HTMLElement) => {
+    const rootLayoutExpectedAttr = `[data-origin="root-layout"]`;
+    await expect(() => root.querySelector(rootLayoutExpectedAttr), `root layout rendered`).retry().to.exist;
+};
 export const expectRouteError = async (root: HTMLElement, pageComponentName: string) => {
     const pageRootExpectedAttr = `[data-origin="${pageComponentName}-page-error"]`;
     await expect(() => root.querySelector(pageRootExpectedAttr), `in ${pageComponentName} page error`).retry().to.exist;

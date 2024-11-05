@@ -15,7 +15,13 @@ import {
     userApiConsumer,
     userApiPage,
 } from './test-cases/roots';
-import { pageSource, rootSource as originRootSource, expectRoute, expectLoaderData } from './test-cases/route-builder';
+import {
+    pageSource,
+    rootSource as originRootSource,
+    expectRoute,
+    expectLoaderData,
+    expectRootLayout,
+} from './test-cases/route-builder';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
 import { ParentLayoutWithExtra, RouteExtraInfo, RouteModuleInfo } from '../src/remix-app-utils';
@@ -1138,8 +1144,8 @@ describe('define-remix', () => {
 
                 const { dispose, container } = await driver.render({ uri: '404' });
 
-                // ToDo: change to make sure layout is rendered around error
-                await expect(() => container.textContent)
+                await expectRootLayout(container);
+                await expect(() => container.textContent, 'root error boundary')
                     .retry()
                     .to.include('RootComponent error');
 
