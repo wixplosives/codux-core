@@ -16,7 +16,7 @@ npm install @wixc3/codux-ui
 
 ### Image
 
-Responsive Image component that supports wix media images in a responsive way
+Responsive Image component for Wix media images
 
 #### Usage
 
@@ -28,22 +28,22 @@ The `ResponsiveImage` component allows for optimized and responsive image render
 import { ResponsiveImage } from '@wixc3/codux-ui/image';
 
 <ResponsiveImage
-    alt="Sample image"
-    imageId="wix:image://v1/11062b_96503e81a83e47ed857a44be26ebd0d1~mv2.jpeg/Rustic breakfast.jpeg"
-    mediaBreakpoints={[
-        {
-        minWidth: 800,
-        height: 600,
-        width: 50,
-        renderingStrategy: 'fill',
-        },
-        {
-        minWidth: 480,
-        height: 50,
-        width: 600,
-        renderingStrategy: 'fill',
-        },
-    ]}
+  alt="Sample image"
+  imageId="wix:image://v1/11062b_96503e81a83e47ed857a44be26ebd0d1~mv2.jpeg/Rustic breakfast.jpeg"
+  mediaBreakpoints={[
+    {
+      minWidth: 800,
+      height: 600,
+      width: 50,
+      renderingStrategy: 'fill',
+    },
+    {
+      minWidth: 480,
+      height: 50,
+      width: 600,
+      renderingStrategy: 'fill',
+    },
+  ]}
 />;
 ```
 
