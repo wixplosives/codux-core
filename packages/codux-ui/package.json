@@ -2,7 +2,6 @@
   "name": "@wixc3/codux-ui",
   "description": "Common ui components which integrate with codux",
   "version": "4.5.1",
-  "main": "dist/index.js",
   "exports": {
     "./image": {
       "default": "./dist/image/index.js",
