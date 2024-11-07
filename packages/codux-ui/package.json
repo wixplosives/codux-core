@@ -4,10 +4,6 @@
   "version": "4.5.1",
   "main": "dist/index.js",
   "exports": {
-    "./test-kit": {
-      "import": "./dist/test-kit/index.js",
-      "require": "./dist/test-kit/index.js"
-    },
     "./image": {
       "import": "./dist/image/index.js",
       "require": "./dist/image/index.js"
