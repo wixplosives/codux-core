@@ -1,7 +1,7 @@
 import { WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
 import { WixImageAttributes } from './types';
 
-export function createWixImageUrlFromWixImageAttributes({
+export function buildWixImageUrl({
     imageId,
     width,
     height,
@@ -11,9 +11,7 @@ export function createWixImageUrlFromWixImageAttributes({
     const { wixMediaId, fileName } = extractWixMediaIdAndTitle(imageId);
     const { title, ext } = extractFileExtension(fileName);
     const encodedFileName = `${encodeURIComponent(displayName || title)}.${ext || '0'}`;
-    const srcString = `${WIX_MEDIA_ROOT}${wixMediaId}/v1/${renderingStrategy}/w_${width},h_${height}/${encodedFileName}`;
-
-    return srcString;
+    return `${WIX_MEDIA_ROOT}${wixMediaId}/v1/${renderingStrategy}/w_${width},h_${height}/${encodedFileName}`;
 }
 
 export function getDefaultWixImageAttributes(): WixImageAttributes {
