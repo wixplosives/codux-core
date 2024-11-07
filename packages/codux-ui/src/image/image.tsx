@@ -1,6 +1,6 @@
 import React from 'react';
 import { WixImageProps } from './types';
-import { createWixImageUrlFromWixImageAttributes, getDefaultWixImageAttributes } from './utils';
+import { buildWixImageUrl, getDefaultWixImageAttributes } from './utils';
 
 /**
  * Responsive Wix Image component with integration into Codux
@@ -14,14 +14,14 @@ export const WixImage: React.FC<WixImageProps> = ({ className, imageId, mediaBre
     return (
         <picture className={className}>
             {mediaBreakpoints.map(({ minWidth, ...wixMediaAttributes }, index) => {
-                const src = createWixImageUrlFromWixImageAttributes({
+                const src = buildWixImageUrl({
                     imageId,
                     ...wixMediaAttributes,
                 });
                 return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
             })}
             <img
-                src={createWixImageUrlFromWixImageAttributes({
+                src={buildWixImageUrl({
                     imageId,
                     ...getDefaultWixImageAttributes(),
                 })}
