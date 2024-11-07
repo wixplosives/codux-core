@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "exports": {
     "./image": {
-      "import": "./dist/image/index.ts",
-      "require": "./dist/image/index.js"
+      "default": "./dist/image/index.js",
+      "types": "./dist/image/index.d.ts"
     }
   },
   "peerDependencies": {
