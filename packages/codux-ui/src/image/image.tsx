@@ -2,6 +2,14 @@ import React from 'react';
 import { WixImageProps } from './types';
 import { createWixImageUrlFromWixImageAttributes, getDefaultWixImageAttributes } from './utils';
 
+/**
+ * Responsive Wix Image component with integration into Codux
+ * It allows to define different image sizes for different screen sizes based on minWidth
+ * When used with Codux it will allow to chose images through the wix media manager and saves them as an imageId
+ * @param imageId - the id of the image from the wix media manager
+ * @param mediaBreakpoints - an array of objects with minWidth and wix media attributes
+ * @param alt - the alt text for the image
+ */
 export const WixImage: React.FC<WixImageProps> = ({ className, imageId, mediaBreakpoints, alt }) => {
     return (
         <picture className={className}>
