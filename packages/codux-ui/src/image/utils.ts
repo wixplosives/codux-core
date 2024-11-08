@@ -1,4 +1,4 @@
-import { WIX_IMAGE_ATTRIBUTES_DEFAULT, WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
+import { INVALID_WIX_MEDIA_ID, WIX_IMAGE_ATTRIBUTES_DEFAULT, WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
 import { MediaBreakPoint, WixImageAttributes, WixImageProps } from './types';
 
 export function buildWixImageUrl({
@@ -30,7 +30,7 @@ export function wixImagePropsAreEqual(prevProps: WixImageProps, nextProps: WixIm
 
 const extractWixMediaIdAndTitle = (id: string): { wixMediaId: string; fileName?: string } => {
     if (!id.startsWith(WIX_MEDIA_ID_ROOT)) {
-        return { wixMediaId: 'invalid-wix-media-id', fileName: '' };
+        return { wixMediaId: INVALID_WIX_MEDIA_ID, fileName: '' };
     }
 
     const wixMediaIdAndTitle = id.substring(WIX_MEDIA_ID_ROOT.length);
