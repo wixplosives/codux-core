@@ -1,5 +1,5 @@
 import { WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
-import { WixImageAttributes } from './types';
+import { MediaBreakPoint, WixImageAttributes, WixImageProps } from './types';
 
 export function buildWixImageUrl({
     imageId,
@@ -20,6 +20,16 @@ export function getDefaultWixImageAttributes(): WixImageAttributes {
         height: 500,
         renderingStrategy: 'fit',
     };
+}
+
+export function wixImagePropsAreEqual(prevProps: WixImageProps, nextProps: WixImageProps): boolean {
+    const { mediaBreakpoints, ...restPrevProps } = prevProps;
+    const { mediaBreakpoints: nextMediaBreakpoints, ...restNextProps } = nextProps;
+
+    if (!isWixMediaBreakpointsEqual(mediaBreakpoints, nextMediaBreakpoints)) {
+        return false;
+    }
+    return shallowEqual(restPrevProps, restNextProps);
 }
 
 const extractWixMediaIdAndTitle = (id: string): { wixMediaId: string; fileName?: string } => {
@@ -45,3 +55,58 @@ const extractFileExtension = (fileName?: string): { title: string; ext: string }
 
     return { title, ext };
 };
+
+function isWixMediaBreakpointsEqual(
+    prevMB: (WixImageAttributes & MediaBreakPoint)[],
+    nextMB: (WixImageAttributes & MediaBreakPoint)[],
+) {
+    if (prevMB.length !== nextMB.length) {
+        return false;
+    }
+
+    for (let index = 0; index < prevMB.length; index++) {
+        const { minWidth, height, width, renderingStrategy, displayName, ...rest } = prevMB[index];
+        const nextMedia = nextMB[index];
+
+        if (
+            minWidth !== nextMedia.minWidth ||
+            height !== nextMedia.height ||
+            width !== nextMedia.width ||
+            renderingStrategy !== nextMedia.renderingStrategy ||
+            displayName !== nextMedia.displayName
+        ) {
+            return false;
+        }
+
+        // makes this logic typesafe regarding the mediaBreakpoints array
+        rest satisfies Record<string, never>;
+    }
+
+    return true;
+}
+
+/**
+ * https://github.com/facebook/react/blob/5c56b873efb300b4d1afc4ba6f16acf17e4e5800/packages/shared/shallowEqual.js#L13-L52
+ * shallowEqual implementation similar to the one of React
+ */
+function shallowEqual<T extends object>(objA: T, objB: T): boolean {
+    if (Object.is(objA, objB)) {
+        return true;
+    }
+
+    const keysA = Object.keys(objA) as (keyof T)[];
+    const keysB = Object.keys(objB);
+
+    if (keysA.length !== keysB.length) {
+        return false;
+    }
+
+    // Test for A's keys different from B.
+    for (const currentKey of keysA) {
+        if (!Object.hasOwnProperty.call(objB, currentKey) || !Object.is(objA[currentKey], objB[currentKey])) {
+            return false;
+        }
+    }
+
+    return true;
+}

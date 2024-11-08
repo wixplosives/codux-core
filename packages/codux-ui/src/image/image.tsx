@@ -1,6 +1,6 @@
 import React from 'react';
 import { WixImageProps } from './types';
-import { buildWixImageUrl, getDefaultWixImageAttributes } from './utils';
+import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual } from './utils';
 
 /**
  * Responsive Wix Image component with integration into Codux
@@ -10,7 +10,12 @@ import { buildWixImageUrl, getDefaultWixImageAttributes } from './utils';
  * @param mediaBreakpoints - an array of objects with minWidth and wix media attributes
  * @param alt - the alt text for the image
  */
-export const WixImage: React.FC<WixImageProps> = ({ className, imageId, mediaBreakpoints, alt }) => {
+export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
+    className,
+    imageId,
+    mediaBreakpoints,
+    alt,
+}) {
     return (
         <picture className={className}>
             {mediaBreakpoints.map(({ minWidth, ...wixMediaAttributes }, index) => {
@@ -30,4 +35,4 @@ export const WixImage: React.FC<WixImageProps> = ({ className, imageId, mediaBre
             />
         </picture>
     );
-};
+}, wixImagePropsAreEqual);
