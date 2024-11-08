@@ -4,8 +4,8 @@
   "version": "4.5.1",
   "exports": {
     "./image": {
-      "default": "./dist/image/index.js",
-      "types": "./dist/image/index.d.ts"
+      "types": "./dist/image/index.d.ts",
+      "default": "./dist/image/index.js"
     }
   },
   "peerDependencies": {
