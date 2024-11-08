@@ -2,7 +2,9 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../dist/test",
-    "types": ["mocha"]
+    "types": ["mocha"],
+    "module": "Preserve",
+    "moduleResolution": "bundler"
   },
   "references": [{ "path": "../src" }]
 }

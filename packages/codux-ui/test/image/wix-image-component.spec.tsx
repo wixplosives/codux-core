@@ -1,8 +1,4 @@
-import chaiAsPromised from 'chai-as-promised';
-import chai from 'chai';
-import { WixImage } from '@wixc3/codux-ui/src/image';
-
-chai.use(chaiAsPromised);
+import { WixImage } from '@wixc3/codux-ui/image';
 
 // Type tests
 
