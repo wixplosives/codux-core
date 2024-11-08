@@ -13,6 +13,7 @@
     { "path": "./packages/react-board/src" },
     { "path": "./packages/react-board/test" },
 
-    { "path": "./packages/codux-ui/src" }
+    { "path": "./packages/codux-ui/src" },
+    { "path": "./packages/codux-ui/test" }
   ]
 }
