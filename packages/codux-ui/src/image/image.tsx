@@ -11,13 +11,13 @@ import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual }
  * @param alt - the alt text for the image
  */
 export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
-    className,
     imageId,
     mediaBreakpoints,
     alt,
+    ...imgProps
 }) {
     return (
-        <picture className={className}>
+        <picture>
             {mediaBreakpoints.map(({ minWidth, ...wixMediaAttributes }, index) => {
                 const src = buildWixImageUrl({
                     imageId,
@@ -26,12 +26,12 @@ export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
                 return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
             })}
             <img
+                {...imgProps}
                 src={buildWixImageUrl({
                     imageId,
                     ...getDefaultWixImageAttributes(),
                 })}
                 alt={alt ?? 'Image'}
-                className={className}
             />
         </picture>
     );
