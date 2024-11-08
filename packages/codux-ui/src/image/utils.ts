@@ -1,4 +1,4 @@
-import { WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
+import { WIX_IMAGE_ATTRIBUTES_DEFAULT, WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
 import { MediaBreakPoint, WixImageAttributes, WixImageProps } from './types';
 
 export function buildWixImageUrl({
@@ -15,11 +15,7 @@ export function buildWixImageUrl({
 }
 
 export function getDefaultWixImageAttributes(): WixImageAttributes {
-    return {
-        width: 500,
-        height: 500,
-        renderingStrategy: 'fit',
-    };
+    return WIX_IMAGE_ATTRIBUTES_DEFAULT;
 }
 
 export function wixImagePropsAreEqual(prevProps: WixImageProps, nextProps: WixImageProps): boolean {
