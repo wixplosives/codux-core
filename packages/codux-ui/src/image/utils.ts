@@ -30,7 +30,7 @@ export function wixImagePropsAreEqual(prevProps: WixImageProps, nextProps: WixIm
 
 const extractWixMediaIdAndTitle = (id: string): { wixMediaId: string; fileName?: string } => {
     if (!id.startsWith(WIX_MEDIA_ID_ROOT)) {
-        return { wixMediaId: id, fileName: '' };
+        return { wixMediaId: 'invalid-wix-media-id', fileName: '' };
     }
 
     const wixMediaIdAndTitle = id.substring(WIX_MEDIA_ID_ROOT.length);
