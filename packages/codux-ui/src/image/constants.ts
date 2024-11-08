@@ -7,3 +7,4 @@ export const WIX_IMAGE_ATTRIBUTES_DEFAULT = {
     height: 500,
     renderingStrategy: 'fit',
 } as const;
+export const INVALID_WIX_MEDIA_ID = 'invalid-wix-media-id';
