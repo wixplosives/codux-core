@@ -1,19 +1,19 @@
 export interface WixImageAttributes {
-    /** @important
+    /**
      * The display name of the image.
      */
     displayName?: string;
-    /** @important
+    /**
      * The height of the image.
      * default: 500
      */
     height: number;
-    /** @important
+    /**
      * The width of the image.
      * default: 500
      */
     width: number;
-    /** @important
+    /**
      * The rendering strategy for the image.
      * - `fill` - The image is resized to fill the dimensions of the container, cropping the image if necessary.
      * - `fit` - The image is resized to fit the dimensions of the container, maintaining the aspect ratio of the image.
@@ -35,13 +35,23 @@ export interface MediaBreakPoint {
  * Properties for the Wix image component
  */
 export interface WixImageProps {
-    /** @format wix-image-id */
+    /**
+     * @format wix-image-id
+     * @important
+     */
     imageId: string;
     /**
      * An array of image attributes and media breakpoints.
      * Media breakpoints should be sorted by minWidth in desending order.
+     * @important
      */
     mediaBreakpoints: Array<WixImageAttributes & MediaBreakPoint>;
+    /**
+     * @important
+     */
     className?: string;
+    /**
+     * @important
+     */
     alt?: string;
 }
