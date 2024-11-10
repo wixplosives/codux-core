@@ -18,10 +18,11 @@ type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string
 interface RouteSourceOptions {
     component?: boolean;
     componentName?: string;
-    componentCode?: { hooks?: string; jsx?: string; remixRunReactImports?: string[] };
+    componentCode?: string | { hooks?: string; jsx?: string; remixRunReactImports?: string[] };
     errorBoundary?: boolean;
     loader?: JSONValue;
     loaderDelay?: number;
+    loaderDefer?: boolean;
     clientLoader?: JSONValue;
     clientLoaderDelay?: number;
     clientLoaderHydrate?: boolean;
@@ -70,6 +71,7 @@ export const pageSource = ({
     componentCode,
     loader,
     loaderDelay,
+    loaderDefer,
     clientLoader,
     clientLoaderDelay,
     clientLoaderHydrate = false,
@@ -91,13 +93,31 @@ export const pageSource = ({
 
     if (loader) {
         remixRunReactImports.add('useLoaderData');
-        remixRunReactImports.add('json');
-        moduleCodeDefs.add(`
-            export ${loaderDelay ? 'async' : ''} function loader() {
-                ${loaderDelay ? `await new Promise((resolve) => setTimeout(resolve, ${loaderDelay}));` : ''}
-                return json(${JSON.stringify(loader)});
+        const delayLoader = loaderDelay ? `await new Promise((resolve) => setTimeout(resolve, ${loaderDelay}));` : '';
+        if (!loaderDefer) {
+            remixRunReactImports.add('json');
+            moduleCodeDefs.add(`
+                export ${loaderDelay ? 'async' : ''} function loader() {
+                    ${delayLoader}
+                    return json(${JSON.stringify(loader)});
+                }
+            `);
+        } else {
+            remixRunReactImports.add('defer');
+            let defValue = '';
+            for (const [key, value] of Object.entries(loader)) {
+                const injectedVal = isPreservedCode(value) ? value.code : JSON.stringify(value);
+                defValue += key + `: ` + injectedVal + ',\n';
             }
-        `);
+            moduleCodeDefs.add(`
+                export ${loaderDelay ? 'async' : ''} function loader() {
+                    ${delayLoader}
+                    return defer({
+                        ${defValue}
+                });  
+                }
+            `);
+        }
     }
 
     if (clientLoader) {
@@ -131,25 +151,36 @@ export const pageSource = ({
     }
 
     if (component) {
-        componentCode?.remixRunReactImports?.forEach((named) => remixRunReactImports.add(named));
         remixRunReactImports.add('Outlet');
-        moduleCodeDefs.add(`
-            export default function ${componentName}() {
-                ${componentCode?.hooks || ''}
-                ${loader || clientLoader ? `const loaderData = useLoaderData();` : ''}
-                return (
-                    <div data-origin="${componentName}-page-component">
-                        ${componentCode?.jsx || ''}
-                        ${loader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
-                        <Outlet/>
-                    </div>
-                );
-            }
-        `);
+        if (typeof componentCode === 'string') {
+            moduleCodeDefs.add(`
+                export default function ${componentName}() {
+                    ${componentCode}
+                }
+            `);
+        } else {
+            componentCode?.remixRunReactImports?.forEach((named) => remixRunReactImports.add(named));
+            moduleCodeDefs.add(`
+                export default function ${componentName}() {
+                    ${componentCode?.hooks || ''}
+                    ${loader || clientLoader ? `const loaderData = useLoaderData();` : ''}
+                    return (
+                        <div data-origin="${componentName}-page-component">
+                            ${componentCode?.jsx || ''}
+                            ${loader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
+                            <Outlet/>
+                        </div>
+                    );
+                }
+            `);
+        }
     }
     if (errorBoundary) {
+        remixRunReactImports.add('useRouteError');
         moduleCodeDefs.add(`
             export function ErrorBoundary() {
+            const error = useRouteError();
+            debugger;
                 return <div data-origin="${componentName}-page-error">${componentName} error</div>;
             }
         `);
@@ -177,6 +208,19 @@ export const pageSource = ({
         ${[...moduleCodeDefs].join('\n')}
     `);
 };
+
+type PreservedCode = { code: string; __preserveAsCode: true };
+
+export function preserveStringAsCode(code: string): PreservedCode {
+    return { code, __preserveAsCode: true };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isPreservedCode(val: any): val is PreservedCode {
+    return (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        typeof val === 'object' && val !== null && typeof val.code === 'string' && val.__preserveAsCode === true
+    );
+}
 
 export const expectRoute = async (root: HTMLElement, pageComponentName: string) => {
     const pageRootExpectedAttr = `[data-origin="${pageComponentName}-page-component"]`;
