@@ -50,8 +50,13 @@ export function isDeferredResult(res: unknown): res is DeferredResult {
 export function deserializeDeferredResult({ deferredKeys, data }: DeferredResult) {
     const result = { ...data };
     for (const [key, x] of Object.entries(deferredKeys)) {
-        result[key] =
-            x.status === 'fulfilled' ? Promise.resolve(result[key]) : Promise.reject(new Error(String(x.reason)));
+        if (x.status === 'fulfilled') {
+            result[key] = Promise.resolve(result[key]);
+        } else {
+            const rejectedDeferred = Promise.reject(new Error(String(x.reason)));
+            rejectedDeferred.catch(() => {});
+            result[key] = rejectedDeferred;
+        }
     }
     return result;
 }
