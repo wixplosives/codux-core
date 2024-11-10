@@ -1234,6 +1234,9 @@ describe('define-remix', () => {
                         `,
                         componentCode: `
                             const { criticalValue, deferredValue, deferredFailValue } = useLoaderData();
+                            if (!deferredValue.then || !deferredFailValue.then) {
+                                throw new Error('expected deferredValue and deferredFailValue to be promises');
+                            }
                             return (
                                 <div>
                                     <div>critical: {criticalValue}</div>
