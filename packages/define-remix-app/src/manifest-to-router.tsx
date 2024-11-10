@@ -14,6 +14,7 @@ import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, u
 import { createHandleProxy } from './handle-proxy';
 import { createLinksProxy } from './links-proxy';
 import { Navigation } from './navigation';
+import { deserializeDeferredResult, isDeferredResult } from './defer';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -280,11 +281,19 @@ function nonMemoFileToRoute(
 
     const serverLoader: LoaderFunction = async ({ params, request }) => {
         const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
-        return isSerializedResponse(res) ? deserializeResponse(res) : res;
+        if (isSerializedResponse(res)) {
+            const desRes = deserializeResponse(res);
+            const responseValue = await tryDecodeResponseJsonValue(desRes);
+            return isDeferredResult(responseValue) ? deserializeDeferredResult(responseValue) : desRes;
+        } else {
+            return res;
+        }
     };
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
         const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
-        return deserializeResponse(res as SerializedResponse);
+        const desRes = deserializeResponse(res as SerializedResponse);
+        const responseValue = await tryDecodeResponseJsonValue(desRes);
+        return isDeferredResult(responseValue) ? deserializeDeferredResult(responseValue) : desRes;
     };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
@@ -443,4 +452,23 @@ function ErrorPage({
     } else {
         return errorContent;
     }
+}
+
+async function tryDecodeResponseJsonValue(response: Response) {
+    const reader = response.clone().body?.getReader();
+    const td = new TextDecoder('utf-8', {});
+    let text = '';
+    while (reader && true) {
+        const { value, done } = (await reader.read()) as { value: Uint8Array; done: boolean };
+        text += td.decode(value);
+        if (done) {
+            break;
+        }
+    }
+    try {
+        return JSON.parse(text) as JSON;
+    } catch {
+        /**/
+    }
+    return;
 }
