@@ -11,28 +11,40 @@ import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual }
  * @param alt - the alt text for the image
  */
 export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
-    className,
     imageId,
     mediaBreakpoints,
     alt,
+    ...imgProps
 }) {
-    return (
-        <picture className={className}>
-            {mediaBreakpoints.map(({ minWidth, ...wixMediaAttributes }, index) => {
+    const src = buildWixImageUrl({
+        imageId,
+        ...getDefaultWixImageAttributes(),
+    });
+    const { sizes, srcSet } = mediaBreakpoints
+        .sort((a, b) => {
+            if (a.minWidth === b.minWidth) {
+                return 0;
+            }
+            return a.minWidth > b.minWidth ? 1 : -1;
+        })
+        .reduce(
+            (acc, { minWidth, ...wixMediaAttributes }) => {
                 const src = buildWixImageUrl({
                     imageId,
                     ...wixMediaAttributes,
                 });
-                return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
-            })}
-            <img
-                src={buildWixImageUrl({
-                    imageId,
-                    ...getDefaultWixImageAttributes(),
-                })}
-                alt={alt ?? 'Image'}
-                className={className}
-            />
-        </picture>
-    );
+                return {
+                    srcSet: acc.srcSet
+                        ? `${src} ${wixMediaAttributes.width}w, ${acc.srcSet}`
+                        : `${src} ${wixMediaAttributes.width}w`,
+                    sizes: `(min-width: ${minWidth}px) ${wixMediaAttributes.width}px, ${acc.sizes}`,
+                };
+            },
+            {
+                // responsive design with 100vw as the default size
+                sizes: `100vw`,
+                srcSet: '',
+            },
+        );
+    return <img {...imgProps} srcSet={srcSet} sizes={sizes} src={src} alt={alt ?? 'Image'} />;
 }, wixImagePropsAreEqual);
