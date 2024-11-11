@@ -180,7 +180,6 @@ export const pageSource = ({
         moduleCodeDefs.add(`
             export function ErrorBoundary() {
             const error = useRouteError();
-            debugger;
                 return <div data-origin="${componentName}-page-error">${componentName} error</div>;
             }
         `);
