@@ -1,5 +1,5 @@
-import { INVALID_WIX_MEDIA_ID, WIX_IMAGE_ATTRIBUTES_DEFAULT, WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants';
-import { MediaBreakPoint, WixImageAttributes, WixImageProps } from './types';
+import { INVALID_WIX_MEDIA_ID, WIX_IMAGE_ATTRIBUTES_DEFAULT, WIX_MEDIA_ID_ROOT, WIX_MEDIA_ROOT } from './constants.js';
+import { MediaBreakPoint, WixImageAttributes, WixImageProps } from './types.js';
 
 export function buildWixImageUrl({
     imageId,

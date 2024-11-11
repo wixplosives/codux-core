@@ -1,3 +1,3 @@
-export * from './image';
-export * from './types';
-export { buildWixImageUrl } from './utils';
+export * from './image.js';
+export * from './types.js';
+export { buildWixImageUrl } from './utils.js';
