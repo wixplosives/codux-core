@@ -4,7 +4,7 @@ import { serializeResponse } from './remix-app-utils';
 
 export type DeferredResult = {
     __deferred: true;
-    deferredKeys: Record<string, PromiseSettledResult<unknown>>;
+    deferredKeys: Record<string, { status: 'fulfilled' } | { status: 'rejected'; reason: string }>;
     data: Record<string, unknown>;
 };
 
@@ -18,8 +18,8 @@ export async function tryToSerializeDeferredData(res: unknown) {
             __deferred: true,
             data: Object.entries(res.data).reduce(
                 (acc, [key, value]) => {
-                    if (res.deferredKeys.includes(key) && isDeferredPromise(value) && value._data) {
-                        acc[key] = value._data;
+                    if (res.deferredKeys.includes(key) && isDeferredPromise(value)) {
+                        acc[key] = value._data ? value._data : undefined;
                     } else {
                         acc[key] = value;
                     }
@@ -31,13 +31,13 @@ export async function tryToSerializeDeferredData(res: unknown) {
                 (acc, key) => {
                     const promise = res.data[key] as DeferredPromise;
                     if (promise._data) {
-                        acc[key] = { status: 'fulfilled', value: '' };
+                        acc[key] = { status: 'fulfilled' };
                     } else {
-                        acc[key] = { status: 'rejected', reason: promise._error };
+                        acc[key] = { status: 'rejected', reason: String(promise._error) };
                     }
                     return acc;
                 },
-                {} as Record<string, PromiseSettledResult<unknown>>,
+                {} as DeferredResult['deferredKeys'],
             ),
         } as DeferredResult),
     );
@@ -63,8 +63,7 @@ export function deserializeDeferredResult({ deferredKeys, data }: DeferredResult
 
 type DeferredPromise = { _data: unknown; _error: unknown };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isDeferredPromise(value: any): value is DeferredPromise {
+function isDeferredPromise(value: unknown): value is DeferredPromise {
     return (
         value instanceof Promise &&
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
