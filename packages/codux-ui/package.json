@@ -2,6 +2,7 @@
   "name": "@wixc3/codux-ui",
   "description": "Common ui components which integrate with codux",
   "version": "4.5.1",
+  "type": "module",
   "exports": {
     "./image": {
       "types": "./dist/image/index.d.ts",
@@ -23,5 +24,6 @@
   "homepage": "https://github.com/wixplosives/codux-core",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "sideEffects": false
 }

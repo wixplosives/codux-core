@@ -1,6 +1,6 @@
 import React from 'react';
-import { WixImageProps } from './types';
-import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual } from './utils';
+import { WixImageProps } from './types.js';
+import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual } from './utils.js';
 
 /**
  * Responsive Wix Image component with integration into Codux
