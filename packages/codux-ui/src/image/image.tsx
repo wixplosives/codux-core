@@ -6,32 +6,42 @@ import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual }
  * Responsive Wix Image component with integration into Codux
  * It allows to define different image sizes for different screen sizes based on minWidth
  * When used with Codux it will allow to chose images through the wix media manager and saves them as an imageId
+ * Under the hood it creates a picture element with multiple source elements and an img element
  * @param imageId - the id of the image from the wix media manager
- * @param mediaBreakpoints - an array of objects with minWidth and wix media attributes
+ * @param mediaBreakpoints - An array of image attributes and media breakpoints. Media breakpoints should be sorted by minWidth in desending order.
  * @param alt - the alt text for the image
+ * @param imgProps - Props that are being passed to the img element inside of the picture element
  */
 export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
-    className,
     imageId,
     mediaBreakpoints,
     alt,
+    imgProps,
+    ...passedPictureProps
 }) {
     return (
-        <picture className={className}>
-            {mediaBreakpoints.map(({ minWidth, ...wixMediaAttributes }, index) => {
-                const src = buildWixImageUrl({
-                    imageId,
-                    ...wixMediaAttributes,
-                });
-                return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
-            })}
+        <picture {...passedPictureProps}>
+            {mediaBreakpoints
+                .sort((a, b) => {
+                    if (a.minWidth === b.minWidth) {
+                        return 0;
+                    }
+                    return a.minWidth > b.minWidth ? -1 : 1;
+                })
+                .map(({ minWidth, ...wixMediaAttributes }, index) => {
+                    const src = buildWixImageUrl({
+                        imageId,
+                        ...wixMediaAttributes,
+                    });
+                    return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
+                })}
             <img
+                {...imgProps}
                 src={buildWixImageUrl({
                     imageId,
                     ...getDefaultWixImageAttributes(),
                 })}
                 alt={alt ?? 'Image'}
-                className={className}
             />
         </picture>
     );

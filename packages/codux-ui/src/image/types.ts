@@ -32,20 +32,32 @@ export interface MediaBreakPoint {
 }
 
 /**
+ * Properties that are being passed to the img element.
+ * Following properties are being omitted:
+ *
+ * *src* - is being omitted as it is build inside the component based on the imageId
+ *
+ * *srcSet* - are being omitted because these are configured based on the mediaBreakpoints
+ */
+type ImgPropsToPass = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet'>;
+
+/**
  * Properties for the Wix image component
  */
-export interface WixImageProps {
+export interface WixImageProps extends React.HtmlHTMLAttributes<HTMLPictureElement> {
     /**
      * @format wix-image-id
      * @important
      */
     imageId: string;
     /**
-     * An array of image attributes and media breakpoints.
-     * Media breakpoints should be sorted by minWidth in desending order.
      * @important
      */
     mediaBreakpoints: Array<WixImageAttributes & MediaBreakPoint>;
+    /**
+     * @important
+     */
+    alt?: string;
     /**
      * @important
      */
@@ -53,5 +65,5 @@ export interface WixImageProps {
     /**
      * @important
      */
-    alt?: string;
+    imgProps?: ImgPropsToPass;
 }
