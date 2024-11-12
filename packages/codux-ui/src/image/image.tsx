@@ -11,6 +11,7 @@ import { buildWixImageUrl, getDefaultWixImageAttributes, wixImagePropsAreEqual }
  * @param mediaBreakpoints - An array of image attributes and media breakpoints. Media breakpoints should be sorted by minWidth in desending order.
  * @param alt - the alt text for the image
  * @param imgProps - Props that are being passed to the img element inside of the picture element
+ * @note The rest of the properties are being passed to the picture element
  */
 export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
     imageId,
