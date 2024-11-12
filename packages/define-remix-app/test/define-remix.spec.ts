@@ -21,6 +21,7 @@ import {
     expectRoute,
     expectLoaderData,
     expectRootLayout,
+    preserveStringAsCode,
 } from './test-cases/route-builder';
 import chai, { expect } from 'chai';
 import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
@@ -1202,6 +1203,70 @@ describe('define-remix', () => {
                 const { dispose, container } = await driver.render({ uri: 'about' });
 
                 await expectLoaderData(container, 'About', { loaderDataFrom: 'about' });
+
+                dispose();
+            });
+            it('should accept deferred response from loader', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootSource({}),
+                    [aboutPath]: pageSource({
+                        componentName: 'About',
+                        loader: {
+                            criticalValue: 'immediate value',
+                            deferredValue: preserveStringAsCode(
+                                'new Promise(resolve => setTimeout(() => resolve("waited value"), 100))',
+                            ),
+                            deferredFailValue: preserveStringAsCode(
+                                'new Promise((_, reject) => setTimeout(() => reject("boom"), 100))',
+                            ),
+                        },
+                        loaderDefer: true,
+                        imports: [
+                            { specifier: 'react', namedImports: ['Suspense'] },
+                            { specifier: '@remix-run/react', namedImports: ['Await', 'useAsyncError'] },
+                        ],
+
+                        extraModuleCode: `
+                            function DeferredError() {
+                                const err = useAsyncError();
+                                return <div>deferred fail: {err.message}</div>;
+                            }
+                        `,
+                        componentCode: `
+                            const { criticalValue, deferredValue, deferredFailValue } = useLoaderData();
+                            if (!deferredValue.then || !deferredFailValue.then) {
+                                throw new Error('expected deferredValue and deferredFailValue to be promises');
+                            }
+                            return (
+                                <div>
+                                    <div>critical: {criticalValue}</div>
+                                    <div>
+                                        <Suspense>
+                                            <Await resolve={deferredValue}>
+                                                {resolvedValue => 'deferred: ' + resolvedValue}
+                                            </Await>
+                                        </Suspense>
+                                    </div>
+                                    <div>
+                                        <Suspense>
+                                            <Await resolve={deferredFailValue} errorElement={<DeferredError />}>
+                                                {resolvedValue => 'deferred succeed: ' + resolvedValue}
+                                            </Await>
+                                        </Suspense>
+                                    </div>
+                                </div>
+                            );
+                        `,
+                    }),
+                });
+
+                const { dispose, container } = await driver.render({ uri: 'about' });
+
+                await waitFor(() => {
+                    expect(container.textContent).to.include('critical: immediate value');
+                    expect(container.textContent).to.include('deferred: waited value');
+                    expect(container.textContent).to.include('deferred fail: boom');
+                });
 
                 dispose();
             });

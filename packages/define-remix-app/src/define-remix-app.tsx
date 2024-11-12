@@ -33,9 +33,8 @@ import {
 import { clearLoadedModules, manifestToRouter } from './manifest-to-router';
 import { parentLayoutWarning } from './content';
 import { pageTemplate } from './page-template';
-import { isDeferredData } from '@remix-run/router';
-import { json } from '@remix-run/node';
 import { Navigation } from './navigation';
+import { tryToSerializeDeferredData } from './defer';
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
@@ -270,10 +269,12 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             if (isRequestType && res instanceof Response) {
                 return serializeResponse(res);
             }
-            if (isDeferredData(res)) {
-                await res.resolveData(new AbortController().signal);
-                return serializeResponse(json(res.unwrappedData));
+
+            const deferredResponse = await tryToSerializeDeferredData(res);
+            if (deferredResponse) {
+                return deferredResponse;
             }
+
             return res;
         },
         async getStaticRoutes(options, forRouteAtFilePath) {

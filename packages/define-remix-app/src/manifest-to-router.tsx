@@ -14,6 +14,7 @@ import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, u
 import { createHandleProxy } from './handle-proxy';
 import { createLinksProxy } from './links-proxy';
 import { Navigation } from './navigation';
+import { deserializeDeferredResult, isDeferredResult } from './defer';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 
@@ -280,11 +281,17 @@ function nonMemoFileToRoute(
 
     const serverLoader: LoaderFunction = async ({ params, request }) => {
         const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
-        return isSerializedResponse(res) ? deserializeResponse(res) : res;
+        if (isSerializedResponse(res)) {
+            const desRes = deserializeResponse(res);
+            return isDeferredResult(desRes) ? await deserializeDeferredResult(desRes) : desRes;
+        } else {
+            return res;
+        }
     };
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
         const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
-        return deserializeResponse(res as SerializedResponse);
+        const desRes = deserializeResponse(res as SerializedResponse);
+        return isDeferredResult(desRes) ? deserializeDeferredResult(desRes) : desRes;
     };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
