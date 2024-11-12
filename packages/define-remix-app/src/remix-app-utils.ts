@@ -280,7 +280,10 @@ function getFormData(formData: FormData) {
     });
     return entries;
 }
-export async function serializeResponse(response: Response): Promise<SerializedResponse> {
+export async function serializeResponse(
+    response: Response,
+    headers?: { key: string; value: string }[],
+): Promise<SerializedResponse> {
     const reader = response.body?.getReader();
     let body: string | null = null;
     if (reader) {
@@ -291,7 +294,7 @@ export async function serializeResponse(response: Response): Promise<SerializedR
         _serializedResponse: true,
         status: response.status,
         statusText: response.statusText,
-        headers: getHeaders(response),
+        headers: [...getHeaders(response), ...(headers || [])],
         body,
     };
 }
@@ -306,6 +309,11 @@ export interface SerializedResponse {
 
 export function isSerializedResponse(response: unknown): response is SerializedResponse {
     return (response as SerializedResponse)?._serializedResponse === true;
+}
+
+export const CoduxDeferredHeaderKey = 'codux-remix-deferred';
+export function isSerializedDeferredResponse(response: Response): boolean {
+    return response.headers.has(CoduxDeferredHeaderKey);
 }
 
 export function deserializeResponse(response: SerializedResponse) {

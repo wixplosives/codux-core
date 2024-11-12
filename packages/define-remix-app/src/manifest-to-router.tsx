@@ -1,6 +1,7 @@
 import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app-core';
 import {
     deserializeResponse,
+    isSerializedDeferredResponse,
     isSerializedResponse,
     RouteModuleInfo,
     SerializedResponse,
@@ -455,6 +456,9 @@ function ErrorPage({
 }
 
 async function tryDecodeResponseJsonValue(response: Response) {
+    if (!isSerializedDeferredResponse(response)) {
+        return;
+    }
     const reader = response.clone().body?.getReader();
     const td = new TextDecoder('utf-8', {});
     let text = '';

@@ -1,6 +1,6 @@
 import { isDeferredData } from '@remix-run/router';
 import { json } from '@remix-run/node';
-import { serializeResponse } from './remix-app-utils';
+import { CoduxDeferredHeaderKey, serializeResponse } from './remix-app-utils';
 
 export type DeferredResult = {
     __deferred: true;
@@ -40,6 +40,7 @@ export async function tryToSerializeDeferredData(res: unknown) {
                 {} as DeferredResult['deferredKeys'],
             ),
         } as DeferredResult),
+        [{ key: CoduxDeferredHeaderKey, value: 'true' }],
     );
 }
 
