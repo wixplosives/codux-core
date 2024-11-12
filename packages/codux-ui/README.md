@@ -47,6 +47,14 @@ import { WixImage } from '@wixc3/codux-ui/image';
 />;
 ```
 
+####ImgPropsToPass
+
+The `ImgPropsToPass` type is used to define the properties that can be passed to the img element within the WixImage component. Certain properties are omitted because they are managed internally by the component.
+
+`src`: This property is omitted because the src attribute is constructed internally by the component using the imageId prop.
+
+`srcSet`: This property is omitted because the srcSet attribute is configured based on the mediaBreakpoints prop.
+
 ## License
 
 MIT

@@ -32,12 +32,12 @@ export interface MediaBreakPoint {
 }
 
 /**
- * Properties that are being passed to the img element.
- * Following properties are being omitted:
+ * Properties passed to the img element.
+ * Following properties are omitted:
  *
- * *src* - is being omitted as it is build inside the component based on the imageId
+ * *src* - omitted as it is build inside the component based on the imageId
  *
- * *srcSet* - are being omitted because these are configured based on the mediaBreakpoints
+ * *srcSet* - omitted because these are configured based on the mediaBreakpoints
  */
 type ImgPropsToPass = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet'>;
 
