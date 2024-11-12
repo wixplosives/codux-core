@@ -32,21 +32,9 @@ export interface MediaBreakPoint {
 }
 
 /**
- * Properties that are being passed to the img element.
- * Following properties are being omitted:
- *
- * *src* - is being omitted as it is build inside the component based on the imageId
- *
- * *srcSet, sizes* - are being omitted because these are configured based on the mediaBreakpoints
- *
- * *height, width* - are being omitted as the img is supposed use the Intrinsic size of the image that is loaded
- */
-type ImgPropsToPass = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet' | 'sizes' | 'height' | 'width'>;
-
-/**
  * Properties for the Wix image component
  */
-export interface WixImageProps extends ImgPropsToPass {
+export interface WixImageProps {
     /**
      * @format wix-image-id
      * @important
@@ -58,6 +46,10 @@ export interface WixImageProps extends ImgPropsToPass {
      * @important
      */
     mediaBreakpoints: Array<WixImageAttributes & MediaBreakPoint>;
+    /**
+     * @important
+     */
+    className?: string;
     /**
      * @important
      */
