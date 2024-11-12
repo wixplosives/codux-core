@@ -2,6 +2,8 @@ import { isDeferredData } from '@remix-run/router';
 import { json } from '@remix-run/node';
 import { CoduxDeferredHeaderKey, serializeResponse } from './remix-app-utils';
 
+type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue };
+
 export type DeferredResult = {
     __deferred: true;
     deferredKeys: Record<string, { status: 'fulfilled' } | { status: 'rejected'; reason: string }>;
@@ -44,11 +46,16 @@ export async function tryToSerializeDeferredData(res: unknown) {
     );
 }
 
-export function isDeferredResult(res: unknown): res is DeferredResult {
-    return typeof res === 'object' && !!res && '__deferred' in res;
+export function isDeferredResult(response: Response): boolean {
+    return response.headers.has(CoduxDeferredHeaderKey);
 }
 
-export function deserializeDeferredResult({ deferredKeys, data }: DeferredResult) {
+export async function deserializeDeferredResult(response: Response) {
+    const parsedResponse = (await tryDecodeResponseJsonValue(response)) as DeferredResult | undefined;
+    if (!parsedResponse?.data || !parsedResponse.deferredKeys) {
+        return {};
+    }
+    const { data, deferredKeys } = parsedResponse;
     const result = { ...data };
     for (const [key, x] of Object.entries(deferredKeys)) {
         if (x.status === 'fulfilled') {
@@ -60,6 +67,25 @@ export function deserializeDeferredResult({ deferredKeys, data }: DeferredResult
         }
     }
     return result;
+}
+
+async function tryDecodeResponseJsonValue(response: Response) {
+    const reader = response.clone().body?.getReader();
+    const td = new TextDecoder('utf-8', {});
+    let text = '';
+    while (reader && true) {
+        const { value, done } = (await reader.read()) as { value: Uint8Array; done: boolean };
+        text += td.decode(value);
+        if (done) {
+            break;
+        }
+    }
+    try {
+        return JSON.parse(text) as JSONValue;
+    } catch {
+        /**/
+    }
+    return;
 }
 
 type DeferredPromise = { _data: unknown; _error: unknown };

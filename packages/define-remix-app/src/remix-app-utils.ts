@@ -312,9 +312,6 @@ export function isSerializedResponse(response: unknown): response is SerializedR
 }
 
 export const CoduxDeferredHeaderKey = 'codux-remix-deferred';
-export function isSerializedDeferredResponse(response: Response): boolean {
-    return response.headers.has(CoduxDeferredHeaderKey);
-}
 
 export function deserializeResponse(response: SerializedResponse) {
     const headers = new Headers();

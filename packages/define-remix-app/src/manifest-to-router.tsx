@@ -1,7 +1,6 @@
 import { DynamicImport, IAppManifest, ErrorReporter, IResults } from '@wixc3/app-core';
 import {
     deserializeResponse,
-    isSerializedDeferredResponse,
     isSerializedResponse,
     RouteModuleInfo,
     SerializedResponse,
@@ -284,8 +283,7 @@ function nonMemoFileToRoute(
         const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
         if (isSerializedResponse(res)) {
             const desRes = deserializeResponse(res);
-            const responseValue = await tryDecodeResponseJsonValue(desRes);
-            return isDeferredResult(responseValue) ? deserializeDeferredResult(responseValue) : desRes;
+            return isDeferredResult(desRes) ? await deserializeDeferredResult(desRes) : desRes;
         } else {
             return res;
         }
@@ -293,8 +291,7 @@ function nonMemoFileToRoute(
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
         const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
         const desRes = deserializeResponse(res as SerializedResponse);
-        const responseValue = await tryDecodeResponseJsonValue(desRes);
-        return isDeferredResult(responseValue) ? deserializeDeferredResult(responseValue) : desRes;
+        return isDeferredResult(desRes) ? deserializeDeferredResult(desRes) : desRes;
     };
     const loader: LoaderFunction | undefined = exportNames.includes('clientLoader')
         ? async ({ params, request }) => {
@@ -453,26 +450,4 @@ function ErrorPage({
     } else {
         return errorContent;
     }
-}
-
-async function tryDecodeResponseJsonValue(response: Response) {
-    if (!isSerializedDeferredResponse(response)) {
-        return;
-    }
-    const reader = response.clone().body?.getReader();
-    const td = new TextDecoder('utf-8', {});
-    let text = '';
-    while (reader && true) {
-        const { value, done } = (await reader.read()) as { value: Uint8Array; done: boolean };
-        text += td.decode(value);
-        if (done) {
-            break;
-        }
-    }
-    try {
-        return JSON.parse(text) as JSON;
-    } catch {
-        /**/
-    }
-    return;
 }
