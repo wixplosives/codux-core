@@ -22,7 +22,7 @@ export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
 }) {
     return (
         <picture {...passedPictureProps}>
-            {mediaBreakpoints
+            {[...mediaBreakpoints]
                 .sort((a, b) => {
                     if (a.minWidth === b.minWidth) {
                         return 0;
