@@ -12,11 +12,37 @@ describe('check rendered WixImage component', () => {
             `src="${buildWixImageUrl({ imageId: 'wix:image://v1/1234/duck.jpg', width: 500, height: 500, renderingStrategy: 'fit' })}"`,
         );
     });
-    it.skip('should render the image with passed aria attributes', async () => {});
+
+    it('should render the image with passed codux attributes', async () => {
+        const { container } = await render(
+            <WixImage
+                imageId="wix:image://v1/1234/duck.jpg"
+                mediaBreakpoints={[]}
+                alt="Codux duck"
+                className="my-custom-class"
+            />,
+        );
+
+        expect(container.innerHTML).to.contain('alt="Codux duck"');
+        expect(container.innerHTML).to.contain('class="my-custom-class"');
+    });
+
+    it('should render the image with passed aria attributes', async () => {
+        const { container } = await render(
+            <WixImage
+                imageId="wix:image://v1/1234/duck.jpg"
+                mediaBreakpoints={[]}
+                imgProps={{
+                    ['aria-label']: 'Accessible name for the image',
+                }}
+            />,
+        );
+
+        expect(container.innerHTML).to.contain('aria-label="Accessible name for the image"');
+    });
 });
 
 // Type tests
-
 <WixImage imageId="wix:image://v1/1234/duck.jpg" mediaBreakpoints={[]} />;
 <WixImage imageId="wix:image://v1/1234/duck.jpg" mediaBreakpoints={[]} alt="Codux duck" className="my custom class" />;
 <WixImage
@@ -45,5 +71,8 @@ describe('check rendered WixImage component', () => {
         },
     ]}
     alt="Codux duck"
-    className="my custom class"
+    className="my-custom-class"
+    imgProps={{
+        ['aria-label']: 'Accessible name for the image',
+    }}
 />;
