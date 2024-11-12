@@ -1,9 +1,6 @@
-import chai, { expect } from 'chai';
+import { expect } from 'chai';
 import { buildWixImageUrl, WixImage } from '@wixc3/codux-ui/image';
-import { chaiRetryPlugin } from '@wixc3/testing';
 import { render } from '../../test-kit/render.js';
-
-chai.use(chaiRetryPlugin);
 
 describe('check rendered WixImage component', () => {
     it('should render the image with the correct src', async () => {
@@ -39,6 +36,50 @@ describe('check rendered WixImage component', () => {
         );
 
         expect(container.innerHTML).to.contain('aria-label="Accessible name for the image"');
+    });
+
+    it('should add sorted soures the image', async () => {
+        const { container } = await render(
+            <WixImage
+                imageId="wix:image://v1/1234/duck.jpg"
+                mediaBreakpoints={[
+                    {
+                        minWidth: 380,
+                        height: 400,
+                        width: 400,
+                        renderingStrategy: 'fill',
+                    },
+                    {
+                        minWidth: 1024,
+                        height: 1000,
+                        width: 1000,
+                        renderingStrategy: 'fill',
+                        displayName: 'duck L',
+                    },
+                    {
+                        minWidth: 480,
+                        height: 500,
+                        width: 500,
+                        renderingStrategy: 'fit',
+                        displayName: 'duck S',
+                    },
+                    {
+                        minWidth: 780,
+                        height: 800,
+                        width: 800,
+                        renderingStrategy: 'fit',
+                        displayName: 'duck M',
+                    },
+                ]}
+            />,
+        );
+
+        expect(container.innerHTML).to.contain(
+            '<source media="(min-width: 1024px)" srcset="https://static.wixstatic.com/media/1234/v1/fill/w_1000,h_1000/duck%20L.jpg">' +
+                '<source media="(min-width: 780px)" srcset="https://static.wixstatic.com/media/1234/v1/fit/w_800,h_800/duck%20M.jpg">' +
+                '<source media="(min-width: 480px)" srcset="https://static.wixstatic.com/media/1234/v1/fit/w_500,h_500/duck%20S.jpg">' +
+                '<source media="(min-width: 380px)" srcset="https://static.wixstatic.com/media/1234/v1/fill/w_400,h_400/duck.jpg">',
+        );
     });
 });
 
