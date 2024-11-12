@@ -1,4 +1,19 @@
-import { WixImage } from '@wixc3/codux-ui/image';
+import chai, { expect } from 'chai';
+import { buildWixImageUrl, WixImage } from '@wixc3/codux-ui/image';
+import { chaiRetryPlugin } from '@wixc3/testing';
+import { render } from '../../test-kit/render.js';
+
+chai.use(chaiRetryPlugin);
+
+describe('check rendered WixImage component', () => {
+    it('should render the image with the correct src', async () => {
+        const { container } = await render(<WixImage imageId="wix:image://v1/1234/duck.jpg" mediaBreakpoints={[]} />);
+        expect(container.innerHTML).to.contain(
+            `src="${buildWixImageUrl({ imageId: 'wix:image://v1/1234/duck.jpg', width: 500, height: 500, renderingStrategy: 'fit' })}"`,
+        );
+    });
+    it.skip('should render the image with passed aria attributes', async () => {});
+});
 
 // Type tests
 
