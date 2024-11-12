@@ -29,12 +29,12 @@ export const WixImage: React.FC<WixImageProps> = React.memo(function WixImage({
                     }
                     return a.minWidth > b.minWidth ? -1 : 1;
                 })
-                .map(({ minWidth, ...wixMediaAttributes }, index) => {
+                .map(({ minWidth, ...wixMediaAttributes }) => {
                     const src = buildWixImageUrl({
                         imageId,
                         ...wixMediaAttributes,
                     });
-                    return <source key={index} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
+                    return <source key={`${minWidth}-${src}`} media={`(min-width: ${minWidth}px)`} srcSet={src} />;
                 })}
             <img
                 {...imgProps}
