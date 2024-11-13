@@ -1,0 +1,29 @@
+{
+  "name": "@wixc3/codux-ui",
+  "description": "Common ui components which integrate with codux",
+  "version": "4.5.1",
+  "type": "module",
+  "exports": {
+    "./image": {
+      "types": "./dist/image/index.d.ts",
+      "default": "./dist/image/index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0 || ^19.0.0-rc.0",
+    "react-dom": ">=18.0.0 || ^19.0.0-rc.0"
+  },
+  "files": [
+    "dist",
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/codux-ui",
+  "homepage": "https://github.com/wixplosives/codux-core",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
+}

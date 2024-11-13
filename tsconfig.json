@@ -11,6 +11,10 @@
     { "path": "./packages/board-plugins/test" },
 
     { "path": "./packages/react-board/src" },
-    { "path": "./packages/react-board/test" }
+    { "path": "./packages/react-board/test" },
+
+    { "path": "./packages/codux-ui/src" },
+    { "path": "./packages/codux-ui/test" },
+    { "path": "./packages/codux-ui/test-kit" }
   ]
 }
