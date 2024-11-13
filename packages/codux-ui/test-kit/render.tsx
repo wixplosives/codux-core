@@ -7,38 +7,37 @@ const ResolveOnMount = ({ children, onMount }: React.PropsWithChildren<{ onMount
     return <>{children}</>;
 };
 
-/**
- * TODO(global dispose): This is here until "render" will accept disposables.
- */
-const disposables = createTestDisposables();
+export function createRenderer() {
+    const disposables = createTestDisposables();
 
-export const render = async (
-    reactElement: React.ReactElement,
-    container: HTMLElement = document.body.appendChild(document.createElement('div')),
-) => {
-    const root = createRoot(container);
-    disposables.add('render', () => {
-        root.unmount();
-        container.remove();
-    });
+    return async (
+        reactElement: React.ReactElement,
+        container: HTMLElement = document.body.appendChild(document.createElement('div')),
+    ) => {
+        const root = createRoot(container);
+        disposables.add('render', () => {
+            root.unmount();
+            container.remove();
+        });
 
-    await withTimeout(
-        new Promise<void>((resolve) => {
-            root.render(<ResolveOnMount onMount={resolve}>{reactElement}</ResolveOnMount>);
-        }),
-    )
-        .timeout(3000)
-        .description('rendering');
-
-    const rerender = (newElement: React.ReactElement) => {
-        return withTimeout(
+        await withTimeout(
             new Promise<void>((resolve) => {
-                root.render(<ResolveOnMount onMount={resolve}>{newElement}</ResolveOnMount>);
+                root.render(<ResolveOnMount onMount={resolve}>{reactElement}</ResolveOnMount>);
             }),
         )
             .timeout(3000)
-            .description('rerendering');
-    };
+            .description('rendering');
 
-    return { container, rerender };
-};
+        const rerender = (newElement: React.ReactElement) => {
+            return withTimeout(
+                new Promise<void>((resolve) => {
+                    root.render(<ResolveOnMount onMount={resolve}>{newElement}</ResolveOnMount>);
+                }),
+            )
+                .timeout(3000)
+                .description('rerendering');
+        };
+
+        return { container, rerender };
+    };
+}

@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import { buildWixImageUrl, WixImage } from '@wixc3/codux-ui/image';
-import { render } from '../../test-kit/render.js';
+import { createRenderer } from '../../test-kit/render.js';
 
 describe('check rendered WixImage component', () => {
+    const render = createRenderer();
+
     it('should render the image with the correct src', async () => {
         const { container } = await render(<WixImage imageId="wix:image://v1/1234/duck.jpg" mediaBreakpoints={[]} />);
         expect(container.innerHTML).to.contain(
