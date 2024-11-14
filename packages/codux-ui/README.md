@@ -47,13 +47,23 @@ import { WixImage } from '@wixc3/codux-ui/image';
 />;
 ```
 
-####ImgPropsToPass
+#### Utils
 
-The `ImgPropsToPass` type is used to define the properties that can be passed to the img element within the WixImage component. Certain properties are omitted because they are managed internally by the component.
+`@wixc3/codux-ui/image` also exports the `buildWixImageUrl` util. It builds an image URL from a [wix-image-id](https://dev.wix.com/docs/sdk/core-modules/sdk/media#usage) and wix media attributes.
 
-`src`: This property is omitted because the src attribute is constructed internally by the component using the imageId prop.
+#### Example for the `buildWixImageUrl` util:
 
-`srcSet`: This property is omitted because the srcSet attribute is configured based on the mediaBreakpoints prop.
+```ts
+import { buildWixImageUrl } from '@wixc3/codux-ui/image';
+
+// returns https://static.wixstatic.com/media/11062b_96503e81a83e47ed857a44be26ebd0d1~mv2.jpeg/v1/fit/w_500,h_500/Rustic%20breakfast.jpeg
+buildWixImageUrl({
+  imageId: 'wix:image://v1/11062b_96503e81a83e47ed857a44be26ebd0d1~mv2.jpeg/Rustic breakfast.jpeg',
+  width: 500,
+  height: 500,
+  renderingStrategy: 'fit',
+});
+```
 
 ## License
 
