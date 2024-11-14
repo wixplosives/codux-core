@@ -9,7 +9,7 @@ import {
     IResults,
     RoutingPattern,
 } from '@wixc3/app-core';
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
     anErrorRoute,
     aRoute,
@@ -58,7 +58,6 @@ export const INVALID_MSGS = {
 export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDefineRemixAppProps) {
     let rootLayouts: RouteExtraInfo['parentLayouts'] = [];
     let layoutMap: Map<string, ParentLayoutWithExtra> = new Map();
-    const navigation = new Navigation();
     const getRouteLayouts = (filePathInRouteDir: string, fsApi: FSApi, layouts = layoutMap) => {
         const parentLayouts: RouteExtraInfo['parentLayouts'] = [...rootLayouts];
         const routeLayouts = filePathToLayoutMatching(filePathInRouteDir, fsApi.path);
@@ -197,6 +196,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             },
         };
     };
+    const navigation = new Navigation();
     return defineApp<RouteModuleInfo, undefined>({
         App: ({
             manifest,
@@ -206,20 +206,10 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             onCaughtError,
             callServerMethod,
         }: IReactAppProps<RouteModuleInfo, undefined>) => {
-            const uriRef = useRef(uri);
-            uriRef.current = uri;
+            navigation.setOnPreviewNavigate(setUri);
             const { Router } = useMemo(
-                () =>
-                    manifestToRouter(
-                        manifest,
-                        navigation,
-                        importModule,
-                        setUri,
-                        onCaughtError,
-                        uriRef,
-                        callServerMethod,
-                    ),
-                [manifest, importModule, setUri, onCaughtError, callServerMethod],
+                () => manifestToRouter(manifest, navigation, importModule, onCaughtError, callServerMethod),
+                [manifest, importModule, onCaughtError, callServerMethod],
             );
 
             useEffect(() => {

@@ -22,9 +22,7 @@ export const manifestToRouter = (
     manifest: IAppManifest<RouteModuleInfo, undefined>,
     navigation: Navigation,
     requireModule: DynamicImport,
-    setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
-    prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
 ) => {
     const routerData = manifest.extraData;
@@ -44,10 +42,8 @@ export const manifestToRouter = (
         rootFilePath,
         rootExports,
         requireModule,
-        setUri,
         onCaughtError,
         true,
-        prevUri,
         callServerMethod,
         navigation,
     );
@@ -59,10 +55,8 @@ export const manifestToRouter = (
                 child.file,
                 child.exportNames,
                 requireModule,
-                setUri,
                 onCaughtError,
                 false,
-                prevUri,
                 callServerMethod,
                 navigation,
             );
@@ -87,10 +81,8 @@ export const fileToRoute = (
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
-    setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     isRootFile = false,
-    prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
     navigation: Navigation,
 ): RouteObject => {
@@ -102,10 +94,8 @@ export const fileToRoute = (
             filePath,
             exportNames,
             requireModule,
-            setUri,
             onCaughtError,
             isRootFile,
-            prevUri,
             callServerMethod,
             navigation,
         );
@@ -118,14 +108,10 @@ function RootComp({
     module,
     navigation,
     filePath,
-    setUri,
-    prevUri,
 }: {
     module: Dispatcher<IResults<unknown>>;
     navigation: Navigation;
     filePath: string;
-    setUri: (uri: string) => void;
-    prevUri: { current: string };
 }) {
     const revalidator = useRevalidator();
     const currentModule = useDispatcher(
@@ -142,10 +128,10 @@ function RootComp({
     navigation.setNavigateFunction(useNavigate());
 
     useEffect(() => {
-        if (uri.slice(1) !== prevUri.current) {
-            setUri(uri.slice(1));
+        if (uri.slice(1) !== navigation.getCurrentPath()) {
+            navigation.onPreviewNavigation(uri.slice(1));
         }
-    }, [setUri, prevUri, uri]);
+    }, [uri, navigation]);
 
     if (currentModule.errorMessage) {
         return <div>{currentModule.errorMessage}</div>;
@@ -215,10 +201,8 @@ function nonMemoFileToRoute(
     filePath: string,
     exportNames: string[],
     requireModule: DynamicImport,
-    setUri: (uri: string) => void,
     onCaughtError: ErrorReporter,
     isRootFile = false,
-    prevUri: { current: string },
     callServerMethod: (filePath: string, methodName: string, args: unknown[]) => Promise<unknown>,
     navigation: Navigation,
 ): RouteObject {
@@ -260,13 +244,7 @@ function nonMemoFileToRoute(
                 default: () => {
                     return (
                         <Suspense>
-                            <RootComp
-                                navigation={navigation}
-                                module={dispatcher}
-                                filePath={filePath}
-                                setUri={setUri}
-                                prevUri={prevUri}
-                            />
+                            <RootComp navigation={navigation} module={dispatcher} filePath={filePath} />
                         </Suspense>
                     );
                 },
