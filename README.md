@@ -10,6 +10,8 @@
 
 - **[@wixc3/board-plugins](https://github.com/wixplosives/codux-core/tree/master/packages/board-plugins)** - Plugins for boards.
 
+- **[@wixc3/codux-ui](https://github.com/wixplosives/codux-core/tree/master/packages/codux-ui)** - UI components which integrate with codux
+
 ### License
 
 MIT
