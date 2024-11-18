@@ -237,6 +237,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
                     {
                         params: (args as [DeserializedLoaderArgs])[0].params,
                         request: deserializeRequest((args as [DeserializedLoaderArgs])[0].request),
+                        context: (args as [DeserializedLoaderArgs])[0].context,
                     },
                 ];
             }

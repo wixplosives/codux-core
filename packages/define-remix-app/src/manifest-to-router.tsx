@@ -258,7 +258,9 @@ function nonMemoFileToRoute(
     });
 
     const serverLoader: LoaderFunction = async ({ params, request }) => {
-        const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
+        const res = await callServerMethod(filePath, 'loader', [
+            { params, request: await serializeRequest(request), context: { defineAppMode: true } },
+        ]);
         if (isSerializedResponse(res)) {
             const desRes = deserializeResponse(res);
             return isDeferredResult(desRes) ? await deserializeDeferredResult(desRes) : desRes;
@@ -267,7 +269,9 @@ function nonMemoFileToRoute(
         }
     };
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
-        const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
+        const res = await callServerMethod(filePath, 'action', [
+            { params, request: await serializeRequest(request), context: { defineAppMode: true } },
+        ]);
         const desRes = deserializeResponse(res as SerializedResponse);
         return isDeferredResult(desRes) ? deserializeDeferredResult(desRes) : desRes;
     };

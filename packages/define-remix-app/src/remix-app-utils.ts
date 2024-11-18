@@ -263,6 +263,7 @@ export interface SerializedRequest {
 export interface DeserializedLoaderArgs {
     params: Record<string, string>;
     request: SerializedRequest;
+    context: Record<string, unknown>;
 }
 
 function getHeaders(from: Request | Response) {
