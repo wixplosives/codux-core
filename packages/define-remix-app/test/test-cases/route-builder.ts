@@ -26,6 +26,7 @@ interface RouteSourceOptions {
     clientLoader?: JSONValue;
     clientLoaderDelay?: number;
     clientLoaderHydrate?: boolean;
+    mockLoader?: JSONValue;
     links?: ReturnType<LinksFunction>;
     handle?: JSONValue;
     extraModuleCode?: string;
@@ -72,6 +73,7 @@ export const pageSource = ({
     loader,
     loaderDelay,
     loaderDefer,
+    mockLoader,
     clientLoader,
     clientLoaderDelay,
     clientLoaderHydrate = false,
@@ -144,6 +146,16 @@ export const pageSource = ({
         }
     }
 
+    if (mockLoader) {
+        remixRunReactImports.add('useLoaderData');
+        remixRunReactImports.add('json');
+        moduleCodeDefs.add(`
+            export ${loaderDelay ? 'async' : ''} function mockLoader() {
+                return json(${JSON.stringify(mockLoader)});
+            }
+        `);
+    }
+
     if (handle) {
         moduleCodeDefs.add(`
             export const handle = ${JSON.stringify(handle)};
@@ -163,11 +175,11 @@ export const pageSource = ({
             moduleCodeDefs.add(`
                 export default function ${componentName}() {
                     ${componentCode?.hooks || ''}
-                    ${loader || clientLoader ? `const loaderData = useLoaderData();` : ''}
+                    ${loader || mockLoader || clientLoader ? `const loaderData = useLoaderData();` : ''}
                     return (
                         <div data-origin="${componentName}-page-component">
                             ${componentCode?.jsx || ''}
-                            ${loader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
+                            ${loader || mockLoader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
                             <Outlet/>
                         </div>
                     );

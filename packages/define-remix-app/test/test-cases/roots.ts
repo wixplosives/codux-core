@@ -373,3 +373,28 @@ export const clientActionPage = (name: string) =>
         </div>;
     }
 `);
+
+export const mockActionPage = (name: string) =>
+    transformTsx(`
+    import React from 'react';
+    import { Outlet, Form, useLoaderData, useActionData, json } from '@remix-run/react';
+    
+    export const mockAction = async ({ request }: ActionFunctionArgs) => {
+        return json({ message: 'Mock action message' })
+    };
+
+    export const action = async ({ request }: ActionFunctionArgs) => {
+        return json({ message: 'Real action message' })
+    };
+
+    export default function ${name}() {
+        const actionData = useActionData();
+        return <div>
+        ${name}|<Outlet />
+            <p>{actionData?.message}</p>
+            <Form method="post">
+                <button type="submit">Send</button>
+            </Form>
+        </div>;
+    }
+`);
