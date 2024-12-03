@@ -14,7 +14,7 @@ import {
     clientActionPage,
     userApiConsumer,
     userApiPage,
-    mockActionPage,
+    defineAppActionPage,
 } from './test-cases/roots';
 import {
     pageSource,
@@ -1378,20 +1378,20 @@ describe('define-remix', () => {
                 dispose();
             });
         });
-        describe('mockLoader', () => {
-            it('should call mockLoader and pass the information into useLoaderData', async () => {
+        describe('defineAppLoader', () => {
+            it('should call defineAppLoader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootSource({}),
                     [indexPath]: pageSource({
                         componentName: 'Home',
                         loader: { loaderData: 'home' },
-                        mockLoader: { mockLoaderData: 'mock' },
+                        defineAppLoader: { defineAppLoaderData: 'mock' },
                     }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expectLoaderData(container, 'Home', { mockLoaderData: 'mock' });
+                await expectLoaderData(container, 'Home', { defineAppLoaderData: 'mock' });
 
                 dispose();
             });
@@ -1469,10 +1469,10 @@ describe('define-remix', () => {
                 dispose();
             });
 
-            it('should call mockAction instead of action and pass the information into useActionData', async () => {
+            it('should call defineAppActionPage instead of action and pass the information into useActionData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
-                    [indexPath]: mockActionPage('Home'),
+                    [indexPath]: defineAppActionPage('Home'),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });

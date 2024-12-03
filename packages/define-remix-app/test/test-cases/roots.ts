@@ -374,12 +374,12 @@ export const clientActionPage = (name: string) =>
     }
 `);
 
-export const mockActionPage = (name: string) =>
+export const defineAppActionPage = (name: string) =>
     transformTsx(`
     import React from 'react';
     import { Outlet, Form, useLoaderData, useActionData, json } from '@remix-run/react';
     
-    export const mockAction = async ({ request }: ActionFunctionArgs) => {
+    export const defineAppAction = async ({ request }: ActionFunctionArgs) => {
         return json({ message: 'Mock action message' })
     };
 

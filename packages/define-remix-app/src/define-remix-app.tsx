@@ -231,7 +231,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             );
         },
         callServerMethod: async ({ importModule }, filePath, methodName, args) => {
-            const isRequestType = ['loader', 'mockLoader', 'action', 'mockAction'].includes(methodName);
+            const isRequestType = ['loader', 'defineAppLoader', 'action', 'defineAppAction'].includes(methodName);
             if (isRequestType) {
                 args = [
                     {

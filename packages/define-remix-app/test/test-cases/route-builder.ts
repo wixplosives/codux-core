@@ -26,7 +26,7 @@ interface RouteSourceOptions {
     clientLoader?: JSONValue;
     clientLoaderDelay?: number;
     clientLoaderHydrate?: boolean;
-    mockLoader?: JSONValue;
+    defineAppLoader?: JSONValue;
     links?: ReturnType<LinksFunction>;
     handle?: JSONValue;
     extraModuleCode?: string;
@@ -73,7 +73,7 @@ export const pageSource = ({
     loader,
     loaderDelay,
     loaderDefer,
-    mockLoader,
+    defineAppLoader,
     clientLoader,
     clientLoaderDelay,
     clientLoaderHydrate = false,
@@ -146,12 +146,12 @@ export const pageSource = ({
         }
     }
 
-    if (mockLoader) {
+    if (defineAppLoader) {
         remixRunReactImports.add('useLoaderData');
         remixRunReactImports.add('json');
         moduleCodeDefs.add(`
-            export ${loaderDelay ? 'async' : ''} function mockLoader() {
-                return json(${JSON.stringify(mockLoader)});
+            export ${loaderDelay ? 'async' : ''} function defineAppLoader() {
+                return json(${JSON.stringify(defineAppLoader)});
             }
         `);
     }
@@ -175,11 +175,11 @@ export const pageSource = ({
             moduleCodeDefs.add(`
                 export default function ${componentName}() {
                     ${componentCode?.hooks || ''}
-                    ${loader || mockLoader || clientLoader ? `const loaderData = useLoaderData();` : ''}
+                    ${loader || defineAppLoader || clientLoader ? `const loaderData = useLoaderData();` : ''}
                     return (
                         <div data-origin="${componentName}-page-component">
                             ${componentCode?.jsx || ''}
-                            ${loader || mockLoader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
+                            ${loader || defineAppLoader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
                             <Outlet/>
                         </div>
                     );

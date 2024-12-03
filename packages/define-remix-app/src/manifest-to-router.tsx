@@ -257,7 +257,7 @@ function nonMemoFileToRoute(
         };
     });
 
-    const serverLoaderExportName = exportNames.includes('mockLoader') ? 'mockLoader' : 'loader';
+    const serverLoaderExportName = exportNames.includes('defineAppLoader') ? 'defineAppLoader' : 'loader';
     const serverLoader: LoaderFunction = async ({ params, request }) => {
         const res = await callServerMethod(filePath, serverLoaderExportName, [
             { params, request: await serializeRequest(request) },
@@ -269,7 +269,7 @@ function nonMemoFileToRoute(
             return res;
         }
     };
-    const serverActionExportName = exportNames.includes('mockAction') ? 'mockAction' : 'action';
+    const serverActionExportName = exportNames.includes('defineAppAction') ? 'defineAppAction' : 'action';
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
         const res = await callServerMethod(filePath, serverActionExportName, [
             { params, request: await serializeRequest(request) },
