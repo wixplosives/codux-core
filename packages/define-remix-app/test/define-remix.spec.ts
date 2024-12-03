@@ -14,7 +14,7 @@ import {
     clientActionPage,
     userApiConsumer,
     userApiPage,
-    defineAppActionPage,
+    coduxActionPage,
 } from './test-cases/roots';
 import {
     pageSource,
@@ -1378,20 +1378,20 @@ describe('define-remix', () => {
                 dispose();
             });
         });
-        describe('defineAppLoader', () => {
-            it('should call defineAppLoader and pass the information into useLoaderData', async () => {
+        describe('coduxLoader', () => {
+            it('should call coduxLoader and pass the information into useLoaderData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootSource({}),
                     [indexPath]: pageSource({
                         componentName: 'Home',
                         loader: { loaderData: 'home' },
-                        defineAppLoader: { defineAppLoaderData: 'mock' },
+                        coduxLoader: { coduxLoaderData: 'codux-loader-data' },
                     }),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
 
-                await expectLoaderData(container, 'Home', { defineAppLoaderData: 'mock' });
+                await expectLoaderData(container, 'Home', { coduxLoaderData: 'codux-loader-data' });
 
                 dispose();
             });
@@ -1469,10 +1469,10 @@ describe('define-remix', () => {
                 dispose();
             });
 
-            it('should call defineAppActionPage instead of action and pass the information into useActionData', async () => {
+            it('should call coduxAction instead of action and pass the information into useActionData', async () => {
                 const { driver } = await getInitialManifest({
                     [rootPath]: rootWithLayout2,
-                    [indexPath]: defineAppActionPage('Home'),
+                    [indexPath]: coduxActionPage('Home'),
                 });
 
                 const { dispose, container } = await driver.render({ uri: '' });
@@ -1485,7 +1485,7 @@ describe('define-remix', () => {
                 submitButton.click();
                 await expect(() => container.textContent)
                     .retry()
-                    .to.include('Mock action message');
+                    .to.include('Codux action message');
 
                 await expect(() => container.textContent)
                     .retry()

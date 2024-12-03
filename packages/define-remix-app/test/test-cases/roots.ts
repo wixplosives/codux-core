@@ -374,13 +374,13 @@ export const clientActionPage = (name: string) =>
     }
 `);
 
-export const defineAppActionPage = (name: string) =>
+export const coduxActionPage = (name: string) =>
     transformTsx(`
     import React from 'react';
     import { Outlet, Form, useLoaderData, useActionData, json } from '@remix-run/react';
     
-    export const defineAppAction = async ({ request }: ActionFunctionArgs) => {
-        return json({ message: 'Mock action message' })
+    export const coduxAction = async ({ request }: ActionFunctionArgs) => {
+        return json({ message: 'Codux action message' })
     };
 
     export const action = async ({ request }: ActionFunctionArgs) => {

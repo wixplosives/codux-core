@@ -231,7 +231,7 @@ export default function defineRemixApp({ appPath, routingPattern = 'file' }: IDe
             );
         },
         callServerMethod: async ({ importModule }, filePath, methodName, args) => {
-            const isRequestType = ['loader', 'defineAppLoader', 'action', 'defineAppAction'].includes(methodName);
+            const isRequestType = ['loader', 'coduxLoader', 'action', 'coduxAction'].includes(methodName);
             if (isRequestType) {
                 args = [
                     {
