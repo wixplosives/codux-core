@@ -26,6 +26,7 @@ interface RouteSourceOptions {
     clientLoader?: JSONValue;
     clientLoaderDelay?: number;
     clientLoaderHydrate?: boolean;
+    coduxLoader?: JSONValue;
     links?: ReturnType<LinksFunction>;
     handle?: JSONValue;
     extraModuleCode?: string;
@@ -72,6 +73,7 @@ export const pageSource = ({
     loader,
     loaderDelay,
     loaderDefer,
+    coduxLoader,
     clientLoader,
     clientLoaderDelay,
     clientLoaderHydrate = false,
@@ -144,6 +146,16 @@ export const pageSource = ({
         }
     }
 
+    if (coduxLoader) {
+        remixRunReactImports.add('useLoaderData');
+        remixRunReactImports.add('json');
+        moduleCodeDefs.add(`
+            export ${loaderDelay ? 'async' : ''} function coduxLoader() {
+                return json(${JSON.stringify(coduxLoader)});
+            }
+        `);
+    }
+
     if (handle) {
         moduleCodeDefs.add(`
             export const handle = ${JSON.stringify(handle)};
@@ -163,11 +175,11 @@ export const pageSource = ({
             moduleCodeDefs.add(`
                 export default function ${componentName}() {
                     ${componentCode?.hooks || ''}
-                    ${loader || clientLoader ? `const loaderData = useLoaderData();` : ''}
+                    ${loader || coduxLoader || clientLoader ? `const loaderData = useLoaderData();` : ''}
                     return (
                         <div data-origin="${componentName}-page-component">
                             ${componentCode?.jsx || ''}
-                            ${loader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
+                            ${loader || coduxLoader || clientLoader ? `<div id="${componentName}-loader-data">{JSON.stringify(loaderData)}</div>` : ''}
                             <Outlet/>
                         </div>
                     );

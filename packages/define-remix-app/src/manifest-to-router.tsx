@@ -257,8 +257,11 @@ function nonMemoFileToRoute(
         };
     });
 
+    const serverLoaderExportName = exportNames.includes('coduxLoader') ? 'coduxLoader' : 'loader';
     const serverLoader: LoaderFunction = async ({ params, request }) => {
-        const res = await callServerMethod(filePath, 'loader', [{ params, request: await serializeRequest(request) }]);
+        const res = await callServerMethod(filePath, serverLoaderExportName, [
+            { params, request: await serializeRequest(request) },
+        ]);
         if (isSerializedResponse(res)) {
             const desRes = deserializeResponse(res);
             return isDeferredResult(desRes) ? await deserializeDeferredResult(desRes) : desRes;
@@ -266,8 +269,11 @@ function nonMemoFileToRoute(
             return res;
         }
     };
+    const serverActionExportName = exportNames.includes('coduxAction') ? 'coduxAction' : 'action';
     const serverAction = async ({ params, request }: ActionFunctionArgs) => {
-        const res = await callServerMethod(filePath, 'action', [{ params, request: await serializeRequest(request) }]);
+        const res = await callServerMethod(filePath, serverActionExportName, [
+            { params, request: await serializeRequest(request) },
+        ]);
         const desRes = deserializeResponse(res as SerializedResponse);
         return isDeferredResult(desRes) ? deserializeDeferredResult(desRes) : desRes;
     };
@@ -290,11 +296,11 @@ function nonMemoFileToRoute(
                   serverLoader: () => serverLoader({ params, request, context: {} }) as Promise<any>,
               });
           }
-        : exportNames.includes('loader')
+        : exportNames.includes(serverLoaderExportName)
           ? serverLoader
           : undefined;
 
-    if (loader && !exportNames.includes('loader')) {
+    if (loader && !exportNames.includes(serverLoaderExportName)) {
         (loader as { hydrate?: boolean }).hydrate = true;
     }
     const ErrorBoundary = exportNames.includes('ErrorBoundary')
@@ -339,7 +345,7 @@ function nonMemoFileToRoute(
                   serverAction: () => serverAction({ params, request, context: {} }) as Promise<any>,
               });
           }
-        : exportNames.includes('action')
+        : exportNames.includes(serverActionExportName)
           ? serverAction
           : undefined;
     const HydrateFallback = exportNames.includes('HydrateFallback')

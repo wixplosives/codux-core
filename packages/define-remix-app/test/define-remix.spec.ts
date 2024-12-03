@@ -14,6 +14,7 @@ import {
     clientActionPage,
     userApiConsumer,
     userApiPage,
+    coduxActionPage,
 } from './test-cases/roots';
 import {
     pageSource,
@@ -1377,6 +1378,24 @@ describe('define-remix', () => {
                 dispose();
             });
         });
+        describe('coduxLoader', () => {
+            it('should call coduxLoader and pass the information into useLoaderData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootSource({}),
+                    [indexPath]: pageSource({
+                        componentName: 'Home',
+                        loader: { loaderData: 'home' },
+                        coduxLoader: { coduxLoaderData: 'codux-loader-data' },
+                    }),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expectLoaderData(container, 'Home', { coduxLoaderData: 'codux-loader-data' });
+
+                dispose();
+            });
+        });
         describe('actions', () => {
             it('should call action and pass the information into useActionData', async () => {
                 const { driver } = await getInitialManifest({
@@ -1447,6 +1466,30 @@ describe('define-remix', () => {
                     .retry()
                     .to.include('Layout|App|Home|User created!client action data');
 
+                dispose();
+            });
+
+            it('should call coduxAction instead of action and pass the information into useActionData', async () => {
+                const { driver } = await getInitialManifest({
+                    [rootPath]: rootWithLayout2,
+                    [indexPath]: coduxActionPage('Home'),
+                });
+
+                const { dispose, container } = await driver.render({ uri: '' });
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Layout|App|Home');
+
+                const submitButton = container.querySelector('button[type=submit]') as HTMLButtonElement;
+                submitButton.click();
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.include('Codux action message');
+
+                await expect(() => container.textContent)
+                    .retry()
+                    .to.not.include('Real action message');
                 dispose();
             });
         });
