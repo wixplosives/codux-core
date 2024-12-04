@@ -16,11 +16,10 @@ export function getPluginsWithHooks<DATA extends IGeneralMetadata<HookMap>>(
     >[];
 }
 
-export type HookParams<DATA extends IGeneralMetadata<HookMap>, HOOK extends HookNames<DATA>> = NonNullable<
-    NonNullable<DATA['__hooks']>[HOOK]
-> extends (pluginParams: never, ...args: infer U) => unknown
-    ? U
-    : never;
+export type HookParams<DATA extends IGeneralMetadata<HookMap>, HOOK extends HookNames<DATA>> =
+    NonNullable<NonNullable<DATA['__hooks']>[HOOK]> extends (pluginParams: never, ...args: infer U) => unknown
+        ? U
+        : never;
 
 export function callHooks<DATA extends IGeneralMetadata<HookMap>, HOOKNAME extends HookNames<DATA>>(
     data: DATA,
