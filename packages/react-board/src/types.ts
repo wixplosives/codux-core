@@ -16,9 +16,9 @@ export interface IReactBoardHooks<PLUGINPROPS> extends IRenderableLifeCycleHooks
     wrapRender?: (
         props: PLUGINPROPS,
         renderable: IRenderableMetadataBase,
-        renderableElement: JSX.Element,
+        renderableElement: React.ReactElement,
         canvas: HTMLElement,
-    ) => null | JSX.Element;
+    ) => null | React.ReactElement;
 }
 
 export interface IReactBoard extends IRenderableMetadataBase<IReactBoardHooks<never>> {
