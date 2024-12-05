@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/codux-ui",
   "description": "Common ui components which integrate with codux",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "type": "module",
   "exports": {
     "./image": {

@@ -1,7 +1,7 @@
 {
   "name": "@wixc3/app-core",
   "description": "Common types and helpers for building applications",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "main": "dist/index.js",
   "exports": {
     ".": {
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@file-services/types": "^9.4.1",
-    "@wixc3/react-board": "^4.6.0"
+    "@wixc3/react-board": "^4.6.1"
   },
   "files": [
     "dist",
