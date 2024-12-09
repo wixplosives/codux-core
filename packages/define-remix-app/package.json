@@ -11,7 +11,7 @@
     "@remix-run/node": "^2.15.0",
     "@remix-run/react": "^2.15.0",
     "@remix-run/router": "^1.21.0",
-    "@remix-run/testing": "^2.15.0",
+    "@remix-run/testing": "^2.15.1",
     "@wixc3/app-core": "^4.6.2"
   },
   "files": [
