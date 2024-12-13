@@ -5,11 +5,17 @@ import type { IReactBoard, OmitReactBoard } from './types';
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
     const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
-        render(target) {
+        render(target, Wrapper) {
             return baseRender(
                 res,
                 async () => {
-                    let element = <res.Board />;
+                    let element = Wrapper ? (
+                        <Wrapper>
+                            <res.Board />
+                        </Wrapper>
+                    ) : (
+                        <res.Board />
+                    );
                     const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {

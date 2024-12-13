@@ -128,7 +128,7 @@ export interface IRenderableMetadataBase<HOOKS extends HookMap = HookMap>
      *
      * @returns a cleanup function
      */
-    render: (targetElement: HTMLElement) => Promise<() => void>;
+    render: (targetElement: HTMLElement, Wrapper?: React.FC<React.PropsWithChildren>) => Promise<() => void>;
     /**
      * sets the stage for the renderer.
      * this function has many side effects ( such as effecting window styles and sizes )
