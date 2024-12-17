@@ -1,6 +1,6 @@
 import { createBoard } from '@wixc3/react-board';
 import { useState } from 'react';
-import { Checkbox } from './checkbox';
+import { Checkbox } from './checkbox.js';
 
 export default createBoard({
     name: 'checkbox',
