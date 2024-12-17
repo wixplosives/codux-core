@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { createDisposables } from '@wixc3/create-disposables';
-import board from './fixtures/context-user.board';
+import board from './fixtures/context-user.board.js';
 
 describe('react context plugin', () => {
     const disposables = createDisposables();
