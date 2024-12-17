@@ -1,2 +1,2 @@
-export * from './css-vars-plugin';
-export * from './react-context-plugin';
+export * from './css-vars-plugin.js';
+export * from './react-context-plugin.js';

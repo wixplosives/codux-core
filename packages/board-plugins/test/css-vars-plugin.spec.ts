@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import board from './fixtures/css-vars-user.board';
+import board from './fixtures/css-vars-user.board.js';
 
 describe('css var plugin', () => {
     const cleanupAfterTest = new Set<() => unknown>();
