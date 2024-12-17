@@ -5,7 +5,7 @@ import type { IReactBoard, OmitReactBoard } from './types';
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
     const res: IReactBoard = createRenderableBase<IReactBoard>({
         ...input,
-        render(target) {
+        render(target, GlobalWrapper) {
             return baseRender(
                 res,
                 async () => {
@@ -16,6 +16,9 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
                             const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
                             element = el || element;
                         }
+                    }
+                    if (GlobalWrapper) {
+                        element = <GlobalWrapper>{element}</GlobalWrapper>;
                     }
                     return reactErrorHandledRendering(element, target);
                 },
