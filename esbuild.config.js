@@ -1,4 +1,4 @@
-// @ts-chec
+// @ts-check
 
 // Used as a polyfill for node apis when they aren't available.
 // The key is the node api name and the value is the stand-in object.
