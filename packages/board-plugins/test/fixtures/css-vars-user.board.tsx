@@ -1,6 +1,6 @@
 import { cssVarsPlugin } from '@wixc3/board-plugins';
 import { createBoard } from '@wixc3/react-board';
-import { CSSVarsUser } from './css-vars-user';
+import { CSSVarsUser } from './css-vars-user.js';
 
 export default createBoard({
     name: 'Checkbox',
