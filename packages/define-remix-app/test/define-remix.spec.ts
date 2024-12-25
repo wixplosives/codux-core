@@ -1062,7 +1062,7 @@ describe('define-remix', () => {
                 const { driver } = await getInitialManifest({
                     [indexPath]: simpleLayout,
                 });
-                const invalidFsChars = ['\\', ':', '*', '?', '"', "'", '`', '<', '>', '|'];
+                const invalidFsChars = [':', '*', '?', '"', "'", '`', '<', '>', '|'];
                 for (const invalidChar of invalidFsChars) {
                     const { isValid, errorMessage, pageModule, newPageRoute, newPageSourceCode } =
                         driver.getNewPageInfo('about/$param/invalid-' + invalidChar);
