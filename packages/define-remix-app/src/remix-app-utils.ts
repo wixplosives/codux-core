@@ -75,7 +75,7 @@ export function readableUriToFilePath(
     routeDir: string,
     routingPattern: RoutingPattern,
 ): string {
-    const pageFileName = readableUri.replace(/\//g, '.');
+    const pageFileName = readableUri.replace(/[/\\]/g, '.');
 
     return routingPattern === 'folder(route)'
         ? path.join(routeDir, pageFileName, 'route.tsx')
