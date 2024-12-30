@@ -37,7 +37,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^5.1.0",
     "mocha": "^11.0.1",
-    "mocha-web": "^2.0.0",
+    "mocha-web": "^2.0.1",
     "prettier": "^3.4.2",
     "promise-assist": "^2.0.1",
     "react": "^18.3.1",
