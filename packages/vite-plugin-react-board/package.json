@@ -2,16 +2,14 @@
   "name": "@wixc3/vite-plugin-react-board",
   "description": "Plugin for rendering component boards with vite",
   "version": "4.3.2-next.0",
-  "main": "dist/index.js",
   "peerDependencies": {
     "@wixc3/react-board": "^4.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0",
-    "vite": "^5"
+    "vite": "^6"
   },
-  "type": "module",
   "devDependencies": {
-    "vite": "^5.4.3"
+    "vite": "^6.0.6"
   },
   "files": [
     "dist",
@@ -28,5 +26,6 @@
   },
   "scripts": {
     "build": "node ./scripts/build.js"
-  }
+  },
+  "type": "module"
 }

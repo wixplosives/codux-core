@@ -1,11 +1,11 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import type { PluginOption, ResolvedConfig } from 'vite';
-import { readBoardSetupFromCoduxConfig } from './utils/utils';
+import { readBoardSetupFromCoduxConfig } from './utils/utils.js';
 
 const coduxBoardSetupId = 'virtual:codux/board-setup';
 const coduxClientModuleId = 'virtual:codux/client';
-const coduxClientModule = readFileSync(path.join(import.meta.dirname, 'client.js'), 'utf-8');
+const coduxClientModule = readFileSync(path.join(path.resolve(import.meta.dirname, '../client'), 'index.js'), 'utf-8');
 const coduxHtmlModuleId = '_codux-board-render';
 const coduxEntryHtml = `<!DOCTYPE html>
 <html lang="en">

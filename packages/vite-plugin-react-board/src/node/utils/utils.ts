@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { Logger } from 'vite';
+import { FlatBoardSetup } from '../../types.js';
 
 type GlobalSetupConfig =
     | string
@@ -11,11 +12,6 @@ type GlobalSetupConfig =
 
 type KnownCoduxConfig = {
     boardGlobalSetup?: GlobalSetupConfig;
-};
-
-export type FlatBoardSetup = {
-    setupBefore: string | undefined;
-    setupAfter: string | undefined;
 };
 
 export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: Logger): FlatBoardSetup {

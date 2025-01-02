@@ -1,11 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
+
   "compilerOptions": {
     "outDir": "../dist",
-    "skipLibCheck": true,
-    "module": "ESNext",
     "noEmit": true
   },
+  "include": ["client", "types.ts"],
 
   "references": [{ "path": "../../react-board/src" }]
 }

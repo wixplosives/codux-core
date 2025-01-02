@@ -17,6 +17,7 @@
     { "path": "./packages/codux-ui/test" },
     { "path": "./packages/codux-ui/test-kit" },
 
-    { "path": "./packages/vite-plugin-react-board/src" }
+    { "path": "./packages/vite-plugin-react-board/src" },
+    { "path": "./packages/vite-plugin-react-board/src/tsconfig.node.json" }
   ]
 }
