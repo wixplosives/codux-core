@@ -1,7 +1,7 @@
-import type { IRenderableMetadataBase } from './types';
-import { createMetadata, OmitGeneralMetadata } from './create-metadata';
-import { setupBoardStage } from './setup-stage';
-import { callHooks } from './hooks';
+import type { IRenderableMetadataBase } from './types.js';
+import { createMetadata, OmitGeneralMetadata } from './create-metadata.js';
+import { setupBoardStage } from './setup-stage.js';
+import { callHooks } from './hooks.js';
 
 export type OmitIRenderableMetadataBase<DATA extends IRenderableMetadataBase> = Omit<
     OmitGeneralMetadata<DATA>,

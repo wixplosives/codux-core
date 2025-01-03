@@ -1,5 +1,5 @@
-export * from './define-remix-app';
-import defineRemixApp from './define-remix-app';
+export * from './define-remix-app.js';
+import defineRemixApp from './define-remix-app.js';
 export default defineRemixApp;
-export * from './content';
-export { pageTemplate } from './page-template';
+export * from './content.js';
+export { pageTemplate } from './page-template.js';
