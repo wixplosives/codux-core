@@ -47,7 +47,6 @@ describe('create board', () => {
         const cleanupRender = await board.render(canvas);
         disposables.add(cleanupRender);
 
-        // await board.render(canvas);
         await expect(board.render(canvas)).not.to.be.rejected;
     });
 
