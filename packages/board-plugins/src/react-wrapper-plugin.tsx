@@ -2,17 +2,16 @@ import { createPlugin } from '@wixc3/board-core';
 import type { IReactBoard } from '@wixc3/react-board';
 import React from 'react';
 
-export interface WrapperPluginProps<T extends Record<string, unknown> = Record<string, unknown>> {
-    wrapper: React.ComponentType<React.PropsWithChildren<T>>;
-    props?: T;
+export interface WrapperPluginProps {
+    wrapper: React.ComponentType<React.PropsWithChildren>;
 }
 
 export const reactWrapperPlugin = createPlugin<IReactBoard>()<WrapperPluginProps>(
     'React-wrapper',
     {},
     {
-        wrapRender({ wrapper: WrapperComponent, props = {} }, _metaData, el) {
-            return <WrapperComponent {...props}>{el}</WrapperComponent>;
+        wrapRender({ wrapper: WrapperComponent }, _metaData, el) {
+            return <WrapperComponent>{el}</WrapperComponent>;
         },
     },
     (params) => {
