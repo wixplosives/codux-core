@@ -3,17 +3,18 @@ import { reactErrorHandledRendering } from './react-error-handled-render';
 import type { IReactBoard, OmitReactBoard } from './types';
 
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
-    const res: IReactBoard = createRenderableBase<IReactBoard>({
+    return createRenderableBase<IReactBoard>({
         ...input,
         render(target) {
+            const renderable = this as IReactBoard;
             return baseRender(
-                res,
+                renderable,
                 async () => {
-                    let element = <res.Board />;
-                    const wrapRenderPlugins = getPluginsWithHooks(res, 'wrapRender');
+                    let element = <renderable.Board />;
+                    const wrapRenderPlugins = getPluginsWithHooks(renderable, 'wrapRender');
                     for (const plugin of wrapRenderPlugins) {
                         if (plugin.key.plugin?.wrapRender) {
-                            const el = plugin.key.plugin.wrapRender(plugin.props as never, res, element, target);
+                            const el = plugin.key.plugin.wrapRender(plugin.props as never, renderable, element, target);
                             element = el || element;
                         }
                     }
@@ -23,5 +24,4 @@ export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
             );
         },
     });
-    return res;
 }
