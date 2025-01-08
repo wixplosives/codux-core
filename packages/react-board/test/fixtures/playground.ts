@@ -1,5 +1,5 @@
 import type { IRenderableMetadataBase } from '@wixc3/board-core';
-import CheckBoxBoard from './checkbox.board';
+import CheckBoxBoard from './checkbox.board.js';
 
 const examples = [CheckBoxBoard];
 
