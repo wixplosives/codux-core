@@ -4,7 +4,8 @@ import type { PluginOption, ResolvedConfig } from 'vite';
 import { readBoardSetupFromCoduxConfig } from './utils/utils.js';
 
 const coduxBoardSetupId = 'virtual:codux/board-setup';
-const coduxClientModuleId = 'virtual:codux/client';
+const coduxClientModuleId = 'virtual:codux-client';
+const htmlCoduxClientModuleEntryPoint = '/entry--' + coduxClientModuleId;
 const coduxClientModule = readFileSync(path.join(path.resolve(import.meta.dirname, '../client'), 'index.js'), 'utf-8');
 const coduxHtmlModuleId = '_codux-board-render';
 const coduxEntryHtml = `<!DOCTYPE html>
@@ -17,7 +18,7 @@ const coduxEntryHtml = `<!DOCTYPE html>
     </head>
     <body>
         <div id="root"></div>
-        <script type="module" src="/${coduxClientModuleId}"></script>
+        <script type="module" src="${htmlCoduxClientModuleEntryPoint}"></script>
     </body>
 </html>
 `;
@@ -25,28 +26,31 @@ const coduxEntryHtml = `<!DOCTYPE html>
 export default function coduxBoardPlugin(): PluginOption {
     let resolvedConfig: ResolvedConfig | undefined = undefined;
     return {
-        name: 'vite-codux-board',
+        name: 'vite-plugin-react-codux-board',
         enforce: 'pre',
+        apply(_config, env) {
+            return env.mode === 'development';
+        },
         configResolved(_resolvedConfig) {
             resolvedConfig = _resolvedConfig;
         },
         resolveId(requestedId) {
-            if (requestedId === `/${coduxClientModuleId}`) {
-                return coduxClientModuleId + '.js';
+            if (requestedId === htmlCoduxClientModuleEntryPoint) {
+                return coduxClientModuleId;
             }
 
             if (requestedId === coduxBoardSetupId) {
-                return requestedId + '.js';
+                return requestedId;
             }
 
             return;
         },
         load(resolvedId) {
-            if (resolvedId === coduxClientModuleId + '.js') {
+            if (resolvedId === coduxClientModuleId) {
                 return coduxClientModule;
             }
 
-            if (resolvedId === coduxBoardSetupId + '.js') {
+            if (resolvedId === coduxBoardSetupId) {
                 return `export default ${JSON.stringify(
                     readBoardSetupFromCoduxConfig(
                         path.join(process.cwd(), 'codux.config.json'),
