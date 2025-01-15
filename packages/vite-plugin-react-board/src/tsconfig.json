@@ -2,8 +2,7 @@
   "extends": "../../../tsconfig.base.json",
 
   "compilerOptions": {
-    "outDir": "../dist",
-    "noEmit": true
+    "outDir": "../dist"
   },
   "include": ["client", "types.ts"],
 

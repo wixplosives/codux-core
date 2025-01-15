@@ -15,11 +15,11 @@ type KnownCoduxConfig = {
 };
 
 export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: Logger): FlatBoardSetup {
-    const configContent = readFileSync(coduxConfigPath, {
-        encoding: 'utf-8',
-    });
     let config: KnownCoduxConfig | undefined = undefined;
     try {
+        const configContent = readFileSync(coduxConfigPath, {
+            encoding: 'utf-8',
+        });
         config = JSON.parse(configContent) as KnownCoduxConfig;
     } catch (error) {
         logger?.error(`Error while parsing ${coduxConfigPath} with: ${String(error)}`);

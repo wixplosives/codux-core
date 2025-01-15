@@ -1,0 +1,12 @@
+{
+  "name": "vite-test-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@wixc3/react-board": "^4.6.2"
+  }
+}

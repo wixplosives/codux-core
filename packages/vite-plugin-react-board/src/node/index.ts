@@ -6,7 +6,10 @@ import { readBoardSetupFromCoduxConfig } from './utils/utils.js';
 const coduxBoardSetupId = 'virtual:codux/board-setup';
 const coduxClientModuleId = 'virtual:codux-client';
 const htmlCoduxClientModuleEntryPoint = '/entry--' + coduxClientModuleId;
-const coduxClientModule = readFileSync(path.join(path.resolve(import.meta.dirname, '../client'), 'index.js'), 'utf-8');
+const coduxClientModule = readFileSync(
+    path.resolve(path.resolve(import.meta.dirname, '../client'), 'index.js'),
+    'utf-8',
+);
 const coduxHtmlModuleId = '_codux-board-render';
 const coduxEntryHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -53,7 +56,7 @@ export default function coduxBoardPlugin(): PluginOption {
             if (resolvedId === coduxBoardSetupId) {
                 return `export default ${JSON.stringify(
                     readBoardSetupFromCoduxConfig(
-                        path.join(process.cwd(), 'codux.config.json'),
+                        path.join(resolvedConfig?.root || process.cwd(), 'codux.config.json'),
                         resolvedConfig?.logger,
                     ),
                 )}`;
@@ -63,7 +66,7 @@ export default function coduxBoardPlugin(): PluginOption {
         },
 
         configureServer: (server) => {
-            const { config, middlewares, transformIndexHtml } = server;
+            const { middlewares, transformIndexHtml } = server;
 
             middlewares.use((req, res, next) => {
                 if (res.writableEnded) {
@@ -73,12 +76,9 @@ export default function coduxBoardPlugin(): PluginOption {
                 const url = (req as { url: string }).url;
                 const parsedUrl = new URL(url, 'http://localhost');
                 if (parsedUrl.pathname === '/' + coduxHtmlModuleId) {
-                    Object.entries(config?.server?.headers || {}).forEach(([key, value]) => {
-                        res.setHeader(key, value!);
-                    });
-                    res.setHeader('Content-Type', 'text/html');
                     transformIndexHtml(url, coduxEntryHtml, req.originalUrl)
                         .then((output) => {
+                            res.setHeader('Content-Type', 'text/html');
                             res.statusCode = 200;
                             res.end(output);
                         })

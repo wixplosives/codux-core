@@ -3,20 +3,23 @@
   "description": "Plugin for rendering component boards with vite",
   "version": "4.3.2-next.0",
   "peerDependencies": {
-    "@wixc3/react-board": "^4.0.0",
+    "@wixc3/react-board": "^4.6.2",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0",
     "vite": "^6"
   },
   "devDependencies": {
-    "vite": "^6.0.6"
+    "vite": "^6.0.6",
+    "@vitejs/plugin-react": "^4.3.4"
   },
+  "main": "./dist/node/index.js",
   "files": [
     "dist",
     "!dist/test",
+    "!dist/test-kit",
     "src",
-    "ensure-board-format*",
-    "!*/tsconfig.{json,tsbuildinfo}"
+    "!*/tsconfig.{json,tsbuildinfo}",
+    "!*/tsconfig.node.{json,tsbuildinfo}"
   ],
   "license": "MIT",
   "repository": "https://github.com/wixplosives/codux-core/tree/master/packages/vite-plugin-react-board",
@@ -24,8 +27,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "build": "node ./scripts/build.js"
-  },
+  "scripts": {},
   "type": "module"
 }
