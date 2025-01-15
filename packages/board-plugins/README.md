@@ -12,7 +12,7 @@ For instance, `cssVarsPlugin` is only applicable to `IRenderable` and uses the `
 ```tsx
 import { createBoard } from '@wixc3/react-board';
 import { tagsPlugin, cssVarsPlugin } from '@wixc3/board-plugins';
-import { AutoComplete } from './auto-complete';
+import { AutoComplete } from './auto-complete.js';
 
 createBoard({
   name: 'some board',
