@@ -41,6 +41,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "mocha": "^11.0.1",
     "mocha-web": "^2.0.1",
+    "playwright": "^1.49.1",
     "prettier": "^3.4.2",
     "promise-assist": "^2.0.1",
     "react": "^18.3.1",
