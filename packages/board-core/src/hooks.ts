@@ -1,4 +1,4 @@
-import type { IGeneralMetadata, PluginInfo, Plugin, HookMap, HOOK } from './types.js';
+import type { IGeneralMetadata, PluginInfo, Plugin, HookMap, HOOK } from './types';
 
 export type HookNames<DATA extends IGeneralMetadata<HookMap>> = keyof NonNullable<DATA['__hooks']> & string;
 

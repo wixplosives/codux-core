@@ -1,4 +1,4 @@
-import type { HookMap, IGeneralMetadata } from './types.js';
+import type { HookMap, IGeneralMetadata } from './types';
 
 export type OmitGeneralMetadata<DATA extends IGeneralMetadata<HookMap>> = Omit<DATA, '__hooks'>;
 

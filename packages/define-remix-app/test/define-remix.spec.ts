@@ -1,40 +1,38 @@
-import * as chai from 'chai';
-import { expect } from 'chai';
-
-import { IDirectoryContents } from '@file-services/types';
-import * as remixRunNode from '@remix-run/node';
-import * as remixRunReact from '@remix-run/react';
-import * as remixRunServerRuntime from '@remix-run/server-runtime';
-import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
+import defineRemixApp, { INVALID_MSGS, parentLayoutWarning, pageTemplate } from '@wixc3/define-remix-app';
 import { AppDefDriver } from '@wixc3/app-core/test-kit';
-import defineRemixApp, { INVALID_MSGS, pageTemplate, parentLayoutWarning } from '@wixc3/define-remix-app';
-import { waitFor } from 'promise-assist';
-import * as React from 'react';
-import { ParentLayoutWithExtra, RouteExtraInfo, RouteModuleInfo } from '../src/remix-app-utils.js';
 import {
-    actionPage,
-    clientActionPage,
-    clientLoaderWithFallbackPage,
-    coduxActionPage,
-    deferedActionPage,
-    layoutWithErrorBoundary,
     loaderOnly,
-    rootWithLayout,
-    rootWithLayout2,
-    rootWithLayoutAndErrorBoundary,
     simpleLayout,
     simpleRoot,
+    rootWithLayout,
+    rootWithLayoutAndErrorBoundary,
+    layoutWithErrorBoundary,
+    rootWithLayout2,
+    actionPage,
+    deferedActionPage,
+    clientLoaderWithFallbackPage,
+    clientActionPage,
     userApiConsumer,
     userApiPage,
-} from './test-cases/roots.js';
+    coduxActionPage,
+} from './test-cases/roots';
 import {
+    pageSource,
+    rootSource as originRootSource,
+    expectRoute,
     expectLoaderData,
     expectRootLayout,
-    expectRoute,
-    rootSource as originRootSource,
-    pageSource,
     preserveStringAsCode,
-} from './test-cases/route-builder.js';
+} from './test-cases/route-builder';
+import chai, { expect } from 'chai';
+import { IAppManifest, RouteInfo, RoutingPattern } from '@wixc3/app-core';
+import { ParentLayoutWithExtra, RouteExtraInfo, RouteModuleInfo } from '../src/remix-app-utils';
+import { waitFor } from 'promise-assist';
+import { IDirectoryContents } from '@file-services/types';
+import * as React from 'react';
+import * as remixRunReact from '@remix-run/react';
+import * as remixRunNode from '@remix-run/node';
+import * as remixRunServerRuntime from '@remix-run/server-runtime';
 
 import { chaiRetryPlugin } from '@wixc3/testing';
 chai.use(chaiRetryPlugin);

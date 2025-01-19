@@ -1,13 +1,8 @@
 {
   "name": "@wixc3/react-board",
-  "version": "4.6.2",
-  "type": "module",
   "description": "Library for creation of React component boards",
-  "exports": {
-    ".": "./dist/index.js",
-    "./react-error-handled-render": "./dist/react-error-handled-render.js",
-    "./package.json": "./package.json"
-  },
+  "version": "4.6.2",
+  "main": "dist/index.js",
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
@@ -27,6 +22,5 @@
   "homepage": "https://github.com/wixplosives/codux-core",
   "publishConfig": {
     "access": "public"
-  },
-  "sideEffects": false
+  }
 }

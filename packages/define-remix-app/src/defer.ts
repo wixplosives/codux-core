@@ -1,6 +1,6 @@
 import { isDeferredData } from '@remix-run/router';
 import { json } from '@remix-run/node';
-import { CoduxDeferredHeaderKey, serializeResponse } from './remix-app-utils.js';
+import { CoduxDeferredHeaderKey, serializeResponse } from './remix-app-utils';
 
 type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue };
 

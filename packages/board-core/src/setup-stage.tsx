@@ -1,5 +1,5 @@
-import { callHooks } from './hooks.js';
-import type { BoardSetupStageFunction, IWindowEnvironmentProps } from './types.js';
+import { callHooks } from './hooks';
+import type { BoardSetupStageFunction, IWindowEnvironmentProps } from './types';
 
 export const defaultWindowStyles = {
     width: 1024,

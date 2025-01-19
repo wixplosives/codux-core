@@ -1,5 +1,5 @@
-import { reactErrorHandledRendering } from '@wixc3/react-board/react-error-handled-render';
-import { IReactApp, OmitReactApp } from './define-app-types.js';
+import { reactErrorHandledRendering } from '@wixc3/react-board/dist/react-error-handled-render';
+import { IReactApp, OmitReactApp } from './define-app-types';
 
 export function defineApp<MANIFEST_EXTRA_DATA = unknown, ROUTE_EXTRA_DATA = unknown>(
     input: OmitReactApp<IReactApp<MANIFEST_EXTRA_DATA, ROUTE_EXTRA_DATA>>,

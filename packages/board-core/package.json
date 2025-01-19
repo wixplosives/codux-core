@@ -1,12 +1,8 @@
 {
   "name": "@wixc3/board-core",
-  "version": "4.6.2",
-  "type": "module",
   "description": "Types and helpers for component boards",
-  "exports": {
-    ".": "./dist/index.js",
-    "./package.json": "./package.json"
-  },
+  "version": "4.6.2",
+  "main": "dist/index.js",
   "files": [
     "dist",
     "!dist/test",
@@ -18,6 +14,5 @@
   "homepage": "https://github.com/wixplosives/codux-core",
   "publishConfig": {
     "access": "public"
-  },
-  "sideEffects": false
+  }
 }

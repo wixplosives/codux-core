@@ -29,12 +29,12 @@ import {
     routePathId,
     serializeResponse,
     toCamelCase,
-} from './remix-app-utils.js';
-import { clearLoadedModules, manifestToRouter } from './manifest-to-router.js';
-import { parentLayoutWarning } from './content.js';
-import { pageTemplate } from './page-template.js';
-import { Navigation } from './navigation.js';
-import { tryToSerializeDeferredData } from './defer.js';
+} from './remix-app-utils';
+import { clearLoadedModules, manifestToRouter } from './manifest-to-router';
+import { parentLayoutWarning } from './content';
+import { pageTemplate } from './page-template';
+import { Navigation } from './navigation';
+import { tryToSerializeDeferredData } from './defer';
 export interface IDefineRemixAppProps {
     appPath: string;
     bookmarks?: string[];
