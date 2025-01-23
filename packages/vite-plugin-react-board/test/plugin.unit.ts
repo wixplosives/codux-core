@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { ViteDevServer } from 'vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Browser, BrowserContext, chromium, Page } from 'playwright';
+import { Browser, BrowserContext, chromium, Page } from 'playwright-core';
 import { createViteServer } from '../test-kit/index.js';
 
 describe('codux vite plugin', function () {

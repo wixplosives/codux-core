@@ -1,9 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
-
   "compilerOptions": {
     "outDir": "../dist",
     "types": ["node"]
   },
-  "include": ["node", "types.ts"]
+  "include": [
+    "node",
+    "types.ts"
+  ]
 }

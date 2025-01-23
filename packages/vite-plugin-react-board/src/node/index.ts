@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import path from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import type { PluginOption, ResolvedConfig } from 'vite';
 import { readBoardSetupFromCoduxConfig } from './utils/utils.js';
 
@@ -15,7 +15,7 @@ const coduxEntryHtml = `<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+     
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Boards</title>
     </head>

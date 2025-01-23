@@ -8,9 +8,9 @@
     "build": "tsc --build",
     "lint": "eslint",
     "pretest": "npm run lint && npm run build",
-    "test": "npm run test:browser && npm run test:node",
+    "test": "npm run test:browser && npm run test:unit",
     "test:browser": "mocha-web \"packages/*/dist/test/**/*.spec.js\"",
-    "test:node": "mocha \"packages/*/dist/test/**/*.unit.js\"",
+    "test:unit": "mocha \"packages/*/dist/test/**/*.unit.js\"",
     "prettify": "prettier . --write"
   },
   "devDependencies": {
@@ -39,7 +39,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "mocha": "^11.1.0",
     "mocha-web": "^2.0.1",
-    "playwright": "^1.49.1",
+    "playwright-core": "^1.49.1",
     "prettier": "^3.4.2",
     "promise-assist": "^2.0.1",
     "react": "^18.3.1",

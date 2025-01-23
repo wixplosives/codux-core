@@ -1,10 +1,8 @@
 {
   "extends": "../../../tsconfig.base.json",
-
   "compilerOptions": {
     "outDir": "../dist"
   },
   "include": ["client", "types.ts"],
-
   "references": [{ "path": "../../react-board/src" }]
 }
