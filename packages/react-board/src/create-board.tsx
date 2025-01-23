@@ -1,6 +1,6 @@
 import { baseRender, createRenderableBase, getPluginsWithHooks } from '@wixc3/board-core';
-import { reactErrorHandledRendering } from './react-error-handled-render.js';
-import type { IReactBoard, OmitReactBoard } from './types.js';
+import { reactErrorHandledRendering } from './react-error-handled-render';
+import type { IReactBoard, OmitReactBoard } from './types';
 
 export function createBoard(input: OmitReactBoard<IReactBoard>): IReactBoard {
     const res: IReactBoard = createRenderableBase<IReactBoard>({

@@ -1,15 +1,14 @@
 // @ts-check
 
-import { fileURLToPath } from 'node:url';
-import { builtinModules as nativeNodeApis } from 'node:module';
-
 // Used as a polyfill for node apis when they aren't available.
 // The key is the node api name and the value is the stand-in object.
-const emptyModulePath = fileURLToPath(import.meta.resolve(`./empty-object.js`));
-const utilModulePath = fileURLToPath(import.meta.resolve(`./micro-util-nofill.js`));
+const emptyModulePath = require.resolve(`./empty-object.js`);
+const utilModulePath = require.resolve(`./micro-util-nofill.js`);
 
 // get all native node apis
-/** @type {Record<string, string>} */
+
+const nativeNodeApis = require('module').builtinModules;
+
 const alias = {};
 for (const nodeApi of nativeNodeApis) {
     if (nodeApi === 'util') {
@@ -22,7 +21,8 @@ for (const nodeApi of nativeNodeApis) {
 }
 
 /** @type {import('esbuild').BuildOptions} */
-export default {
+module.exports = {
+    plugins: [],
     alias,
     loader: {
         '.jpg': 'file',

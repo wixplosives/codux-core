@@ -1,10 +1,8 @@
-import * as chai from 'chai';
-import { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-
 import { createDisposables } from '@wixc3/create-disposables';
-import throwingOnRerenderBoard from './fixtures/throwing-on-click.board.js';
-import throwingOnMountBoard from './fixtures/throwing.board.js';
+import throwingOnMountBoard from './fixtures/throwing.board';
+import throwingOnRerenderBoard from './fixtures/throwing-on-click.board';
+import chaiAsPromised from 'chai-as-promised';
+import chai, { expect } from 'chai';
 
 chai.use(chaiAsPromised);
 

@@ -1,13 +1,11 @@
-import * as chai from 'chai';
-import { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-
+import React from 'react';
+import { createBoard } from '@wixc3/react-board';
 import { createMetadata } from '@wixc3/board-core';
 import { cssVarsPlugin } from '@wixc3/board-plugins';
 import { createDisposables } from '@wixc3/create-disposables';
-import { createBoard } from '@wixc3/react-board';
-import React from 'react';
-import board from './fixtures/simple.board.js';
+import board from './fixtures/simple.board';
+import chaiAsPromised from 'chai-as-promised';
+import chai, { expect } from 'chai';
 
 chai.use(chaiAsPromised);
 

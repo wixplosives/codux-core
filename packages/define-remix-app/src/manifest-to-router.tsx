@@ -5,16 +5,16 @@ import {
     RouteModuleInfo,
     SerializedResponse,
     serializeRequest,
-} from './remix-app-utils.js';
+} from './remix-app-utils';
 import { createRemixStub } from '@remix-run/testing';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import type { ActionFunctionArgs, LinksFunction, LoaderFunction } from '@remix-run/node';
 import React from 'react';
 import { ClientActionFunction, ClientLoaderFunction, useLocation, useNavigate, useRevalidator } from '@remix-run/react';
-import { createHandleProxy } from './handle-proxy.js';
-import { createLinksProxy } from './links-proxy.js';
-import { Navigation } from './navigation.js';
-import { deserializeDeferredResult, isDeferredResult } from './defer.js';
+import { createHandleProxy } from './handle-proxy';
+import { createLinksProxy } from './links-proxy';
+import { Navigation } from './navigation';
+import { deserializeDeferredResult, isDeferredResult } from './defer';
 
 type RouteObject = Parameters<typeof createRemixStub>[0][0];
 

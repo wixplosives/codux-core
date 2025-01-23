@@ -25,7 +25,7 @@ This library can be used to create boards for `Hello`:
 // hello.board.tsx
 
 import { createBoard } from '@wixc3/react-board';
-import { Hello } from './hello.js';
+import { Hello } from './hello';
 
 createBoard({
   name: 'basic board',
@@ -42,7 +42,7 @@ This is useful when the board is wrapped in a router or a context provider that 
 // hello.board.tsx
 
 import { createBoard, ContentSlot } from '@wixc3/react-board';
-import { Hello } from './hello.js';
+import { Hello } from './hello';
 
 createBoard({
   name: 'hello board',

@@ -1,12 +1,8 @@
 {
   "name": "@wixc3/define-remix-app",
-  "version": "4.6.2",
-  "type": "module",
   "description": "Remix App definition for Codux",
-  "exports": {
-    ".": "./dist/index.js",
-    "./package.json": "./package.json"
-  },
+  "version": "4.6.2",
+  "main": "dist/index.js",
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
@@ -29,6 +25,5 @@
   "homepage": "https://github.com/wixplosives/codux-core",
   "publishConfig": {
     "access": "public"
-  },
-  "sideEffects": false
+  }
 }
