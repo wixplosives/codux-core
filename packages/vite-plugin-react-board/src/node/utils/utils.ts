@@ -22,7 +22,9 @@ export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: 
         });
         config = JSON.parse(configContent) as KnownCoduxConfig;
     } catch (error) {
-        logger?.error(`Error while parsing ${coduxConfigPath} with: ${String(error)}`);
+        logger?.error(
+            `Error while parsing ${coduxConfigPath}.${error instanceof Error ? '\n' + error.message + '\n' + error.stack : String(error)}`,
+        );
 
         return {
             setupBefore: undefined,

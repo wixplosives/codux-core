@@ -8,9 +8,6 @@ export function BoardRenderer() {
     const { setupBefore, setupAfter } = boardSetup;
     const LazyBoard = boardPath
         ? React.lazy(async () => {
-            // if (setupBefore) { await import(/* @vite-ignore */ '/' + setupBefore); }
-            // const boardExport = await import('/src/_codux/boards/test.board.tsx') as { default: IReactBoard };
-            // if (setupAfter) { await import(/* @vite-ignore */ '/' + setupAfter); }
             if (setupBefore) { await import(/* @vite-ignore */ '/' + setupBefore); }
             const boardExport = await import(/* @vite-ignore */ '/' + boardPath) as { default: IReactBoard };
             if (setupAfter) { await import(/* @vite-ignore */ '/' + setupAfter); }
