@@ -15,7 +15,8 @@
     ".": {
       "import": "./dist/node/index.js",
       "require": "./dist/node/index.js"
-    }
+    },
+    "./*": "./*"
   },
   "files": [
     "dist",
