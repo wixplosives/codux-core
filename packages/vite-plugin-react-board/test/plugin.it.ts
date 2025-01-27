@@ -30,7 +30,7 @@ describe('Codux vite plugin — in browser', function () {
         expect(content).to.eq('test board');
     });
 
-    it('before', async () => {
+    it('runs boardGlobalSetup:before', async () => {
         let beforeHasBeenSeen = false;
         page.on('console', (msg) => {
             if (msg.text() === 'console-message-from-global-setup-before') {
@@ -41,7 +41,7 @@ describe('Codux vite plugin — in browser', function () {
         await waitFor(() => expect(beforeHasBeenSeen).to.be.true);
     });
 
-    it('after', async () => {
+    it('runs boardGlobalSetup:after', async () => {
         let afterHasBeenSeen = false;
         page.on('console', (msg) => {
             if (msg.text() === 'console-message-from-global-setup-after') {
@@ -52,7 +52,7 @@ describe('Codux vite plugin — in browser', function () {
         await waitFor(() => expect(afterHasBeenSeen).to.be.true);
     });
 
-    it('board not found', async () => {
+    it('handles missing boardPath query param', async () => {
         await page.goto(`http://localhost:${port()}/_codux-board-render`);
         const content = await page.textContent('body');
         expect(content).to.contain('boardPath is not provided');
