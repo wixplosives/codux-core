@@ -8,9 +8,10 @@
     "build": "tsc --build",
     "lint": "eslint",
     "pretest": "npm run lint && npm run build",
-    "test": "npm run test:browser && npm run test:unit",
+    "test": "npm run test:browser && npm run test:unit && npm run test:it",
     "test:browser": "mocha-web \"packages/*/dist/test/**/*.spec.js\"",
     "test:unit": "mocha \"packages/*/dist/test/**/*.unit.js\"",
+    "test:it": "mocha \"packages/*/dist/test/**/*.it.js\"",
     "prettify": "prettier . --write"
   },
   "devDependencies": {

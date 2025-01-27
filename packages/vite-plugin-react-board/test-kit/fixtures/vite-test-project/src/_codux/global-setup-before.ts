@@ -1,1 +1,1 @@
-console.log('before');
+console.log('console-message-from-global-setup-before');
