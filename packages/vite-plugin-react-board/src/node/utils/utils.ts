@@ -55,3 +55,11 @@ export function readBoardSetupFromCoduxConfig(coduxConfigPath: string, logger?: 
         setupAfter: undefined,
     };
 }
+
+export function splitId(request: string) {
+    if (request.indexOf('?') === -1) {
+        return { specifier: request };
+    }
+    const [specifier, query] = request.split('?');
+    return { specifier, query };
+}

@@ -1,41 +1,65 @@
 import ReactDOM from 'react-dom/client';
-import React from 'react';
-import type { IReactBoard } from '@wixc3/react-board';
-import boardSetup from 'virtual:codux/board-setup';
+import React, { Component, ReactNode } from "react";
+
+interface ErrorBoundaryProps {
+    children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+    hasError: boolean;
+    error?: Error;
+}
+
+class BoardErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+    constructor(props: ErrorBoundaryProps) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+        return { hasError: true, error };
+    }
+
+
+    resetError = () => {
+        this.setState({ hasError: false, error: undefined });
+    };
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div>
+                    <p>{this.state.error?.message || "An unexpected error occurred."}</p>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
 
 export function BoardRenderer() {
-    const { boardPath } = getParamsFromSearch(window.location.search);
-    const { setupBefore, setupAfter } = boardSetup;
-    const LazyBoard = boardPath
-        ? React.lazy(async () => {
-            if (setupBefore) { await import(/* @vite-ignore */ '/' + setupBefore); }
-            const boardExport = await import(/* @vite-ignore */ '/' + boardPath) as { default: IReactBoard };
-            if (setupAfter) { await import(/* @vite-ignore */ '/' + setupAfter); }
+    const LazyBoard =
+        React.lazy(async () => {
+            await import('virtual:codux/board-setup/before');
+            const boardExport = await import('virtual:codux/board');
+            await import('virtual:codux/board-setup/after')
 
             return {
                 default: boardExport.default.Board
             };
         })
-        : () => <p>boardPath is not provided</p>
 
 
     return (
-
-        <React.Suspense>
-            <LazyBoard />
-        </React.Suspense>
+        <BoardErrorBoundary >
+            <React.Suspense>
+                <LazyBoard />
+            </React.Suspense>
+        </BoardErrorBoundary>
     );
 }
-
-function getParamsFromSearch(locationSearch: string) {
-    const search = new URLSearchParams(locationSearch);
-    const boardPath = search.get('boardPath');
-
-    return {
-        boardPath,
-    };
-}
-
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
