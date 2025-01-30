@@ -52,6 +52,32 @@ describe('Codux vite plugin — in browser', function () {
         await waitFor(() => expect(afterHasBeenSeen).to.be.true);
     });
 
+    it('evaluates board-global-setup before and after in order', async () => {
+        let beforeHasBeenSeen = false;
+        let boardHasBeenSeen = false;
+        let afterHasBeenSeen = false;
+        page.on('console', (msg) => {
+            if (msg.text() === 'console-message-from-global-setup-before') {
+                beforeHasBeenSeen = true;
+                expect(boardHasBeenSeen).to.be.false;
+                expect(afterHasBeenSeen).to.be.false;
+            }
+
+            if (msg.text() === 'console-message-from-board') {
+                expect(beforeHasBeenSeen).to.be.true;
+                boardHasBeenSeen = true;
+                expect(afterHasBeenSeen).to.be.false;
+            }
+            if (msg.text() === 'console-message-from-global-setup-after') {
+                expect(beforeHasBeenSeen).to.be.true;
+                expect(boardHasBeenSeen).to.be.true;
+                afterHasBeenSeen = true;
+            }
+        });
+        await page.goto(`http://localhost:${port()}/_codux-board-render?boardPath=src/_codux/boards/test.board.tsx`);
+        await waitFor(() => expect(afterHasBeenSeen).to.be.true);
+    });
+
     it('handles missing boardPath query param', async () => {
         await page.goto(`http://localhost:${port()}/_codux-board-render`);
         const content = await page.textContent('body');

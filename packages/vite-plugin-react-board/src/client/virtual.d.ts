@@ -1,8 +1,3 @@
-declare module 'virtual:codux/board-setup' {
-    const flatBoardSetup: import('../types.ts').FlatBoardSetup;
-    export default flatBoardSetup;
-}
-
 declare module 'virtual:codux/board' {
     const reactBoard: import('@wixc3/react-board').IReactBoard;
 

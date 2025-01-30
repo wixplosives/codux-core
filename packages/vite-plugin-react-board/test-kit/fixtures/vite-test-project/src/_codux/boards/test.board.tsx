@@ -1,6 +1,6 @@
 import { createBoard } from '@wixc3/react-board';
 
-console.log('board');
+console.log('console-message-from-board');
 export default createBoard({
     name: 'test',
     Board: () => {

@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { Logger } from 'vite';
-import { FlatBoardSetup } from '../../types.js';
+
+type FlatBoardSetup = {
+    setupBefore: string | undefined;
+    setupAfter: string | undefined;
+};
 
 type GlobalSetupConfig =
     | string

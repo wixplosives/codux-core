@@ -3,6 +3,6 @@
   "compilerOptions": {
     "outDir": "../dist"
   },
-  "include": ["client", "types.ts"],
+  "include": ["client"],
   "references": [{ "path": "../../react-board/src" }]
 }
