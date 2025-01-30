@@ -1,0 +1,6 @@
+{
+  "boardGlobalSetup": {
+    "before": "./src/_codux/global-setup-before.ts",
+    "after": "./src/_codux/global-setup-after.ts"
+  }
+}

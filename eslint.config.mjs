@@ -11,7 +11,7 @@ for (const config of pluginTypescript.configs.recommendedTypeChecked) {
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { ignores: ['**/dist/'] },
+  { ignores: ['**/dist/', '**/test-kit/fixtures'] },
   pluginJs.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat['jsx-runtime'],
