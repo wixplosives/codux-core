@@ -38,7 +38,7 @@ describe('Codux vite plugin — in browser', function () {
             }
         });
         await page.goto(`http://localhost:${port()}/_codux-board-render?boardPath=src/_codux/boards/test.board.tsx`);
-        await waitFor(() => expect(beforeHasBeenSeen).to.be.true);
+        await waitFor(() => expect(beforeHasBeenSeen).to.equal(true));
     });
 
     it('runs boardGlobalSetup:after', async () => {
@@ -49,7 +49,7 @@ describe('Codux vite plugin — in browser', function () {
             }
         });
         await page.goto(`http://localhost:${port()}/_codux-board-render?boardPath=src/_codux/boards/test.board.tsx`);
-        await waitFor(() => expect(afterHasBeenSeen).to.be.true);
+        await waitFor(() => expect(afterHasBeenSeen).to.equal(true));
     });
 
     it('evaluates board-global-setup before and after in order', async () => {
@@ -59,23 +59,23 @@ describe('Codux vite plugin — in browser', function () {
         page.on('console', (msg) => {
             if (msg.text() === 'console-message-from-global-setup-before') {
                 beforeHasBeenSeen = true;
-                expect(boardHasBeenSeen).to.be.false;
-                expect(afterHasBeenSeen).to.be.false;
+                expect(boardHasBeenSeen).to.equal(false);
+                expect(afterHasBeenSeen).to.equal(false);
             }
 
             if (msg.text() === 'console-message-from-board') {
-                expect(beforeHasBeenSeen).to.be.true;
+                expect(beforeHasBeenSeen).to.equal(true);
                 boardHasBeenSeen = true;
-                expect(afterHasBeenSeen).to.be.false;
+                expect(afterHasBeenSeen).to.equal(false);
             }
             if (msg.text() === 'console-message-from-global-setup-after') {
-                expect(beforeHasBeenSeen).to.be.true;
-                expect(boardHasBeenSeen).to.be.true;
+                expect(beforeHasBeenSeen).to.equal(true);
+                expect(boardHasBeenSeen).to.equal(true);
                 afterHasBeenSeen = true;
             }
         });
         await page.goto(`http://localhost:${port()}/_codux-board-render?boardPath=src/_codux/boards/test.board.tsx`);
-        await waitFor(() => expect(afterHasBeenSeen).to.be.true);
+        await waitFor(() => expect(afterHasBeenSeen).to.equal(true));
     });
 
     it('handles missing boardPath query param', async () => {
