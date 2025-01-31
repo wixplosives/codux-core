@@ -5,6 +5,7 @@ export default {
     { name: '@types/react', reason: `remix isn't compatible with react@19 yet` },
     { name: '@types/react-dom', reason: `remix isn't compatible with react@19 yet` },
 
+    { name: '@wixc3/testing', reason: `esm-only` },
     { name: 'chai', reason: 'esm-only' },
     { name: '@types/chai', reason: 'esm-only' },
     { name: 'chai-as-promised', reason: 'esm-only' },
