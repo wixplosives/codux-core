@@ -8,7 +8,7 @@
     "react-dom": "^18.0.0"
   },
   "dependencies": {
-    "@remix-run/node": "^2.15.3",
+    "@remix-run/node": "^2.16.0",
     "@remix-run/react": "^2.15.3",
     "@remix-run/router": "^1.22.0",
     "@remix-run/testing": "^2.15.3",
