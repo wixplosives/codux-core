@@ -31,7 +31,7 @@
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
     "esbuild": "^0.25.0",
-    "eslint": "^9.21.0",
+    "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-react": "^7.37.4",
