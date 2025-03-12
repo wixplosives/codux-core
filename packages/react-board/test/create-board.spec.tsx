@@ -47,7 +47,18 @@ describe('create board', () => {
         const cleanupRender = await board.render(canvas);
         disposables.add(cleanupRender);
 
-        // await board.render(canvas);
         await expect(board.render(canvas)).not.to.be.rejected;
+    });
+
+    it('should allow render of renderable to access state in case of mutation', async () => {
+        const { canvas, cleanup } = board.setupStage();
+        disposables.add(cleanup);
+
+        const mutatedBoard = { ...board, Board: () => 'I was mutated' };
+
+        const cleanupRender = await mutatedBoard.render(canvas);
+        disposables.add(cleanupRender);
+
+        expect(canvas.innerHTML).to.include('I was mutated');
     });
 });
