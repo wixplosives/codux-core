@@ -13,7 +13,7 @@
     "prettify": "prettier . --write"
   },
   "devDependencies": {
-    "@file-services/commonjs": "^9.4.1",
+    "@file-services/commonjs": "^10.0.1",
     "@file-services/memory": "^9.4.1",
     "@file-services/node": "^9.4.1",
     "@file-services/path": "^9.4.1",
