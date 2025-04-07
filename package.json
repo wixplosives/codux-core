@@ -17,7 +17,7 @@
     "@file-services/memory": "^9.4.1",
     "@file-services/node": "^9.4.1",
     "@file-services/path": "^9.4.1",
-    "@file-services/resolve": "^9.4.1",
+    "@file-services/resolve": "^10.0.1",
     "@playwright/browser-chromium": "^1.51.1",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
