@@ -13,11 +13,11 @@
     "prettify": "prettier . --write"
   },
   "devDependencies": {
-    "@file-services/commonjs": "^9.4.1",
-    "@file-services/memory": "^9.4.1",
-    "@file-services/node": "^9.4.1",
-    "@file-services/path": "^9.4.1",
-    "@file-services/resolve": "^9.4.1",
+    "@file-services/commonjs": "^10.0.1",
+    "@file-services/memory": "^10.0.1",
+    "@file-services/node": "^10.0.1",
+    "@file-services/path": "^10.0.1",
+    "@file-services/resolve": "^10.0.1",
     "@playwright/browser-chromium": "^1.51.1",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
@@ -31,7 +31,7 @@
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
     "esbuild": "^0.25.2",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-react": "^7.37.5",
@@ -44,8 +44,8 @@
     "react-dom": "^18.3.1",
     "rimraf": "^6.0.1",
     "sinon": "^20.0.0",
-    "typescript": "~5.8.2",
-    "typescript-eslint": "^8.29.0"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.29.1"
   },
   "license": "MIT",
   "private": true
