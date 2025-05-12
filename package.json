@@ -45,7 +45,7 @@
     "rimraf": "^6.0.1",
     "sinon": "^20.0.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.32.0"
+    "typescript-eslint": "^8.32.1"
   },
   "license": "MIT",
   "private": true
